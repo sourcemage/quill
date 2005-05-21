@@ -1,0 +1,104 @@
+#---
+## @Synopsis md5_unpack function taken from md5unpack script
+##
+#---
+
+function md5_unpack() {
+
+  local TMP_DIR=/tmp
+  for f in ${*}; do
+    echo -n "$(uncompress $f $(guess_compressor $f)|md5sum|cut -d' ' -f1)  "
+    ls -1 $f
+  done
+  rm $TMP_DIR/libgrimoire.uncompress.$$
+
+}
+
+#---
+## @Synopsis Get's gurus info and stuff and puts it into ~/.quillrc or reads it from there
+#---
+
+function quill_rc() {
+
+  if [[ -f ~/.quillrc ]]
+  then
+    . ~/.quillrc
+  else
+    touch ~/.quillrc
+    message "${PROBLEM_COLOR}This will create a ~/.quillrc file for you${DEFAULT_COLOR}"
+    message "${QUERY_COLOR}Please enter your name for the HISTORY entry.${DEFAULT_COLOR}"
+    read "GURU_NAME"
+    message "${QUERY_COLOR}Please enter your email for the HISTORY entry.${DEFAULT_COLOR}"
+    read "GURU_EMAIL"
+    message "Thank you. Now generating ~/.quillrc"
+    echo \
+"GURU_NAME=\"${GURU_NAME}\"
+GURU_EMAIL=\"${GURU_EMAIL}\"" > ~/.quillrc
+fi
+
+}
+
+function quill_welcome() {
+
+    message "Welcome to SourceMage GNU/Linux quill - a spell creator script."
+    message "-----------------------------------------------------------------------------"
+    message "This makes an immediately useable spell from some minor data."
+    message "Does not create a \$SPELL-\$VERSION SOURCE construct but uses real filename"
+    message "-----------------------------------------------------------------------------"
+    message "The spell will be put into a grimoire/section you define\(if you choose to\)"
+    message "and a tar.bz2 file will be created in ~/spells ."
+    message "-----------------------------------------------------------------------------"
+    message "${WARNING_COLOR}Any lists i.e. dependencies and optional dependencies should be"
+    message "space delimited and not coma delimited!!!${DEFAULT_COLOR}"
+    message "-----------------------------------------------------------------------------"
+    USER_HOME="${HOME}"
+
+}
+
+function quill_edit() {
+
+    message "Now invoking $EDITOR to edit spell files."
+    cd ${USER_HOME}/tmp/${SPELL_NAME}
+    for SPELL_FILE in .
+    do
+      $EDITOR ${SPELL_FILE}
+    done
+    message "All modifications complete."
+}
+
+function quill_final_tarball() {
+
+    message "Now creating a bziped2 tarball of the spell files"
+    cd ~/tmp
+    tar -jcvf ${SPELL_NAME}.tar.bz2 ${SPELL_NAME}
+    if $? != 0 ; then
+       message "Failed to create spell tarball"
+    else
+       message "Spell tarball created successfully"
+    fi
+
+}
+
+function quill_final_put_in_grimoire() {
+
+    message "You have selected to put the spell into the grimoire"
+    message "Please note there will also be a spell tarball in ${USER_HOME}/spells"
+    message "-----------------------------------------------------------------------------"
+    message "Into which grimoire do you wish to put the spell"
+    quill_list_grimoires
+    read GRIM_NAME
+    message "Into which section do you wish to put the spell"
+    quill_list_sections
+    read SECT_NAME
+    message "Now scribling spell into ${GRIM_NAME}/${SECT_NAME}/${SPELL_NAME}"
+    cd ${USER_HOME}/tmp
+    cp -r ${SPELL_NAME} /var/lib/sorcery/codex/${GRIM_NAME}/${SECT_NAME}/
+    if $? != 0 ; then
+       message "Scribling failed"
+    else
+       message "Scribling succeded"
+       message "Now running scribe reindex on ${GRIM_NAME}"
+       scribe reindex ${GRIM_NAME}
+    fi
+
+}

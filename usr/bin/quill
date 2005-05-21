@@ -1,0 +1,162 @@
+#!/bin/bash
+#---
+## @Synopsis Spell creator script for SourceMage GNU/Linux
+## @Copyright Copyright 2005 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+## @Copyright Copyright 2005 SourceMage GNU/Linux
+## @License GPL v2
+##
+## @ToDo figure out how to do conversions to proper url variables
+## @ToDo put a CVS/SVN option
+## @ToDo make an option to edit all the existing files after generation
+## @ToDo make configuring optional depends a must
+##
+## Asks the user in simple questions about generating a spell.
+## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON
+## @Globals SPELL_HISTORY_NAME, SPELL_HISTORY_EMAIL, SPELL_NAME,
+## @Globals SPELL_SRC_URL, SPELL_LICENSE, SPELL_URL, SPELL_SHORT_DESCRIPTION,
+## @Globals SPELL_DESCRIPTION, SPELL_DEPENDENCIES, SPELL_OPTIONAL_DEPENDENCIES,
+## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_DATE, SPELL_SRC_FILE,
+## @Globals SPELL_SANITIZED_FILE_NAME, SPELL_MD5_UNPACKED, SPELL_VERSION,
+## @Globals CURRENTPWD, i, j, n, BUILD_DTFILE, DTFILE_MENUENTRY, DTFILE_EXEC
+## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM
+##
+## @Thanks BearPerson, dufflebunk, afrayedknot
+## @Thanks To all testers
+## @Contribution abouter
+##
+#---
+
+#---
+## @Synopsis md5_unpack function taken from md5unpack script
+##
+#---
+
+#---
+## Some basic stuff that should be loaded and set
+. /etc/sorcery/config
+
+#---
+## @Synopsis Get's gurus info and stuff and puts it into ~/.quillrc or reads it from there
+#---
+
+quill_rc
+PROMPT_DELAY="4294967295"
+BUILD_API=2
+load_build_api
+mkdir -p ~/tmp
+
+## Down to here... from here it's question and answer time
+#---
+
+#---
+## Questions and stuff
+
+
+query_spell_name
+query_spell_source_url
+query_spell_license
+query_spell_url
+query_spell_short_description
+query_spell_description
+query_spell_dependencies #base
+query_spell_optional_dependencies #base
+query_spell_conflicts
+query_spell_provides
+query_spell_prepare
+query_spell_configure #base
+query_spell_pre_build #base
+query_spell_build #base
+query_spell_install #base
+query_spell_final #base
+query_spell_triggers
+query_desktop_file
+
+CURRENTPWD=$(pwd)
+
+create_base_dir_and_files
+
+if [[ "${SPELL_DEPENDENCIES}" != "" ]]
+then
+  add_depends
+fi
+
+if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
+then
+  add_optional_depends
+fi
+
+
+if [[ "${SPELL_CONFLICTS}" != "" ]]
+then
+  add_conflicts
+fi
+
+if [[ "${SPELL_PROVIDES}" != "" ]]
+then
+  add_provides
+fi
+
+
+add_details
+
+if [[ "${PREPAREISON}" == "PREPARE, " ]]
+then
+  add_prepare
+fi
+
+if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
+then
+  add_configure
+fi
+
+if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
+then
+  add_pre_build
+fi
+
+if [[ "${BUILDISON}" == "BUILD, " ]]
+then
+  add_build
+fi
+
+if [[ "${INSTALLISON}" == "INSTALL, " ]]
+then
+  add_install
+fi
+
+if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
+then
+  add_post_install
+fi
+
+if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
+then
+  add_triggers
+fi
+
+if [[ "${BUILD_DTFILE}" != "" ]]
+then
+  add_desktop_file
+fi
+
+add_history
+
+cd ${CURRENTPWD}
+
+#---                                                                                                                         
+##                                                                                                                           
+## This software is free software; you can redistribute it and/or modify                                                     
+## it under the terms of the GNU General Public License as published by                                                      
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.                                                                                       
+##                                                                                                                           
+## This software is distributed in the hope that it will be useful,                                                          
+## but WITHOUT ANY WARRANTY; without even the implied warranty of                                                            
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.                                                                              
+##
+## You should have received a copy of the GNU General Public License                                                         
+## along with this software; if not, write to the Free Software                                                              
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA                                                 
+##                                                                                                                           
+#---

@@ -1,0 +1,424 @@
+#!/bin/bash
+#---
+## @Synopsis Spell creator script for SourceMage GNU/Linux
+## @Copyright Copyright 2005 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+## @Copyright Copyright 2005 SourceMage GNU/Linux
+## @License GPL v2
+##
+## @ToDo figure out how to do conversions to proper url variables
+## @ToDo put a CVS/SVN option
+## @ToDo make an option to edit all the existing files after generation
+## @ToDo make configuring optional depends a must
+##
+## Asks the user in simple questions about generating a spell.
+## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON
+## @Globals SPELL_HISTORY_NAME, SPELL_HISTORY_EMAIL, SPELL_NAME,
+## @Globals SPELL_SRC_URL, SPELL_LICENSE, SPELL_URL, SPELL_SHORT_DESCRIPTION,
+## @Globals SPELL_DESCRIPTION, SPELL_DEPENDENCIES, SPELL_OPTIONAL_DEPENDENCIES,
+## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_DATE, SPELL_SRC_FILE,
+## @Globals SPELL_SANITIZED_FILE_NAME, SPELL_MD5_UNPACKED, SPELL_VERSION,
+## @Globals CURRENTPWD, i, j, n, BUILD_DTFILE, DTFILE_MENUENTRY, DTFILE_EXEC
+## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM
+##
+## @Thanks BearPerson, dufflebunk, afrayedknot
+## @Thanks To all testers
+## @Contribution abouter
+##
+#---
+
+#---
+## @Synopsis md5_unpack function taken from md5unpack script
+##
+#---
+
+function md5_unpack() {
+
+  local TMP_DIR=/tmp
+  for f in ${*}; do
+    echo -n "$(uncompress $f $(guess_compressor $f)|md5sum|cut -d' ' -f1)  "
+    ls -1 $f
+  done
+  rm $TMP_DIR/libgrimoire.uncompress.$$
+
+}
+
+
+#---
+## Some basic stuff that should be loaded and set
+. /etc/sorcery/config
+
+#---
+## @Synopsis Get's gurus info and stuff and puts it into ~/.quillrc or reads it from there
+#---
+
+function quill_rc() {
+
+  if [[ -f ~/.quillrc ]]
+  then
+    . ~/.quillrc
+  else
+    touch ~/.quillrc
+    message "${PROBLEM_COLOR}This will create a ~/.quillrc file for you${DEFAULT_COLOR}"
+    message "${QUERY_COLOR}Please enter your name for the HISTORY entry.${DEFAULT_COLOR}"
+    read "GURU_NAME"
+    message "${QUERY_COLOR}Please enter your email for the HISTORY entry.${DEFAULT_COLOR}"
+    read "GURU_EMAIL"
+    message "Thank you. Now generating ~/.quillrc"
+    echo \
+"GURU_NAME=\"${GURU_NAME}\"
+GURU_EMAIL=\"${GURU_EMAIL}\"" > ~/.quillrc
+fi
+
+}
+quill_rc
+PROMPT_DELAY="4294967295"
+BUILD_API=2
+load_build_api
+mkdir -p ~/tmp
+
+BUILDISON=""
+INSTALLISON=""
+PREBUILDISON=""
+TRIGGERSISON=""
+PREPAREISON=""
+PROVIDESISON=""
+CONFIGURE=""
+POSTINSTALLISON=""
+FINALISON=""
+
+## Down to here... from here it's question and answer time
+#---
+
+#---
+## Questions and stuff
+
+message "Welcome to SourceMage GNU/Linux quill - a spell creator script."
+message "-----------------------------------------------------------------------------"
+message "This makes an immediately useable spell from some minor data."
+message "Does not create a \$SPELL-\$VERSION SOURCE construct but uses real filename"
+message "-----------------------------------------------------------------------------"
+message "If the spell does not use default compilation and installation you will have"
+message "to fix the files yourself after the automatic creation is done."
+message "-----------------------------------------------------------------------------"
+message "${PROBLEM_COLOR}Any lists i.e. dependnecies and optional dependencies should be"
+message "space delimited and not coma delimited${DEFAULT_COLOR}"
+message "-----------------------------------------------------------------------------"
+
+message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
+read "SPELL_NAME"
+
+message "${QUERY_COLOR}Please enter the url of the source:${DEFAULT_COLOR}"
+read "SPELL_SRC_URL"
+
+message "${QUERY_COLOR}Please enter the license of the spell:${DEFAULT_COLOR}"
+read "SPELL_LICENSE"
+
+message "${QUERY_COLOR}Please enter a website for the spell:${DEFAULT_COLOR}"
+read "SPELL_URL"
+
+message "${QUERY_COLOR}Please enter a short description of the spell:${DEFAULT_COLOR}"
+read "SPELL_SHORT_DESCRIPTION"
+
+message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
+sleep 2
+message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
+read
+${EDITOR:-nano} ~/tmp/${SPELL_NAME}
+
+message "${QUERY_COLOR}Please enter the dependencies(non optional) of the spell if any:${DEFAULT_COLOR}"
+read "SPELL_DEPENDENCIES"
+
+message "${QUERY_COLOR}Please enter the optional dependencies of the spell if any:${DEFAULT_COLOR}"
+read "SPELL_OPTIONAL_DEPENDENCIES"
+
+message "${QUERY_COLOR}Please enter any conflicting spell names if any:${DEFAULT_COLOR}"
+read "SPELL_CONFLICTS"
+
+message "${QUERY_COLOR}Please enter provides if any:${DEFAULT_COLOR}"
+read "SPELL_PROVIDES"
+
+if query "Will you be adding a PREPARE file:" "n"
+then
+  PREPAREISON="PREPARE, "
+fi
+
+if query "Will you be adding a CONFIGURE file:" "n"
+then
+  CONFIGUREISON="CONFIGURE, "
+fi
+
+if query "Will you be adding a custom PRE_BUILD file:" "n"
+then
+  PREBUILDISON="PRE_BUILD, "
+fi
+
+if query "Will you be adding a custom BUILD file:" "n"
+then
+  BUILDISON="BUILD, "
+fi
+
+if query "Will you be adding a custom INSTALL file:" "n"
+then
+  INSTALLISON="INSTALL, "
+fi
+
+if query "Will you be adding a custom POST_INSTALL file${PROBLEM_COLOR}Not advisable unless you consult the sorcery team first${DEFAULT_COLOR}:" "n"
+then
+  POSTINSTALLISON="POST_INSTALL, "
+fi
+
+if query "Will you be adding a custom FINAL file:" "n"
+then
+  FINALISON="FINAL, "
+fi
+
+if query "Will you be adding a TRIGGERS file:" "n"
+then
+  TRIGGERSISON="TRIGGERS, "
+fi
+
+if query "Will you be adding a custom desktop file:" "n"
+then
+  BUILD_DTFILE="desktop/${SPELL_NAME}.desktop, "
+  DTFILE_MENUENTRY="${SPELL_NAME}"
+  message "${QUERY_COLOR}Please enter the name of the executable:${DEFAULT_COLOR}"
+  read "DTFILE_EXEC"
+  message "${QUERY_COLOR}Please enter the menupath separated and closed by ';'{DEFAULT_COLOR}"
+  message "${QUERY_COLOR}example: Applications;Editors;foobar;${DEFAULT_COLOR}"
+  read "DTFILE_MENUPATH"
+  message "${QUERY_COLOR}Please enter the name of the icon, if it has one:${DEFAULT_COLOR}"
+  read "DTFILE_ICON"
+  query "Does this app need to be started in an xterm?" "n" && DTFILE_TERM="True"
+fi
+
+## No questions after here !!!
+#---
+
+#---
+## Nothing but logic bellow here !!!
+
+CURRENTPWD=$(pwd)
+
+## Create spell directory and base files
+
+mkdir -p ${SPELL_NAME}
+cd ${SPELL_NAME}
+touch DETAILS
+chmod +x DETAILS
+DEPENDSISON=""
+CONFLICTSON=""
+
+## Get dependenceis sorted out
+
+if [[ "${SPELL_DEPENDENCIES}" != "" ]]
+then
+  touch DEPENDS
+  chmod +x DEPENDS
+  DEPENDSISON="DEPENDS, "
+  for i in ${SPELL_DEPENDENCIES}
+  do
+     echo "depends ${i}" >> DEPENDS
+  done
+fi
+
+if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
+then
+  touch DEPENDS
+  chmod +x DEPENDS
+  DEPENDSISON="DEPENDS, "
+  for j in ${SPELL_OPTIONAL_DEPENDENCIES}
+  do
+     echo "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\"" >> DEPENDS
+  done
+fi
+
+## Get conflicts and provides sorted out
+
+if [[ "${SPELL_CONFLICTS}" != "" ]]
+then
+  touch CONFLICTS
+  chmod +x CONFLICTS
+  CONFLICTSISON="CONFLICTS, "
+  for n in ${SPELL_CONFLICTS}
+  do
+     echo "conflicts ${n}" >> CONFLICTS
+  done
+fi
+
+if [[ "${SPELL_PROVIDES}" != "" ]]
+then
+  touch PROVIDES
+  chmod +x PROVIDES
+  PROVIDESISON="PROVIDES, "
+  for n in ${SPELL_PROVIDES}
+  do
+     echo "provides ${n}" >> PROVIDES
+  done
+fi
+
+## Get source filename from the URI
+
+SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
+
+
+SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
+echo "Sanitized filename: $SPELL_SANITIZED_FILE_NAME"
+SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.tar")
+echo "Version: ${SPELL_VERSION}"
+echo "URL: ${SPELL_SRC_URL}"
+
+## Download the source
+
+cd ~/tmp
+url_download "${SPELL_SRC_URL}"
+cd ${CURRENTPWD}
+cd ${SPELL_NAME}
+
+## Get md5 of the uncompressed source
+
+SPELL_MD5_UNPACKED="$(md5_unpack ~/tmp/${SPELL_SRC_FILE}| cut -c-32)"
+
+
+SPELL_DATE=$(date +%Y%m%d)
+HISTORY_DATE=$(date +%Y-%m-%d)
+#Generate DETAILS
+
+message "Generating DETAILS file..."
+
+echo \
+"           SPELL=${SPELL_NAME}
+         VERSION=${SPELL_VERSION}
+          SOURCE=${SPELL_SRC_FILE}
+   SOURCE_URL[1]=${SPELL_SRC_URL}
+          MD5[0]=${SPELL_MD5_UNPACKED}
+SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
+        WEB_SITE=${SPELL_URL}
+         ENTERED=${SPELL_DATE}
+         UPDATED=${SPELL_DATE}
+      LICENSE[0]=${SPELL_LICENSE}
+       BUILD_API=2
+           SHORT=\"${SPELL_SHORT_DESCRIPTION}\"
+cat << EOF
+$(cat ~/tmp/$SPELL_NAME |fmt -u -w80)
+EOF" > DETAILS
+rm ~/tmp/$SPELL_NAME
+
+message "Done..."
+
+if [[ "${PREPAREISON}" == "PREPARE, " ]]
+then
+  touch PREPARE
+  chmod +x PREPARE
+  ${EDITOR:-nano} PREPARE
+fi
+
+if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
+then
+  touch CONFIGURE
+  chmod +x CONFIGURE
+  ${EDITOR:-nano} CONFIGURE
+fi
+
+if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
+then
+  touch PRE_BUILD
+  chmod +x PRE_BUILD
+  if query "Do you want the default_pre_build function dumped into the PRE_BUILD file" "n"
+  then
+    (declare -f real_default_pre_build | tail -n -2 | head -n 1 | sed "s:&&:\&\&\n:g") > PRE_BUILD
+  else
+    echo "default_pre_build" > PRE_BUILD
+  fi
+  ${EDITOR:-nano} PRE_BUILD
+fi
+
+if [[ "${BUILDISON}" == "BUILD, " ]]
+then
+  touch BUILD
+  chmod +x BUILD
+  if query "Do you want the default_build function dumped into the BUILD file" "n"
+  then
+    (declare -f real_default_build | tail -n -2 | head -n 1 | sed 's:\(.\{20,41\}\)--:\1\\\n --:g' | sed "s:&&:\&\&\n:g") > BUILD
+  else
+    echo "default_build" > BUILD
+  fi
+  ${EDITOR:-nano} BUILD
+fi
+
+if [[ "${INSTALLISON}" == "INSTALL, " ]]
+then
+  touch INSTALL
+  chmod +x INSTALL
+  if query "Do you want the default_install function dumped into the INSTALL file" "n"
+  then
+    (declare -f real_default_install | tail -n -2 | head -n 1) > INSTALL
+  else
+    echo "default_install" > INSTALL
+  fi
+  ${EDITOR:-nano} INSTALL
+fi
+
+if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
+then
+  touch POST_INSTALL
+  chmod +x POST_INSTALL
+  if query "Do you want the default_post_install function dumped into the POST_INSTALL file" "n"
+  then
+    (let i=0 ; declare -f real_default_post_install | while read line ; do (( $i > 2 )) && echo $line ; let i++ ; done | grep -v "}" ) > POST_INSTALL
+  else
+    echo "default_post_install" > POST_INSTALL
+  fi
+  ${EDITOR:-nano} POST_INSTALL
+fi
+
+if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
+then
+  touch TRIGGERS
+  chmod +x TRIGGERS
+  ${EDITOR:-nano} TRIGGERS
+fi
+
+if [[ "${BUILD_DTFILE}" != "" ]]
+then
+  mkdir -p desktop
+  cd desktop
+  echo "[Desktop Entry]" >> ${SPELL_NAME}.desktop
+  echo "Encoding=UTF-8" >> ${SPELL_NAME}.desktop
+  echo "Version=${SPELL_VERSION}" >> ${SPELL_NAME}.desktop
+  echo "Name=${DTFILE_MENUENTRY}" >> ${SPELL_NAME}.desktop
+  echo "Type=Application" >> ${SPELL_NAME}.desktop
+  echo "Comment=${SPELL_SHORT_DESCRIPTION}" >> ${SPELL_NAME}.desktop
+  echo "Exec=${DTFILE_EXEC}" >> ${SPELL_NAME}.desktop
+  echo "Icon=${DTFILE_ICON}" >> ${SPELL_NAME}.desktop
+  echo "Categories=${DTFILE_MENUPATH}" >> ${SPELL_NAME}.desktop
+  echo "Term=${DTFILE_TERM}" >> ${SPELL_NAME}.desktop
+  cd ..
+fi
+
+message "Generating HISTORY file..."
+
+echo \
+"${HISTORY_DATE} ${GURU_NAME} <${GURU_EMAIL}>
+	* DETAILS, ${PROVIDESISON}${DEPENDSISON}${CONFIGUREISON}${PREPAREISON}${CONFLICTSISON}${PREBUILDISON}${BUILDISON}${INSTALLISON}${POSTINSTALLISON}${TRIGGERSISON}${FINALISON}HISTORY${BUILD_DTFILE}: created spell" > HISTORY
+
+message "Done..."
+
+cd ${CURRENTPWD}
+
+#---                                                                                                                         
+##                                                                                                                           
+## This software is free software; you can redistribute it and/or modify                                                     
+## it under the terms of the GNU General Public License as published by                                                      
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.                                                                                       
+##                                                                                                                           
+## This software is distributed in the hope that it will be useful,                                                          
+## but WITHOUT ANY WARRANTY; without even the implied warranty of                                                            
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.                                                                              
+##
+## You should have received a copy of the GNU General Public License                                                         
+## along with this software; if not, write to the Free Software                                                              
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA                                                 
+##                                                                                                                           
+#---
