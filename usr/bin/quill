@@ -6,9 +6,19 @@
 ## @License GPL v2
 ##
 ## @ToDo figure out how to do conversions to proper url variables
-## @ToDo put a CVS/SVN option
+## @ToDo put a multiversion option
 ## @ToDo make an option to edit all the existing files after generation
 ## @ToDo make configuring optional depends a must
+## @ToDo interface to add CONFIGURE options
+## @ToDo automated bugcli submissions of spells
+## @ToDo make a tar.bz2 of the spell immediately
+## @ToDo automatic inclusion into a grimoire when finished
+## @ToDo make it use the ~/.sourcemage dir for config
+## @ToDo add cmdline options to make it possible to autoscript it
+## @ToDo add a better configuration interface(dialog based I hope)
+## @ToDo make it possible to also update spells using quill
+## @ToDo make quill the be-all for spells
+## @ToDo make quill interface with both sorcery and grimoire to get functions
 ##
 ## Asks the user in simple questions about generating a spell.
 ## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON
