@@ -1,0 +1,55 @@
+# for all the fields that could be filled in, check if they were filled in
+# and if so, give the user an opportunity to change the value
+
+function query_spell_name(){
+if ! [[ $SPELL_NAME ]] ||
+   ! query "Is $SPELL_NAME the proper spell name?" y; then
+  message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
+  read "SPELL_NAME"
+fi
+}
+
+function query_spell_source_url(){
+if ! [[ $SPELL_SRC_URL ]] ||
+   ! query "Is $SPELL_SRC_URL the proper source url?" y; then
+  message "${QUERY_COLOR}Please enter the url of the source:${DEFAULT_COLOR}"
+  read "SPELL_SRC_URL"
+fi
+}
+
+function query_spell_license(){
+if ! [[ $SPELL_LICENSE ]] ||
+   ! query "Is $SPELL_LICENSE the proper license?" y; then
+  message "${QUERY_COLOR}Please enter the license of the spell:${DEFAULT_COLOR}"
+  read "SPELL_LICENSE"
+fi
+}
+
+function query_spell_url(){
+if ! [[ $SPELL_URL ]] ||
+   ! query "Is $SPELL_URL the proper website?" y; then
+  message "${QUERY_COLOR}Please enter a website for the spell:${DEFAULT_COLOR}"
+  read "SPELL_URL"
+fi
+}
+
+function query_spell_short_description(){
+if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
+   ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}\n$SPELL_SHORT_DESCRIPTION"
+       query "the proper short description?${DEFAULT_COLOR}" y ; ) ; then
+  message "${QUERY_COLOR}Please enter a short description of the spell:${DEFAULT_COLOR}"
+  read "SPELL_SHORT_DESCRIPTION"
+fi
+}
+
+function query_spell_description(){
+if ! test -f ~/tmp/${SPELL_NAME} ||
+   ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
+       cat ~/tmp/${SPELL_NAME}
+       query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
+  message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
+  message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
+  read
+  ${EDITOR:-nano} ~/tmp/${SPELL_NAME}
+fi
+}
