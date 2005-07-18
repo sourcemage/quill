@@ -33,7 +33,7 @@ This is necessary because Freshmeat.net's XML descriptor doesn't have direct URL
 -->
 <t:param name='gzip-suffix' select="'tar.gz'" />
 
-<t:variable name='freshmeat-url' select='"http://freshmeat.net/projects-xml/"' />
+<t:variable name='freshmeat-url' select="'http://freshmeat.net/projects-xml/'" />
 
 <!--This is invoked when the XML descriptor is supplied on input-->
 <t:template match='/project-listing'>
@@ -45,9 +45,9 @@ This is necessary because Freshmeat.net's XML descriptor doesn't have direct URL
 
 <!--This is supposedly invoked when XML descriptor has to be downloaded-->
 <t:template match="/*[local-name() != 'project-listing']">
-  <t:variable name='project-url' select="concat($freshmeat-url, '/', $project)" />
+  <t:variable name='project-url' select="concat($freshmeat-url, $project, '/')" />
   <t:if test='$debug'>
-    <t:message>XML doanloaded from <t:value-of select='$project-url' /></t:message>
+    <t:message>XML downloaded from <t:value-of select='$project-url' /></t:message>
   </t:if>
   <t:apply-templates select='document($project-url)/project-listing/project' />
 </t:template>
@@ -80,8 +80,21 @@ This is necessary because Freshmeat.net's XML descriptor doesn't have direct URL
     </t:choose>
   </t:variable>
 
+  <!--Remove the last dot `.' from short description; may also need to shorten it-->
+  <t:variable name='desc_short2' select='normalize-space(desc_short)' />
+  <t:variable name='short-description'>
+    <t:choose>
+      <t:when test="substring($desc_short2, string-length($desc_short2)) = '.'">
+        <t:value-of select='substring($desc_short2, 1, string-length($desc_short2) - 1)' />
+      </t:when>
+      <t:otherwise>
+        <t:value-of select='$desc_short2' />
+      </t:otherwise>
+    </t:choose>
+  </t:variable>
+
   <t:text>#!/bin/sh&LF;</t:text>
-  <t:text># This script is going to create grimoire files for new spell&LF;</t:text>
+  <t:text>## This script is going to create grimoire files for new spell&LF;</t:text>
   <t:if test='$debug'>
     <t:text>set -x &amp;&amp;&LF;</t:text>
   </t:if>
@@ -137,6 +150,7 @@ This is necessary because Freshmeat.net's XML descriptor doesn't have direct URL
       <t:text>&LF;</t:text>
     </t:if>
 
+    <!--DETAILS-->
     <t:text>cat &gt;DETAILS &lt;&lt;__END_DETAILS &amp;&amp;&LF;</t:text>
     <t:text>           SPELL=$SPELL&LF;</t:text>
     <t:text>         VERSION=$VERSION&LF;</t:text>
@@ -149,14 +163,16 @@ This is necessary because Freshmeat.net's XML descriptor doesn't have direct URL
     <t:apply-templates select='license' />
     <t:text>         UPDATED=$UPDATED&LF;</t:text>
     <t:text>       BUILD_API=2&LF;</t:text>
-    <t:text>           SHORT='</t:text><t:value-of select="normalize-space(translate(desc_short, '.', ''))"/>
+    <t:text>           SHORT='</t:text><t:value-of select='$short-description'/>
     <t:text>'&LF;</t:text>
     <t:text>cat &lt;&lt; EOF&LF;</t:text>
     <t:value-of select='normalize-space(desc_full)'/>
     <t:text>&LF;</t:text>
     <t:text>EOF&LF;</t:text>
-    <t:text># Auto-generated from Freshmeat.net's project descriptor&LF;</t:text>
+    <t:text>## Auto-generated from Freshmeat.net's project descriptor&LF;</t:text>
     <t:text>__END_DETAILS&LF;</t:text>
+
+    <t:apply-templates select='dependencies' />
   <!--End of persistent operations-->
   </t:if>
 
@@ -184,6 +200,43 @@ Takes any Freshmeat.net XML descriptor's node that starts with `url_'.
     </t:otherwise>
   </t:choose>
   <t:text>'&LF;</t:text>
+</t:template>
+
+<!--If there are any dependencies, they're put into generated DEPENDS file-->
+<t:template match='dependencies'>
+  <!--DEPENDS-->
+  <t:text>cat &gt;DEPENDS &lt;&lt;__END_DEPENDS &amp;&amp;&LF;</t:text>
+  <t:apply-templates select='*' />
+  <t:text>## Auto-generated from Freshmeat.net's project descriptor&LF;</t:text>
+  <t:text>__END_DEPENDS&LF;</t:text>
+</t:template>
+
+<!--
+Process a dependency.
+TODO: find a way, probably through a roundtrip to Freshmeat.net's site using `document()', to
+collect more information about a dependency, such as short name, to put into `depends'.
+-->
+<t:template match='dependency'>
+  <t:variable name='dependency-full-name' select="normalize-space(substring-before(dependency_project_title, '('))" />
+  <t:variable name='branch-full-name' select="normalize-space(substring-before(substring-after(dependency_project_title, '('), ')'))" />
+  <t:choose>
+    <t:when test="@type = 'required'">
+      <t:text>#depends </t:text>
+    </t:when>
+    <t:otherwise>
+      <t:text>#optional_depends </t:text>
+    </t:otherwise>
+  </t:choose>
+  <t:text>'</t:text><t:value-of select='$dependency-full-name' />
+  <t:text>'</t:text>
+  <t:if test="@type != 'required'">
+    <t:text> '' '' 'for </t:text><t:value-of select='$dependency-full-name' />
+    <t:text> support'</t:text>
+  </t:if>
+  <t:if test="position() != last()">
+    <t:text> &amp;&amp;</t:text>
+  </t:if>
+  <t:text>&LF;</t:text>
 </t:template>
 
 </t:stylesheet>
