@@ -9,6 +9,8 @@
 ## @ToDo put a multiversion option
 ## @ToDo make an option to edit all the existing files after generation
 ## @ToDo make configuring optional depends a must
+## @ToDo add logic to quill to make it possible to use optional_depends single line or 
+## @ToDo multiline depending on the length of line if <80 single else mutli
 ## @ToDo interface to add CONFIGURE options
 ## @ToDo automated bugcli submissions of spells
 ## @ToDo make a tar.bz2 of the spell immediately
