@@ -1,0 +1,18 @@
+2005-09-11 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: added an improved quill_rc to support
+	  the new naming of user ran guru tools also
+	  added stubs to function calls for more advanced
+	  queries and added a getopts construct to switch
+	  modes
+	* libdepends: added functions and made optional
+	  depends working along with option adding
+	* libconflicts: added functions to make it work
+	* libcore: now has a hash_get function which uses
+	  a variable to set the algorithm defaults to sha1
+	  no query yet to set the algorithm.
+	  Modified most of the calls to use the variables for
+	  the various dirs and so on.
+	* libprovides: added functions to make it work
+	* libfreshmeatxml: added functions to make it work
+	* libdesktop: added functions to make it work
+	* libbuild: minor modifications
