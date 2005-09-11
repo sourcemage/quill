@@ -1,3 +1,7 @@
+#---
+## @Synopsis libfreshmeatxml
+#---
+
 function quill_fmxml_grab_from_xml() {
   xml_grep --text_only $1 $FRESHMEAT_FILE
 }
@@ -9,49 +13,38 @@ function quill_fmxml_hunt_src_url() {
   URL=$(curl -I $2 2>/dev/null|grep Location|awk '{print $2}'|sed 's/\r//g')
   # hacky attempt to get source url from sourceforge
   if echo $URL|grep -q sourceforge; then
-    curl $URL 2>/dev/null|tr '<>' '\n\n'|grep http|grep sourceforge|grep download|grep -i $SPELL_NAME|
-    cut -f2 -d\"|cut -f1 -d?|head -n 1
+    curl $URL 2>/dev/null|tr '<>' '\n\n'|grep http|grep sourceforge|\
+                              grep download|grep -i $SPELL_NAME|\
+                              cut -f2 -d\"|cut -f1 -d?|head -n 1
   else
     echo $URL
   fi
 }
 
-function quill_fmxml_getopts() {
-if [[ $1 == --fmxml ]] && [[ $2 ]]; then
-  FRESHMEAT_XML=$2
-  if ! which xml_grep &>/dev/null; then
-    message "${WARNING_COLOR}You need xml-twig with xml_grep installed to use freshmeat mode${DEFAULT_COLOR}"
-    exit 1
-  fi
-  if ! which curl &>/dev/null; then
-    message "${WARNING_COLOR}You need curl to use freshmeat mode${DEFAULT_COLOR}"
-    exit 1
-  fi
+function quill_fmxml_core(){
   # if the argument looks like a url then use that, otherwise
   # assume the argument is the name of the spell and construct a
   # url for where we think freshmeat.net stores their xml data
-  if echo $FRESHMEAT_XML|grep -q http://; then
-    FRESHMEAT_XML_URL=$FRESHMEAT_XML
+  if echo $QUILL_FMXML_SPELL|grep -q http://; then
+    FRESHMEAT_XML_URL="${QUILL_FMXML_SPELL}"
   else
-    FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/$FRESHMEAT_XML/${FRESHMEAT_XML}.xml
+    FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/$QUILL_FMXML_SPELL/${QUILL_FMXML_SPELL}.xml
   fi
   # check if we already have the xml file, if we dont, download it
-  if test -f $FRESHMEAT_XML.xml ; then
-    FRESHMEAT_FILE=${FRESHMEAT_XML}.xml
+  if test -f ${QUILL_TMP_DIR}/${QUILL_FMXML_SPELL}.xml ; then
+    FRESHMEAT_FILE=${QUILL_FMXML_SPELL}.xml
   else
-    if ! url_download $FRESHMEAT_XML_URL ; then
-      message "${ERROR_COLOR}Failed to get $FRESHMEAT_XML${DEFAULT_COLOR}"
+    if ! curl -O ${FRESHMEAT_XML_URL} ; then
+      message "${ERROR_COLOR}Failed to get ${QUILL_FMXML_SPELL}${DEFAULT_COLOR}"
       exit 1
     fi
     FRESHMEAT_FILE=$FILE
     unset FILE
   fi
 fi
-}
 
-function quill_fmxml_core(){
 # fill in variables from xml file
-if [[ $FRESHMEAT_XML ]] ; then
+if [[ $QUILL_FMXML_SPELL ]] ; then
   SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short|tr 'A-Z' 'a-z')
   for each in url_bz2 url_tgz; do
     TMP=$(quill_fmxml_grab_from_xml $each)
@@ -60,9 +53,10 @@ if [[ $FRESHMEAT_XML ]] ; then
       break
     fi
   done
-  SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage) 2>&1|grep Location|awk '{print $2}'|sed 's/\r//g')
+  SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage) 2>&1|\
+              grep Location|awk '{print $2}'|sed 's/\r//g')
   SPELL_LICENSE=$(quill_fmxml_grab_from_xml license|awk '{print $NF}'|tr -d '()')
   SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short|sed 's/\r//g')
-  quill_fmxml_grab_from_xml desc_full|fmt > ~/tmp/${SPELL_NAME}
+  quill_fmxml_grab_from_xml desc_full|fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi
 }

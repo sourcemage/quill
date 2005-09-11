@@ -1,3 +1,7 @@
+#---
+## @Synopsis libdetails
+#---
+
 # for all the fields that could be filled in, check if they were filled in
 # and if so, give the user an opportunity to change the value
 
@@ -43,13 +47,13 @@ fi
 }
 
 function query_spell_description(){
-if ! test -f ~/tmp/${SPELL_NAME} ||
+if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
-       cat ~/tmp/${SPELL_NAME}
+       cat ${QUILL_TMP_DIR/${SPELL_NAME}
        query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
   message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
   message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
   read
-  ${EDITOR:-nano} ~/tmp/${SPELL_NAME}
+  ${EDITOR:-nano} ${QUILL_TMP_DIR/${SPELL_NAME}
 fi
 }

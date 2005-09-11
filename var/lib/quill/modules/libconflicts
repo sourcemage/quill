@@ -1,0 +1,24 @@
+#---
+## @Synopsis libconflicts
+## @Note DONE
+#---
+
+CONFLICTSISON=""
+
+function query_spell_conflicts() {
+  message "${QUERY_COLOR}Please enter any conflicting spell names if any:${DEFAULT_COLOR}"
+  read "SPELL_CONFLICTS"
+}
+
+function add_conflicts() {
+if [[ "${SPELL_CONFLICTS}" != "" ]]
+then
+  touch CONFLICTS
+  chmod +x CONFLICTS
+  CONFLICTSISON="CONFLICTS, "
+  for n in ${SPELL_CONFLICTS}
+  do
+     echo "conflicts ${n}" >> CONFLICTS
+  done
+fi
+}

@@ -1,0 +1,64 @@
+#---
+## @Synopsis libdepends
+#---
+
+function query_spell_dependencies() {
+  message "${QUERY_COLOR}Please enter the dependencies(non optional)\
+          of the spell if any:${DEFAULT_COLOR}"
+  read "SPELL_DEPENDENCIES"
+}
+
+function query_spell_optional_dependencies() {
+  message "${QUERY_COLOR}Please enter the optional dependencies of the\
+          spell if any:${DEFAULT_COLOR}"
+  read -a "SPELL_OPTIONAL_DEPENDENCIES"
+}
+
+function add_dependencies() {
+if [[ "${SPELL_DEPENDENCIES}" != "" ]]
+then
+  touch DEPENDS
+  chmod +x DEPENDS
+  DEPENDSISON="DEPENDS, "
+  for i in ${SPELL_DEPENDENCIES}
+  do
+     echo "depends ${i}" >> DEPENDS
+  done
+fi
+}
+
+function add_optional_dependencies() {
+if [[ "${SPELL_OPTIONAL_DEPENDENCIES[0]}" != "" ]]
+then
+  touch DEPENDS
+  chmod +x DEPENDS
+  DEPENDSISON="DEPENDS, "
+  SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
+  SPELL_OPTIONAL_DEPENDENCIES_DISABLED[0]=""
+  SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[0]=""
+  NM=${#SPELL_OPTIONAL_DEPENDENCIES[*]}
+  for  ((MN=0; MN < $NM; MN++))
+  do
+    message "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure enable option"
+    message "Enclosed in \" \""
+    read SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]
+    message "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure disable option"
+    message "Enclosed in \" \""
+    read SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]
+    message "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description"
+    message "Enclosed in \" \""
+    read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]
+  done
+  for  ((MN=0; MN < $NM; MN++))
+  do
+
+echo "optional_depends\
+\"${SPELL_OPTIONAL_DEPENDENCIES[$MN]}\" \
+\"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]}\" \
+\"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]}\" \
+\"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]}\" >> DEPENDS
+
+  done
+# "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\""
+fi
+}

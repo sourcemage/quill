@@ -46,16 +46,32 @@
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
+QUILL_MODE="apprentice"
 
-#---
-## @Synopsis Get's gurus info and stuff and puts it into ~/.quillrc or reads it from there
-#---
+function process_parameters()  {
+while  [  -n  "$1"  ];  do
+  if  echo  "" $1  |  grep  -q  "^ -";  then
+    case  $1  in
+             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
+              --mode|-m) export QUILL_MODE="$2"; shift 2 ;;
+                      *) quill_help
+    esac
+  else
+    shift
+  fi
+done
+
+QUILL_HOME_DIR=~/.sourcemage/quill
+QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
+QUILL_OLD_QUILLRC=~/.quillrc
+QUILL_SPELL_DIR=~/.sourcemage/spells
+QUILL_TMP_DIR=~/.sourcemage/tmp
 
 quill_rc
 PROMPT_DELAY="4294967295"
 BUILD_API=2
 load_build_api
-mkdir -p ~/tmp
+mkdir -p $QUILL_TMP_DIR
 
 ## Down to here... from here it's question and answer time
 #---
@@ -63,6 +79,11 @@ mkdir -p ~/tmp
 #---
 ## Questions and stuff
 
+if [[ "${QUILL_MODE_FMXML}" == "on" ]]
+then
+  QUILL_FMXML_SPELL="$@"
+  quill_fmxml_core
+fi
 
 query_spell_name
 query_spell_source_url
@@ -70,18 +91,33 @@ query_spell_license
 query_spell_url
 query_spell_short_description
 query_spell_description
-query_spell_dependencies #base
-query_spell_optional_dependencies #base
-query_spell_conflicts
-query_spell_provides
+query_spell_dependencies
+query_spell_optional_dependencies
+query_spell_build
+query_spell_install
+query_spell_desktop_file
+
+if [[ "${QUILL_MODE}" == "mage" ]] || [[ "${QUILL_MODE}" == "wizard" ]]
+then
 query_spell_prepare
-query_spell_configure #base
-query_spell_pre_build #base
-query_spell_build #base
-query_spell_install #base
-query_spell_final #base
+query_spell_conflicts
+query_spell_configure
+query_spell_provides
+query_spell_final
 query_spell_triggers
-query_desktop_file
+query_spell_solo
+query_spell_configs
+query_spell_volatiles
+  if [[ "${QUILL_MODE}" == "wizard" ]]; then
+  query_spell_pre_build
+  query_spell_pre_install
+  query_spell_post_install
+  query_spell_pre_remove
+  query_spell_post_remove
+  query_spell_pre_resurrect
+  query_spell_post_resurrect
+  fi
+fi
 
 CURRENTPWD=$(pwd)
 
@@ -89,12 +125,12 @@ create_base_dir_and_files
 
 if [[ "${SPELL_DEPENDENCIES}" != "" ]]
 then
-  add_depends
+  add_dependencies
 fi
 
 if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
 then
-  add_optional_depends
+  add_optional_dependencies
 fi
 
 
@@ -107,7 +143,6 @@ if [[ "${SPELL_PROVIDES}" != "" ]]
 then
   add_provides
 fi
-
 
 add_details
 

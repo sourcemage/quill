@@ -1,0 +1,43 @@
+#---
+## @Synopsis libdesktop
+#---
+
+query_spell_desktop_file() {
+if query "Will you be adding a custom desktop file:" "n"
+then
+  BUILD_DTFILE="desktop/${SPELL_NAME}.desktop, "
+  DTFILE_MENUENTRY="${SPELL_NAME}"
+
+  message "${QUERY_COLOR}Please enter the name of the executable:${DEFAULT_COLOR}"
+  read "DTFILE_EXEC"
+
+  message "${QUERY_COLOR}Please enter the menupath separated and closed by ';'{DEFAULT_COLOR}"
+  message "${QUERY_COLOR}example: Applications;Editors;foobar;${DEFAULT_COLOR}"
+  read "DTFILE_MENUPATH"
+
+  message "${QUERY_COLOR}Please enter the name of the icon, if it has one:${DEFAULT_COLOR}"
+  read "DTFILE_ICON"
+
+  query "Does this app need to be started in an xterm?" "n" && DTFILE_TERM="True"
+fi
+}
+
+add_desktop_file() {
+if [[ "${BUILD_DTFILE}" != "" ]]
+then
+  mkdir -p desktop
+  cd desktop
+  echo "[Desktop Entry]" >> ${SPELL_NAME}.desktop
+  echo "Encoding=UTF-8" >> ${SPELL_NAME}.desktop
+  echo "Version=${SPELL_VERSION}" >> ${SPELL_NAME}.desktop
+  echo "Name=${DTFILE_MENUENTRY}" >> ${SPELL_NAME}.desktop
+  echo "Type=Application" >> ${SPELL_NAME}.desktop
+  echo "Comment=${SPELL_SHORT_DESCRIPTION}" >> ${SPELL_NAME}.desktop
+  echo "Exec=${DTFILE_EXEC}" >> ${SPELL_NAME}.desktop
+  echo "Icon=${DTFILE_ICON}" >> ${SPELL_NAME}.desktop
+  echo "Categories=${DTFILE_MENUPATH}" >> ${SPELL_NAME}.desktop
+  echo "Term=${DTFILE_TERM}" >> ${SPELL_NAME}.desktop
+  cd ..
+fi
+
+}
