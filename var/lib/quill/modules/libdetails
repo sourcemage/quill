@@ -57,3 +57,35 @@ if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
   ${EDITOR:-nano} ${QUILL_TMP_DIR/${SPELL_NAME}
 fi
 }
+
+function generate_details()
+{
+QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
+
+
+SPELL_DATE=$(date +%Y%m%d)
+#Generate DETAILS
+
+message "Generating DETAILS file..."
+
+echo \
+"           SPELL=${SPELL_NAME}
+         VERSION=${SPELL_VERSION}
+          SOURCE=${SPELL_SRC_FILE}
+   SOURCE_URL[0]=${SPELL_SRC_URL}
+     SOURCE_HASH=sha512:${QUILL_SPELL_HASH}
+SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
+        WEB_SITE=${SPELL_URL}
+         ENTERED=${SPELL_DATE}
+         UPDATED=${SPELL_DATE}
+      LICENSE[0]=${SPELL_LICENSE}
+       BUILD_API=2
+           SHORT=\"${SPELL_SHORT_DESCRIPTION}\"
+cat << EOF
+$(cat ${QUILL_TMP_DIR}/$SPELL_NAME |fmt -u -w80)
+EOF" > DETAILS
+rm ${QUILL_TMP_DIR}/$SPELL_NAME
+
+message "Done..."
+
+}

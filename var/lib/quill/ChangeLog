@@ -1,3 +1,6 @@
+2005-11-13 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: updated hash_get to use only sha512
+
 2005-09-11 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: added an improved quill_rc to support
 	  the new naming of user ran guru tools also
