@@ -26,34 +26,33 @@
 ##
 #---
 
-#---
-## @Synopsis md5_unpack function taken from md5unpack script
-##
-#---
+QUILL_QUILLRC=~/.sourcemage/quill/quillrc
+QUILL_OLD_QUILLRC=~/.quillrc
+QUILL_TMP_DIR=~/.sourcemage/tmp
 
 function md5_unpack() {
 
-  local TMP_DIR=/tmp
-  for f in ${*}; do
-    echo -n "$(uncompress $f $(guess_compressor $f)|md5sum|cut -d' ' -f1)  "
-    ls -1 $f
-  done
-  rm $TMP_DIR/libgrimoire.uncompress.$$
+      gpg --print-md sha512 ${1} | \
+          tr -d " " | \
+          tr "A-Z" "a-z" | \
+          tr "\n" " " | \
+          sed "s/ //g" | \
+          cut -d: -f2
 
 }
 
 function grab_from_xml() {
-  xml_grep --text_only $1 $FRESHMEAT_FILE
+  xml_grep --text_only "$1" "$FRESHMEAT_FILE"
 }
 
 
 function hunt_src_url() {
   local URL
   local SPELL_NAME=$1
-  URL=$(curl -I $2 2>/dev/null|grep Location|awk '{print $2}'|sed 's/\r//g')
+  URL=$(curl -I "$2" 2>/dev/null|grep Location|awk '{print $2}'|sed 's/\r//g')
   # hacky attempt to get source url from sourceforge
   if echo $URL|grep -q sourceforge; then
-    curl $URL 2>/dev/null|tr '<>' '\n\n'|grep http|grep sourceforge|grep download|grep -i $SPELL_NAME|
+    curl "$URL" 2>/dev/null|tr '<>' '\n\n'|grep http|grep sourceforge|grep download|grep -i $SPELL_NAME|
     cut -f2 -d\"|cut -f1 -d?|head -n 1
   else
     echo $URL
@@ -63,27 +62,41 @@ function hunt_src_url() {
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
-
+#set -x
 #---
 ## @Synopsis Get's gurus info and stuff and puts it into ~/.quillrc or reads it from there
 #---
 
 function quill_rc() {
 
-  if [[ -f ~/.quillrc ]]
+  mkdir -p ~/.sourcemage/quill
+  if [[ -f ${QUILL_OLD_QUILLRC} ]]
   then
-    . ~/.quillrc
+    message "${QUERY_COLOR}With accordance to Source Mage standards moving${DEFAULT_COLOR}"
+    message "${QUERY_COLOR}${QUILL_OLD_QUILLRC} to ${QUILL_QUILLRC}${DEFAULT_COLOR}"
+    cp ${QUILL_OLD_QUILLRC} ${QUILL_QUILLRC}
+    if [[ -f ${QUILL_QUILLRC} ]]
+    then
+      message "${QUERY_COLOR}Removing ${QUILL_OLD_QUILLRC}${DEFAULT_COLOR}"
+      rm ${QUILL_OLD_QUILLRC}
+    else
+      message "${PROBLEM_COLOR}Ugghhh... something went wrong...${DEFAULT_COLOR}"
+    fi
+  fi
+  if [[ -f ${QUILL_QUILLRC} ]]
+  then
+    . ${QUILL_QUILLRC}
   else
-    touch ~/.quillrc
-    message "${PROBLEM_COLOR}This will create a ~/.quillrc file for you${DEFAULT_COLOR}"
+    touch ${QUILL_QUILLRC}
+    message "${PROBLEM_COLOR}This will create a ${QUILL_QUILLRC} file for you${DEFAULT_COLOR}"
     message "${QUERY_COLOR}Please enter your name for the HISTORY entry.${DEFAULT_COLOR}"
     read "GURU_NAME"
     message "${QUERY_COLOR}Please enter your email for the HISTORY entry.${DEFAULT_COLOR}"
     read "GURU_EMAIL"
-    message "Thank you. Now generating ~/.quillrc"
+    message "Thank you. Now generating ${QUILL_QUILLRC}"
     echo \
 "GURU_NAME=\"${GURU_NAME}\"
-GURU_EMAIL=\"${GURU_EMAIL}\"" > ~/.quillrc
+GURU_EMAIL=\"${GURU_EMAIL}\"" > ${QUILL_QUILLRC}
 fi
 
 }
@@ -91,7 +104,7 @@ quill_rc
 PROMPT_DELAY="4294967295"
 BUILD_API=2
 load_build_api
-mkdir -p ~/tmp
+mkdir -p $QUILL_TMP_DIR
 
 BUILDISON=""
 INSTALLISON=""
@@ -105,7 +118,7 @@ FINALISON=""
 
 
 if [[ $1 == --fmxml ]] && [[ $2 ]]; then
-  FRESHMEAT_XML=$2
+  FRESHMEAT_XML="$2"
   if ! which xml_grep &>/dev/null; then
     message "You need xml-twig with xml_grep installed to use freshmeat mode"
     exit 1
@@ -124,13 +137,15 @@ if [[ $1 == --fmxml ]] && [[ $2 ]]; then
   fi
   # check if we already have the xml file, if we dont, download it
   if test -f $FRESHMEAT_XML.xml ; then
-    FRESHMEAT_FILE=${FRESHMEAT_XML}.xml
+    FRESHMEAT_FILE=${QUILL_TMP_DIR}/${FRESHMEAT_XML}.xml
   else
-    if ! url_download $FRESHMEAT_XML_URL ; then
+    if ! wget $FRESHMEAT_XML_URL ; then
       message "Failed to get $FRESHMEAT_XML"
       exit 1
+    else
+      cp $FRESHMEAT_XML.xml ${QUILL_TMP_DIR}/${FILE}
     fi
-    FRESHMEAT_FILE=$FILE
+    FRESHMEAT_FILE=${QUILL_TMP_DIR}/${FILE}
     unset FILE
   fi
 fi
@@ -154,9 +169,14 @@ message "${PROBLEM_COLOR}Any lists i.e. dependnecies and optional dependencies s
 message "space delimited and not coma delimited${DEFAULT_COLOR}"
 message "-----------------------------------------------------------------------------"
 
+#SPELL_NAME="$1"
+#SPELL_SRC_URL="$2"
+#SPELL_LICENSE="$3"
+#SPELL_URL="$4"
+
 # fill in variables from xml file
 if [[ $FRESHMEAT_XML ]] ; then
-  SPELL_NAME=$(grab_from_xml projectname_short|tr 'A-Z' 'a-z')
+  SPELL_NAME=$(grab_from_xml projectname_short $FRESHMEAT_XML |tr "A-Z" "a-z")
   for each in url_bz2 url_tgz; do
     TMP=$(grab_from_xml $each)
     if [[ $TMP ]] ; then
@@ -167,11 +187,12 @@ if [[ $FRESHMEAT_XML ]] ; then
   SPELL_URL=$(curl -I $(grab_from_xml url_homepage) 2>&1|grep Location|awk '{print $2}'|sed 's/\r//g')
   SPELL_LICENSE=$(grab_from_xml license|awk '{print $NF}'|tr -d '()')
   SPELL_SHORT_DESCRIPTION=$(grab_from_xml desc_short|sed 's/\r//g')
-  grab_from_xml desc_full|fmt > ~/tmp/${SPELL_NAME}
+  grab_from_xml desc_full|fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi
 
 # for all the fields that could be filled in, check if they were filled in
 # and if so, give the user an opportunity to change the value
+
 if ! [[ $SPELL_NAME ]] ||
    ! query "Is $SPELL_NAME the proper spell name?" y; then
   message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
@@ -203,15 +224,15 @@ if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
   read "SPELL_SHORT_DESCRIPTION"
 fi
 
-if ! test -f ~/tmp/${SPELL_NAME} ||
+if ! test -f ${QUILL_TMP_DIR}/${SPELL_NAME} ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
-       cat ~/tmp/${SPELL_NAME}
+       cat ${QUILL_TMP_DIR}/${SPELL_NAME}
        query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
   message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
   sleep 2
   message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
   read
-  ${EDITOR:-nano} ~/tmp/${SPELL_NAME}
+  ${EDITOR:-nano} ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi
 
 message "${QUERY_COLOR}Please enter the dependencies(non optional) of the spell if any:${DEFAULT_COLOR}"
@@ -358,14 +379,14 @@ echo "URL: ${SPELL_SRC_URL}"
 
 ## Download the source
 
-cd ~/tmp
-url_download "${SPELL_SRC_URL}"
+cd ${QUILL_TMP_DIR}
+wget "${SPELL_SRC_URL}"
 cd ${CURRENTPWD}
 cd ${SPELL_NAME}
 
 ## Get md5 of the uncompressed source
 
-SPELL_MD5_UNPACKED="$(md5_unpack ~/tmp/${SPELL_SRC_FILE}| cut -c-32)"
+SPELL_MD5_UNPACKED="$(md5_unpack ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
 
 SPELL_DATE=$(date +%Y%m%d)
@@ -378,8 +399,8 @@ echo \
 "           SPELL=${SPELL_NAME}
          VERSION=${SPELL_VERSION}
           SOURCE=${SPELL_SRC_FILE}
-   SOURCE_URL[1]=${SPELL_SRC_URL}
-          MD5[0]=${SPELL_MD5_UNPACKED}
+   SOURCE_URL[0]=${SPELL_SRC_URL}
+     SOURCE_HASH=sha512:${SPELL_MD5_UNPACKED}
 SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
         WEB_SITE=${SPELL_URL}
          ENTERED=${SPELL_DATE}
@@ -388,9 +409,9 @@ SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
        BUILD_API=2
            SHORT=\"${SPELL_SHORT_DESCRIPTION}\"
 cat << EOF
-$(cat ~/tmp/$SPELL_NAME |fmt -u -w80)
+$(cat ${QUILL_TMP_DIR}/$SPELL_NAME |fmt -u -w80)
 EOF" > DETAILS
-rm ~/tmp/$SPELL_NAME
+rm ${QUILL_TMP_DIR}/$SPELL_NAME
 
 message "Done..."
 
