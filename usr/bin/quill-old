@@ -136,17 +136,16 @@ if [[ $1 == --fmxml ]] && [[ $2 ]]; then
     FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/$FRESHMEAT_XML/${FRESHMEAT_XML}.xml
   fi
   # check if we already have the xml file, if we dont, download it
-  if test -f $FRESHMEAT_XML.xml ; then
+  if test -f ${QUILL_TMP_DIR}/$FRESHMEAT_XML.xml ; then
     FRESHMEAT_FILE=${QUILL_TMP_DIR}/${FRESHMEAT_XML}.xml
   else
     if ! wget $FRESHMEAT_XML_URL ; then
       message "Failed to get $FRESHMEAT_XML"
       exit 1
     else
-      cp $FRESHMEAT_XML.xml ${QUILL_TMP_DIR}/${FILE}
+      mv $FRESHMEAT_XML.xml ${QUILL_TMP_DIR}/${FRESHMEAT_XML}.xml
     fi
-    FRESHMEAT_FILE=${QUILL_TMP_DIR}/${FILE}
-    unset FILE
+    FRESHMEAT_FILE=${QUILL_TMP_DIR}/${FRESHMEAT_XML}.xml
   fi
 fi
 
@@ -169,18 +168,18 @@ message "${PROBLEM_COLOR}Any lists i.e. dependnecies and optional dependencies s
 message "space delimited and not coma delimited${DEFAULT_COLOR}"
 message "-----------------------------------------------------------------------------"
 
-#SPELL_NAME="$1"
-#SPELL_SRC_URL="$2"
-#SPELL_LICENSE="$3"
-#SPELL_URL="$4"
+SPELL_NAME="$1"
+SPELL_SRC_URL="$2"
+SPELL_LICENSE="$3"
+SPELL_URL="$4"
 
 # fill in variables from xml file
 if [[ $FRESHMEAT_XML ]] ; then
-  SPELL_NAME=$(grab_from_xml projectname_short $FRESHMEAT_XML |tr "A-Z" "a-z")
+  SPELL_NAME=$(grab_from_xml projectname_short "$FRESHMEAT_XML" |tr "A-Z" "a-z")
   for each in url_bz2 url_tgz; do
     TMP=$(grab_from_xml $each)
     if [[ $TMP ]] ; then
-      SPELL_SRC_URL=$(hunt_src_url $SPELL_NAME $TMP)
+      SPELL_SRC_URL=$(hunt_src_url "$SPELL_NAME" "$TMP")
       break
     fi
   done
