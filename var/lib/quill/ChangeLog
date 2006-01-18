@@ -1,4 +1,8 @@
 2005-01-18 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* libdetails, quill: fixed bugs, added new function set_src_dir
+	  that calls the previous two i wrote.
+
+2005-01-18 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* libdetails: added functions check_if_tarball and
 	  hunt_src_dir, which are used to fetch a valid source
 	  dir name to put in DETAILS.

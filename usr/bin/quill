@@ -30,7 +30,7 @@
 ## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_DATE, SPELL_SRC_FILE,
 ## @Globals SPELL_SANITIZED_FILE_NAME, SPELL_MD5_UNPACKED, SPELL_VERSION,
 ## @Globals CURRENTPWD, i, j, n, BUILD_DTFILE, DTFILE_MENUENTRY, DTFILE_EXEC
-## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM
+## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM, SPELL_SRC_DIR
 ##
 ## @Thanks BearPerson, dufflebunk, afrayedknot
 ## @Thanks To all testers
@@ -146,17 +146,7 @@ then
   add_provides
 fi
 
-# Try to fetch a valid source dir name to put in DETAILS, instead
-# of just automatically setting it to ${SPELL}-${VERSION}.
-if check_if_tarball ${QUILL_TMP_DIR}/${SPELL_SRC_FILE}
-then
-  # Source file is a valid archive, retrieving source dir name.
-  SPELL_SRC_DIR=$(hunt_src_dir ${QUILL_TMP_DIR}/${SPELL_SRC_FILE} ${SPELL_NAME} ${SPELL_VERSION})
-else
-  # Oops! Source file seems not to be a valid archive. Just using the
-  # default source dir name, who cares if it works or not...
-  SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
-fi
+set_src_dir
 
 add_details
 
