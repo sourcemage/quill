@@ -146,6 +146,18 @@ then
   add_provides
 fi
 
+# Try to fetch a valid source dir name to put in DETAILS, instead
+# of just automatically setting it to ${SPELL}-${VERSION}.
+if check_if_tarball ${QUILL_TMP_DIR}/${SPELL_SRC_FILE}
+then
+  # Source file is a valid archive, retrieving source dir name.
+  SPELL_SRC_DIR=$(hunt_src_dir ${QUILL_TMP_DIR}/${SPELL_SRC_FILE} ${SPELL_NAME} ${SPELL_VERSION})
+else
+  # Oops! Source file seems not to be a valid archive. Just using the
+  # default source dir name, who cares if it works or not...
+  SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
+fi
+
 add_details
 
 if [[ "${PREPAREISON}" == "PREPARE, " ]]

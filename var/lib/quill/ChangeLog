@@ -1,3 +1,14 @@
+2005-01-18 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* libdetails: added functions check_if_tarball and
+	  hunt_src_dir, which are used to fetch a valid source
+	  dir name to put in DETAILS.
+	* libdetails: renamed function generate_details to
+	  add_details (this was a typo)
+	* libdetails: in add_details changed how SOURCE_DIRECTORY
+	  is defined in DETAILS
+	* quill: added calls to functions check_if_tarball and
+	  hunt_src_dir
+
 2005-11-13 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: updated hash_get to use only sha512
 

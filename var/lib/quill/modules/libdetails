@@ -58,7 +58,38 @@ if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
 fi
 }
 
-function generate_details()
+function check_if_tarball(){
+# Checks if the given file is a valid tarball by trying to peek inside it
+# and seeing if there is an error message.
+# Syntax: check_if_tarball ${QUILL_TMP_DIR}/${SPELL_SRC_FILE}
+# WARNING: Also returns 0 if file simply does not exist, so this should
+# never be used without first making sure there is a file to check.
+  local SRC_FILE="$1"
+  if [[ -z `tar tf "$SRC_FILE" 2>&1 | grep "^tar: " | head -n1' ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function hunt_src_dir() {
+# Reads the archive's root directory from a tarball. Replaces spellname
+# and version with $SPELL and $VERSION. Removes the trailing /
+# character. The result should be a string that can be used in DETAILS
+# where SOURCE_DIRECTORY is defined.
+# This function relies on the assumption that the first directory inside
+# the source tarball is also the same one where 'make' or a similar
+# command should be run from.
+# Syntax: hunt_src_dir ${QUILL_TMP_DIR}/${SPELL_SRC_FILE} ${SPELL_NAME}
+# ${SPELL_VERSION}
+  local SRC_FILE="$1"
+  local SPELL="$2"
+  local VERSION="$3"
+tar tf "$SRC_FILE" | sed -e 
+"s=${SPELL}=\$\{SPELL\}=g;s=${VERSION}=\$\{VERSION\}=g;s=/$==g;q"
+}
+
+function add_details()
 {
 QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
@@ -74,7 +105,7 @@ echo \
           SOURCE=${SPELL_SRC_FILE}
    SOURCE_URL[0]=${SPELL_SRC_URL}
      SOURCE_HASH=sha512:${QUILL_SPELL_HASH}
-SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
+SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/${SPELL_SRC_DIR}
         WEB_SITE=${SPELL_URL}
          ENTERED=${SPELL_DATE}
          UPDATED=${SPELL_DATE}
