@@ -18,7 +18,7 @@
 ## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_DATE, SPELL_SRC_FILE,
 ## @Globals SPELL_SANITIZED_FILE_NAME, SPELL_MD5_UNPACKED, SPELL_VERSION,
 ## @Globals CURRENTPWD, i, j, n, BUILD_DTFILE, DTFILE_MENUENTRY, DTFILE_EXEC
-## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM
+## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM, SPELL_SRC_DIR
 ##
 ## @Thanks BearPerson, dufflebunk, afrayedknot
 ## @Thanks To all testers
@@ -57,6 +57,29 @@ function hunt_src_url() {
   else
     echo $URL
   fi
+}
+
+function check_if_tarball(){
+if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1` ]]; then
+  return 0
+else
+  return 1
+fi
+}
+
+function hunt_src_dir(){
+  tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -e "s=${SPELL_NAME}=\$\{SPELL\}=g;s=${SPELL_VERSION}=\$\{VERSION\}=g;s=/.*$==g;q"
+}
+
+function set_src_dir(){
+if check_if_tarball
+then
+  SPELL_SRC_DIR=$(hunt_src_dir)
+  return 0
+else
+  SPELL_SRC_DIR="\${SPELL}-\${VERSION}"
+  return 1
+fi
 }
 
 #---
@@ -390,6 +413,11 @@ SPELL_MD5_UNPACKED="$(md5_unpack ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
 SPELL_DATE=$(date +%Y%m%d)
 HISTORY_DATE=$(date +%Y-%m-%d)
+
+## Parse source directory name
+
+set_src_dir
+
 #Generate DETAILS
 
 message "Generating DETAILS file..."
@@ -400,7 +428,7 @@ echo \
           SOURCE=${SPELL_SRC_FILE}
    SOURCE_URL[0]=${SPELL_SRC_URL}
      SOURCE_HASH=sha512:${SPELL_MD5_UNPACKED}
-SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
+SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/${SPELL_SRC_DIR}
         WEB_SITE=${SPELL_URL}
          ENTERED=${SPELL_DATE}
          UPDATED=${SPELL_DATE}
