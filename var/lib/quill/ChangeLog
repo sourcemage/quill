@@ -1,4 +1,10 @@
 2005-01-18 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* quill: there is a new global variable SPELL_SRC_DIR. It is now
+	  in the @Globals list. It is set by function set_src_dir and
+	  used in function add_details.
+	* libdetails: bugfixes (this time i mean it), removed comments.
+
+2005-01-18 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* libdetails, quill: fixed bugs, added new function set_src_dir
 	  that calls the previous two i wrote.
 

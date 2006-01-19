@@ -59,11 +59,7 @@ fi
 }
 
 function check_if_tarball(){
-# Checks if the given file is a valid tarball.
-# WARNING: Also returns 0 if file simply does not exist, so this should
-# always be checked in advance.
-# Returns: true (0) or false (1)
-if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1' ]]; then
+if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1` ]]; then
   return 0
 else
   return 1
@@ -71,31 +67,15 @@ fi
 }
 
 function hunt_src_dir(){
-# Retrieves the source directory name from inside a tarball and modifies
-# it to be used in DETAILS. For instance, "src_application-0.1/" becomes
-# "src_$SPELL-$VERSION", as long as the variables are correct.
-# The function relies on the assumption that the first directory inside
-# a source tarball is also the same where 'make' or a similar command 
-# should be run from.
-# Returns: string
-tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -e "s=${SPELL_NAME}=\$\{SPELL\}=g;s=${SPELL_VERSION}=\$\{VERSION\}=g;s=/$==g;q"
+  tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -e "s=${SPELL_NAME}=\$\{SPELL\}=g;s=${SPELL_VERSION}=\$\{VERSION\}=g;s=/.*$==g;q"
 }
 
 function set_src_dir(){
-# Checks if the source file is a valid tarball, and if so, sets variable
-# SPELL_SRC_DIR to the source directory name to be used in DETAILS. If
-# that doesn't work, just sets $SPELL_SRC_DIR to the default string
-# "${SPELL}-${VERSION}".
-# Returns: 0 when succeeds in getting the dir name from tarball, 1 if
-# fails and just sets the default.
 if check_if_tarball
 then
-  # Source file is a valid archive, retrieving source dir name.
   SPELL_SRC_DIR=$(hunt_src_dir)
   return 0
 else
-  # Oops! Source file seems not to be a valid archive. Just using the
-  # default source dir name, who cares if it works or not...
   SPELL_SRC_DIR="\${SPELL}-\${VERSION}"
   return 1
 fi
