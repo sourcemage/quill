@@ -1,3 +1,6 @@
+#---
+## @Synopsis generate basic spell dir
+#---
 function create_spell_base(){
   mkdir -p ${SPELL_NAME}
   cd ${SPELL_NAME}
@@ -6,6 +9,10 @@ function create_spell_base(){
   DEPENDSISON=""
   CONFLICTSON=""
 }
+
+#---
+## @Synopsis download spell's source file
+#---
 
 function download_spell_source(){
   cd ${QUILL_TMP_DIR}
@@ -61,22 +68,8 @@ function quill_rc() {
   fi
 }
 
-function process_parameters()  {
-  while  [  -n  "$1"  ];  do
-    if  echo  "" $1  |  grep  -q  "^ -";  then
-      case  $1  in
-             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
-        --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
-              --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
-            --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
-                      *) quill_help
-      esac
-    else
-      shift
-    fi
-  done
-}
-
+#---
+## @Synopsis The welcome message for quill
 function quill_welcome() {
   message "Welcome to SourceMage GNU/Linux quill - a spell creator script."
   message "-----------------------------------------------------------------------------"
@@ -91,6 +84,9 @@ function quill_welcome() {
   message "-----------------------------------------------------------------------------"
 }
 
+#---
+## @Synopsis used to edit spell files
+#---
 function quill_edit() {
   message "Now invoking $EDITOR to edit spell files."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
@@ -101,6 +97,9 @@ function quill_edit() {
   message "All modifications complete."
 }
 
+#---
+## @Synopsis generate a tarball of the spell
+#---
 function quill_final_tarball() {
   message "Now creating a bziped2 tarball of the spell files"
   cd ${QUILL_SPELL_DIR}
@@ -111,7 +110,9 @@ function quill_final_tarball() {
      message "Spell tarball created successfully"
   fi
 }
-
+#---
+## @Synopsis function to put the spell into the grimoire
+#---
 function quill_final_put_in_grimoire() {
   message "You have selected to put the spell into the grimoire"
   message "Please note there will also be a spell tarball in" 
