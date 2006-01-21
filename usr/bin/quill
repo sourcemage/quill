@@ -86,7 +86,7 @@ mkdir -p $QUILL_TMP_DIR
 
 quill_welcome
 
-if [[ "${QUILL_MODE_FMXML}" == "on" ]]
+if [[ "${QUILL_FMXML_MODE}" == "on" ]]
 then
   QUILL_FMXML_SPELL="$@"
   quill_fmxml_core
