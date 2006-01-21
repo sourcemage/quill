@@ -49,20 +49,7 @@
 QUILL_MODE="apprentice"
 CURRENTPWD=$(pwd)
 
-function process_parameters()  {
-while  [  -n  "$1"  ];  do
-  if  echo  "" $1  |  grep  -q  "^ -";  then
-    case  $1  in
-             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
-        --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
-              --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
-            --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
-                      *) quill_help
-    esac
-  else
-    shift
-  fi
-done
+process_parameters
 
 QUILL_HOME_DIR=~/.sourcemage/quill
 QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
