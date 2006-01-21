@@ -58,6 +58,18 @@ if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
 fi
 }
 
+function parse_spell_source_file_info(){
+SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
+SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
+SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.t")
+}
+
+function show_spell_source_file_info(){
+echo "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
+echo "Version: ${SPELL_VERSION}"
+echo "URL: ${SPELL_SRC_URL}"
+}
+
 function check_if_tarball(){
 if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1` ]]; then
   return 0

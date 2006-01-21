@@ -1,3 +1,19 @@
+function create_spell_base(){
+mkdir -p ${SPELL_NAME}
+cd ${SPELL_NAME}
+touch DETAILS
+chmod +x DETAILS
+DEPENDSISON=""
+CONFLICTSON=""
+}
+
+function download_spell_source(){
+cd ${QUILL_TMP_DIR}
+wget "${SPELL_SRC_URL}"
+cd ${CURRENTPWD}
+cd ${SPELL_NAME}
+}
+
 #---
 ## @Synopsis hash_get function by afreydknot
 ##
@@ -61,7 +77,7 @@ function quill_welcome() {
     message "and a tar.bz2 file will be created in ~/spells ."
     message "-----------------------------------------------------------------------------"
     message "${WARNING_COLOR}Any lists i.e. dependencies and optional dependencies should be"
-    message "space delimited and not coma delimited!!!${DEFAULT_COLOR}"
+    message "space delimited and not comma delimited!!!${DEFAULT_COLOR}"
     message "-----------------------------------------------------------------------------"
 
 }

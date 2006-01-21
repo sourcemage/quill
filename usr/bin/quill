@@ -47,6 +47,7 @@
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
 QUILL_MODE="apprentice"
+CURRENTPWD=$(pwd)
 
 function process_parameters()  {
 while  [  -n  "$1"  ];  do
@@ -80,6 +81,8 @@ mkdir -p $QUILL_TMP_DIR
 
 #---
 ## Questions and stuff
+
+quill_welcome
 
 if [[ "${QUILL_MODE_FMXML}" == "on" ]]
 then
@@ -121,9 +124,8 @@ query_spell_volatiles
   fi
 fi
 
-CURRENTPWD=$(pwd)
 
-create_base_dir_and_files
+create_spell_base
 
 if [[ "${SPELL_DEPENDENCIES}" != "" ]]
 then
@@ -135,7 +137,6 @@ then
   add_optional_dependencies
 fi
 
-
 if [[ "${SPELL_CONFLICTS}" != "" ]]
 then
   add_conflicts
@@ -145,6 +146,12 @@ if [[ "${SPELL_PROVIDES}" != "" ]]
 then
   add_provides
 fi
+
+parse_spell_source_file_info
+
+show_spell_source_file_info
+
+download_spell_source
 
 set_src_dir
 
