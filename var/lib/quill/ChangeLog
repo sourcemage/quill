@@ -1,3 +1,6 @@
+2006-01-22 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* quill: added cmdline flags for most main variables in DETAILS.
+
 2006-01-21 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: reverted the function parese parameters should be there but not as function
 	* libcore: removed parse_parameteres and added some comments
