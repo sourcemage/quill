@@ -56,11 +56,16 @@ CURRENTPWD=$(pwd)
 while  [  -n  "$1"  ];  do
   if  echo  "" $1  |  grep  -q  "^ -";  then
     case  $1  in
-             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
-        --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
-              --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
-            --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
-                      *) quill_help
+                             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
+                        --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
+                              --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
+                            --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
+           `echo $1 | grep "^--spell="`) SPELL_NAME=${1/"--spell="/""}; shift 1;;
+      `echo $1 | grep "^--source_url="`) SPELL_SRC_URL=${1/"--source_url="/""}; shift 1;;
+        `echo $1 | grep "^--web_site="`) SPELL_URL=${1/"--web_site="/""}; shift 1;;
+         `echo $1 | grep "^--license="`) SPELL_LICENSE=${1/"--license="/""}; shift 1;;
+           `echo $1 | grep "^--short="`) SPELL_SHORT_DESCRIPTION=${1/"--short="/""}; shift 1;;
+                                      *) quill_help
     esac
   else
     shift
