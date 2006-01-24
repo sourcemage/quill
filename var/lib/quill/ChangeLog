@@ -1,3 +1,14 @@
+2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* libdetails: removed function set_src_dir, now hunt_src_dir 
+	  sets SPELL_SRC_DIR and is also has more safety checks
+	* libdetails: added function substitute_url_variables that 
+	  sanitizes SPELL_SRC_URL. still missing support for e.g.
+	  sourceforge urls
+	* libdetails: lots of documentation added
+	* quill: edited ToDo
+	* quill: flag -h is now the only one calling quill help
+	* quill: changed function call set_src_dir to hunt_src_dir
+
 2006-01-22 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* quill: added cmdline flags for most main variables in DETAILS.
 

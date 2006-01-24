@@ -6,7 +6,7 @@
 ## @Copyright Copyright 2005 SourceMage GNU/Linux
 ## @License GPL v2
 ##
-## @ToDo figure out how to do conversions to proper url variables
+## @ToDo make substitute_url_variables go through /etc/sorcery/mirrors
 ## @ToDo put a multiversion option
 ## @ToDo make an option to edit all the existing files after generation
 ## @ToDo make configuring optional depends a must
@@ -65,7 +65,7 @@ while  [  -n  "$1"  ];  do
         `echo $1 | grep "^--web_site="`) SPELL_URL=${1/"--web_site="/""}; shift 1;;
          `echo $1 | grep "^--license="`) SPELL_LICENSE=${1/"--license="/""}; shift 1;;
            `echo $1 | grep "^--short="`) SPELL_SHORT_DESCRIPTION=${1/"--short="/""}; shift 1;;
-                                      *) quill_help
+                                     -h) quill_help
     esac
   else
     shift
@@ -160,7 +160,9 @@ show_spell_source_file_info
 
 download_spell_source
 
-set_src_dir
+substitute_url_variables
+
+hunt_src_dir
 
 add_details
 

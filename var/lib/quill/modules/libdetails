@@ -58,18 +58,39 @@ if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
 fi
 }
 
+#--
+## @Synopsis assign to SPELL_SRC_FILE the filename and to VERSION the
+## @Synopsis version number parsed from source url
+#---
 function parse_spell_source_file_info(){
 SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
 SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
 SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.t")
 }
 
+#---
+## @Synopsis print on screen info gathered from source url
+#---
 function show_spell_source_file_info(){
 echo "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
 echo "Version: ${SPELL_VERSION}"
 echo "URL: ${SPELL_SRC_URL}"
 }
 
+#---
+## @Synopsis subsitute expanded with escaped SPELL and VERSION in
+## @Synopsis SPELL_SRC_URL
+#---
+function substitute_url_variables(){
+  SPELL_SRC_URL=${SPELL_SRC_URL//${SPELL}/\${SPELL\}}
+  SPELL_SRC_URL=${SPELL_SRC_URL//${VERSION}/\${VERSION\}}
+}
+
+#---
+## @Synopsis check if file is a tarball
+## @return 0 if a tarball
+## @return 1 if not a tarball
+#---
 function check_if_tarball(){
 if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1` ]]; then
   return 0
@@ -78,23 +99,32 @@ else
 fi
 }
 
+#---
+## @Synopsis assign to SPELL_SRC_DIR the source dir inside a tarball,
+## @Synopsis substitute expanded with escaped SPELL and VERSION
+## @return 0 if a tarball and has a src dir
+## @return 1 if a tarball but has no src dir
+## @return 2 if not a tarball.
+#---
 function hunt_src_dir(){
-  tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -e "s=${SPELL_NAME}=\$\{SPELL\}=g;s=${SPELL_VERSION}=\$\{VERSION\}=g;s=/.*$==g;q"
-}
-
-function set_src_dir(){
-if check_if_tarball
-then
-  SPELL_SRC_DIR=$(hunt_src_dir)
-  return 0
+if check_if_tarball; then
+  SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | grep / | sed -e "s=/.*$==g;q")
+  if [ -n "$SPELL_SRC_DIR" ]; then
+    SPELL_SRC_DIR=${SPELL_SRC_DIR//${SPELL}/\${SPELL\}}
+    SPELL_SRC_DIR=${SPELL_SRC_DIR//${VERSION}/\${VERSION\}}
+    return 0
+  else
+    return 1
 else
-  SPELL_SRC_DIR="\${SPELL}-\${VERSION}"
-  return 1
+  unset SPELL_SRC_DIR
+  return 2
 fi
 }
 
-function add_details()
-{
+#---
+## @Synopsis generate DETAILS file
+#---
+function add_details(){
 QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
 
@@ -122,5 +152,4 @@ EOF" > DETAILS
 rm ${QUILL_TMP_DIR}/$SPELL_NAME
 
 message "Done..."
-
 }
