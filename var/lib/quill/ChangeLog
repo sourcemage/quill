@@ -1,4 +1,13 @@
 2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* libdetails: added new function
+	  substitute_with_mirror_variables which checks SPELL_SRC_URL
+	  for urls that are listed in any of the files in
+	  /etc/sorcery/mirrors, and substitutes them with appropriate
+	  variable names.
+	* libdetails: substitute_url_variables now calls
+	  substitute_with_mirror_variables
+
+2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* libdetails: removed function set_src_dir, now hunt_src_dir 
 	  sets SPELL_SRC_DIR and is also has more safety checks
 	* libdetails: added function substitute_url_variables that 

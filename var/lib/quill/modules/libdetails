@@ -79,11 +79,30 @@ echo "URL: ${SPELL_SRC_URL}"
 
 #---
 ## @Synopsis subsitute expanded with escaped SPELL and VERSION in
-## @Synopsis SPELL_SRC_URL
+## @Synopsis SPELL_SRC_URL, call substitute_with_mirror_variables
 #---
 function substitute_url_variables(){
   SPELL_SRC_URL=${SPELL_SRC_URL//${SPELL}/\${SPELL\}}
   SPELL_SRC_URL=${SPELL_SRC_URL//${VERSION}/\${VERSION\}}
+  substitute_with_mirror_variables
+}
+
+#---
+## @Synopsis substitute download mirror url names in SPELL_SRC_URL with
+## @Synopsis their respective variable names
+#---
+function substitute_with_mirror_variables(){
+local MIRROR_LIST_FILE
+local MIRROR_VARIABLE
+local MIRROR_ENTRY
+for MIRROR_LIST_FILE in $(ls /etc/sorcery/mirrors/); do
+  MIRROR_VARIABLE="${MIRROR_LIST_FILE}_URL"
+  for MIRROR_ENTRY in $(cat /etc/sorcery/mirrors/${MIRROR_LIST_FILE}); do
+    if [[ "$MIRROR_ENTRY" =~ "://" ]]; then
+      SPELL_SRC_URL=${SPELL_SRC_URL//$MIRROR_ENTRY/\$\{$MIRROR_VARIABLE\}}
+    fi
+  done
+done
 }
 
 #---
