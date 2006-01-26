@@ -1,4 +1,7 @@
 2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* ToDo
+
+2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* libdetails: added new function
 	  substitute_with_mirror_variables which checks SPELL_SRC_URL
 	  for urls that are listed in any of the files in

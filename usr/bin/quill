@@ -6,6 +6,7 @@
 ## @Copyright Copyright 2005 SourceMage GNU/Linux
 ## @License GPL v2
 ##
+## @ToDo have numbered SOURCE_URL and LICENSE only if there are several
 ## @ToDo make substitute_url_variables go through /etc/sorcery/mirrors
 ## @ToDo put a multiversion option
 ## @ToDo make an option to edit all the existing files after generation
