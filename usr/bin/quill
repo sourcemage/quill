@@ -6,23 +6,25 @@
 ## @Copyright Copyright 2005 SourceMage GNU/Linux
 ## @License GPL v2
 ##
-## @ToDo have numbered SOURCE_URL and LICENSE only if there are several
-## @ToDo make substitute_url_variables go through /etc/sorcery/mirrors
-## @ToDo put a multiversion option
-## @ToDo make an option to edit all the existing files after generation
-## @ToDo make configuring optional depends a must
-## @ToDo add logic to quill to make it possible to use optional_depends single line or 
-## @ToDo multiline depending on the length of line if <80 single else mutli
-## @ToDo interface to add CONFIGURE options
-## @ToDo automated bugcli submissions of spells
-## @ToDo make a tar.bz2 of the spell immediately
-## @ToDo automatic inclusion into a grimoire when finished
-## @ToDo make it use the ~/.sourcemage dir for config
-## @ToDo add cmdline options to make it possible to autoscript it
-## @ToDo add a better configuration interface(dialog based I hope)
-## @ToDo make it possible to also update spells using quill
-## @ToDo make quill the be-all for spells
-## @ToDo make quill interface with both sorcery and grimoire to get functions
+## @ToDo Add option to use upstream gpg signature as included or 
+## @ToDo downloadable .sig file
+## @ToDo Put a multiversion option
+## @ToDo Make an option to edit all the existing files after generation
+## @ToDo Make configuring optional depends a must
+## @ToDo Add logic to quill to make it possible to use optional_depends 
+## @ToDo single line or multiline depending on the length of line if 
+## @ToDo <80 single else multi
+## @ToDo Interface to add CONFIGURE options
+## @ToDo Automated bugcli submissions of spells
+## @ToDo Make a tar.bz2 of the spell immediately
+## @ToDo Automatic inclusion into a grimoire when finished
+## @ToDo Make it use the ~/.sourcemage dir for config
+## @ToDo Add cmdline options to make it possible to autoscript it
+## @ToDo Add a better configuration interface(dialog based I hope)
+## @ToDo Make it possible to also update spells using quill
+## @ToDo Make quill the be-all for spells
+## @ToDo Make quill interface with both sorcery and grimoire to get 
+## @ToDo functions
 ##
 ## Asks the user in simple questions about generating a spell.
 ## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON

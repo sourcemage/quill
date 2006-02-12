@@ -21,6 +21,26 @@ if ! [[ $SPELL_SRC_URL ]] ||
 fi
 }
 
+function query_spell_signature(){
+if [[ $SPELL_SIGNATURE ]] &&
+   ! query "Is $SPELL_SIGNATURE the proper signature key url?" y; then
+  message "${QUERY_COLOR}Please enter the url of the signature key:${DEFAULT_COLOR}"
+  read "SPELL_SIGNATURE"
+fi
+if ! [[ $SPELL_SIGNATURE ]]; then
+  if query "Do you want to use an upstream signature key?" n; then
+    message "${QUERY_COLOR}Please enter the url of the signature key:${DEFAULT_COLOR}"
+    read "SPELL_SIGNATURE"
+  fi
+fi
+if [[ $SPELL_SIGNATURE ]] &&
+   ! [[ $DOWNLOAD_SIGNATURE ]]; then
+  if query "Use downloadable upstream signature key?" y; then
+    DOWNLOAD_SIGNATURE="y"
+  fi
+fi
+}
+
 function query_spell_license(){
 if ! [[ $SPELL_LICENSE ]] ||
    ! query "Is $SPELL_LICENSE the proper license?" y; then
@@ -59,8 +79,8 @@ fi
 }
 
 #--
-## @Synopsis assign to SPELL_SRC_FILE the filename and to VERSION the
-## @Synopsis version number parsed from source url
+## @Synopsis Assign to SPELL_SRC_FILE the filename and to VERSION the
+## @Synopsis version number parsed from source url.
 #---
 function parse_spell_source_file_info(){
 SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
@@ -69,7 +89,7 @@ SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\
 }
 
 #---
-## @Synopsis print on screen info gathered from source url
+## @Synopsis Print on screen info gathered from source url.
 #---
 function show_spell_source_file_info(){
 echo "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
@@ -78,35 +98,64 @@ echo "URL: ${SPELL_SRC_URL}"
 }
 
 #---
-## @Synopsis subsitute expanded with escaped SPELL and VERSION in
-## @Synopsis SPELL_SRC_URL, call substitute_with_mirror_variables
+## @Synopsis Substitute any number of expanded variables in given string 
+## @Synopsis with corresponding variable names, store resulting string 
+## @Synopsis in $SUBSTITUTIONS. $1 is target variable, $2 and so on are 
+## @Synopsis variables to substitute with var names. Omit $, give only 
+## @Synopsis var names. Example:
+## @Synopsis substitute_with_variables SPELL_SRC_URL SPELL VERSION
+#---
+function substitute_with_variables() {
+if [ -n "$1" ]; then
+  local TARGET_STRING="${!1}"
+  shift 1
+  while [ -n "$1" ]; do
+    TARGET_STRING=${TARGET_STRING//${!1}/\$\{$1\}}
+    shift 1
+  done
+  SUBSTITUTIONS=$TARGET_STRING
+fi
+}
+
+#---
+## @Synopsis Process SPELL_SRC_URL: Subsitute expanded with escaped 
+## @Synopsis SPELL and VERSION, Substitute mirror urls with mirror url 
+## @Synopsis variables.
 #---
 function substitute_url_variables(){
-  SPELL_SRC_URL=${SPELL_SRC_URL//${SPELL}/\${SPELL\}}
-  SPELL_SRC_URL=${SPELL_SRC_URL//${VERSION}/\${VERSION\}}
-  substitute_with_mirror_variables
+  substitute_with_variables SPELL_SRC_URL SPELL VERSION
+  SPELL_SRC_URL="$SUBSTITUTIONS"
+  substitute_with_mirror_variables SPELL_SRC_URL
+  SPELL_SRC_URL="$SUBSTITUTIONS"
 }
 
 #---
-## @Synopsis substitute download mirror url names in SPELL_SRC_URL with
-## @Synopsis their respective variable names
+## @Synopsis Substitute download mirror urls with variable names in 
+## @Synopsis given variable. Store resulting string in 
+## @Synopsis SUBSTITUTIONS. Urls and variables are parsed from contents 
+## @Synopsis of /etc/sorcery/mirrors/. Example:
+## @Synopsis substitute_with_mirror_variables SPELL_SRC_URL
 #---
 function substitute_with_mirror_variables(){
-local MIRROR_LIST_FILE
-local MIRROR_VARIABLE
-local MIRROR_ENTRY
-for MIRROR_LIST_FILE in $(ls /etc/sorcery/mirrors/); do
-  MIRROR_VARIABLE="${MIRROR_LIST_FILE}_URL"
-  for MIRROR_ENTRY in $(cat /etc/sorcery/mirrors/${MIRROR_LIST_FILE}); do
-    if [[ "$MIRROR_ENTRY" =~ "://" ]]; then
-      SPELL_SRC_URL=${SPELL_SRC_URL//$MIRROR_ENTRY/\$\{$MIRROR_VARIABLE\}}
-    fi
+if [ -n "$1" ]; then
+  local TARGET_STRING="${!1}"
+  local MIRROR_LIST_FILE
+  local MIRROR_VARIABLE
+  local MIRROR_ENTRY
+  for MIRROR_LIST_FILE in $(ls /etc/sorcery/mirrors/); do
+    MIRROR_VARIABLE="${MIRROR_LIST_FILE}_URL"
+    for MIRROR_ENTRY in $(cat /etc/sorcery/mirrors/${MIRROR_LIST_FILE}); do
+      if [[ "$MIRROR_ENTRY" =~ "://" ]]; then
+        TARGET_STRING=${TARGET_STRING//$MIRROR_ENTRY/\$\{$MIRROR_VARIABLE\}}
+      fi
+    done
   done
-done
+  SUBSTITUTIONS="$TARGET_STRING"
+fi
 }
 
 #---
-## @Synopsis check if file is a tarball
+## @Synopsis Check if file is a tarball.
 ## @return 0 if a tarball
 ## @return 1 if not a tarball
 #---
@@ -119,8 +168,8 @@ fi
 }
 
 #---
-## @Synopsis assign to SPELL_SRC_DIR the source dir inside a tarball,
-## @Synopsis substitute expanded with escaped SPELL and VERSION
+## @Synopsis Assign to SPELL_SRC_DIR the source dir inside a tarball,
+## @Synopsis substitute expanded with escaped SPELL and VERSION.
 ## @return 0 if a tarball and has a src dir
 ## @return 1 if a tarball but has no src dir
 ## @return 2 if not a tarball.

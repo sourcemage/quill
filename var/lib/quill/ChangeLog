@@ -1,3 +1,14 @@
+2006-02-12 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
+	* quill: edited ToDo list
+	* libdetails: added substitute_with_variables, a generic 
+	  function to substitute any variables with variable names in a 
+	  given variable string. edited 
+	  substitute_with_mirror_variables to accept any variable, not 
+	  only SPELL_SRC_URL. edited substitute_url_variables to use 
+	  these two edits. added query_spell_signature to query for 
+	  possible upstream signature key.
+
+
 2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* ToDo
 
