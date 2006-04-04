@@ -1,0 +1,17 @@
+function query_spell_prepare()
+{
+if query "Will you be adding a PREPARE file:" "n"
+then
+  PREPAREISON="PREPARE, "
+fi
+}
+
+function add_prepare()
+{
+if [[ "${PREPAREISON}" == "PREPARE, " ]]
+then
+  touch PREPARE
+  chmod +x PREPARE
+  ${EDITOR:-nano} PREPARE
+fi
+}

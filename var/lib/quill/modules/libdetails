@@ -67,14 +67,14 @@ fi
 }
 
 function query_spell_description(){
-if ! test -f ${QUILL_TMP_DIR/${SPELL_NAME} ||
+if ! test -f ${QUILL_TMP_DIR}/${SPELL_NAME} ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
-       cat ${QUILL_TMP_DIR/${SPELL_NAME}
+       cat ${QUILL_TMP_DIR}/${SPELL_NAME}
        query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
   message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
   message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
   read
-  ${EDITOR:-nano} ${QUILL_TMP_DIR/${SPELL_NAME}
+  ${EDITOR:-nano} ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi
 }
 
@@ -160,7 +160,7 @@ fi
 ## @return 1 if not a tarball
 #---
 function check_if_tarball(){
-if [[ -z `tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1` ]]; then
+if [[ -z $(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1) ]]; then
   return 0
 else
   return 1
@@ -178,11 +178,12 @@ function hunt_src_dir(){
 if check_if_tarball; then
   SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | grep / | sed -e "s=/.*$==g;q")
   if [ -n "$SPELL_SRC_DIR" ]; then
-    SPELL_SRC_DIR=${SPELL_SRC_DIR//${SPELL}/\${SPELL\}}
-    SPELL_SRC_DIR=${SPELL_SRC_DIR//${VERSION}/\${VERSION\}}
+    SPELL_SRC_DIR=${SPELL_SRC_DIR//${SPELL}/\$\{SPELL\}}
+    SPELL_SRC_DIR=${SPELL_SRC_DIR//${VERSION}/\$\{VERSION\}}
     return 0
   else
     return 1
+  fi
 else
   unset SPELL_SRC_DIR
   return 2
@@ -207,7 +208,7 @@ echo \
           SOURCE=${SPELL_SRC_FILE}
    SOURCE_URL[0]=${SPELL_SRC_URL}
      SOURCE_HASH=sha512:${QUILL_SPELL_HASH}
-SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/${SPELL_SRC_DIR}
+SOURCE_DIRECTORY=\${BUILD_DIRECTORY}/\${SPELL}-\${VERSION}
         WEB_SITE=${SPELL_URL}
          ENTERED=${SPELL_DATE}
          UPDATED=${SPELL_DATE}

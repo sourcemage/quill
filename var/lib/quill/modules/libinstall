@@ -1,0 +1,25 @@
+INSTALLISON=""
+
+function add_install()
+{
+if [[ "${INSTALLISON}" == "INSTALL, " ]]
+then
+  touch INSTALL
+  chmod +x INSTALL
+  if query "Do you want the default_install function dumped into the INSTALL file" "n"
+  then
+    (declare -f real_default_install | tail -n -2 | head -n 1) > INSTALL
+  else
+    echo "default_install" > INSTALL
+  fi
+  ${EDITOR:-nano} INSTALL
+fi
+}
+
+function query_spell_install()
+{
+if query "Will you be adding a custom INSTALL file:" "n"
+then
+  INSTALLISON="INSTALL, "
+fi
+}

@@ -14,11 +14,10 @@ function add_triggers() {
 if [[ "${SPELL_PROVIDES}" != "" ]]
 then
   touch PROVIDES
-  chmod +x PROVIDES
   PROVIDESISON="PROVIDES, "
   for n in ${SPELL_PROVIDES}
   do
-     echo "provides ${n}" >> PROVIDES
+     echo "${n}" >> PROVIDES
   done
 fi
 }

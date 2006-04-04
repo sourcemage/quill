@@ -1,24 +1,23 @@
-//sgl/misc/quill/usr/bin/quill#8 - edit change 73413 (xtext)
 #!/bin/bash
 #---
 ## @Synopsis Spell creator script for SourceMage GNU/Linux
 ## @Copyright Copyright 2005 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
 ## @Copyright Copyright 2005 SourceMage GNU/Linux
-## @License GPL v2
+## @License GPL v2 or higher
 ##
 ## @ToDo Add option to use upstream gpg signature as included or 
 ## @ToDo downloadable .sig file
 ## @ToDo Put a multiversion option
 ## @ToDo Make an option to edit all the existing files after generation
-## @ToDo Make configuring optional depends a must
-## @ToDo Add logic to quill to make it possible to use optional_depends 
+## @ToDo Make configuring optional depends a must     -     DONE
+## @ToDo Add logic to quill to make it possible to use optional_depends     -     DONE
 ## @ToDo single line or multiline depending on the length of line if 
 ## @ToDo <80 single else multi
 ## @ToDo Interface to add CONFIGURE options
 ## @ToDo Automated bugcli submissions of spells
 ## @ToDo Make a tar.bz2 of the spell immediately
 ## @ToDo Automatic inclusion into a grimoire when finished
-## @ToDo Make it use the ~/.sourcemage dir for config
+## @ToDo Make it use the ~/.sourcemage dir for config     -     DONE
 ## @ToDo Add cmdline options to make it possible to autoscript it
 ## @ToDo Add a better configuration interface(dialog based I hope)
 ## @ToDo Make it possible to also update spells using quill
@@ -43,15 +42,14 @@
 #---
 
 #---
-## @Synopsis md5_unpack function taken from md5unpack script
-##
-#---
-
-#---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
+for i in $(ls -1 /var/lib/quill/modules/lib*)
+do
+. $i
+done
 QUILL_MODE="apprentice"
-CURRENTPWD=$(pwd)
+CURRENTPWD="$(pwd)"
 
 #---
 ## Not really a function it's supposed to parse the command line parameters
@@ -59,20 +57,17 @@ CURRENTPWD=$(pwd)
 while  [  -n  "$1"  ];  do
   if  echo  "" $1  |  grep  -q  "^ -";  then
     case  $1  in
-                             --fmxml|-f) export QUILL_FMXML_MODE="on"; shift 1 ;;
-                        --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
-                              --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
-                            --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
-           `echo $1 | grep "^--spell="`) SPELL_NAME=${1/"--spell="/""}; shift 1;;
-      `echo $1 | grep "^--source_url="`) SPELL_SRC_URL=${1/"--source_url="/""}; shift 1;;
-        `echo $1 | grep "^--web_site="`) SPELL_URL=${1/"--web_site="/""}; shift 1;;
-         `echo $1 | grep "^--license="`) SPELL_LICENSE=${1/"--license="/""}; shift 1;;
-           `echo $1 | grep "^--short="`) SPELL_SHORT_DESCRIPTION=${1/"--short="/""}; shift 1;;
-                                     -h) quill_help
+      --fmxml|-f) export QUILL_FMXML_MODE="on"; export QUILL_FMXML_PARAM="$2"; shift 2 ;;
+ --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
+       --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
+     --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
+       --help|-h) quill_help ;;
+               *) true ;;
     esac
   else
     shift
   fi
+done
 
 QUILL_HOME_DIR=~/.sourcemage/quill
 QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
@@ -96,8 +91,8 @@ quill_welcome
 
 if [[ "${QUILL_FMXML_MODE}" == "on" ]]
 then
-  QUILL_FMXML_SPELL="$@"
-  quill_fmxml_core
+  QUILL_FMXML_SPELL="$QUILL_FMXML_PARAM"
+  quill_fmxml_core $QUILL_FMXML_PARAM
 fi
 
 query_spell_name
@@ -115,22 +110,23 @@ query_spell_desktop_file
 if [[ "${QUILL_MODE}" == "mage" ]] || [[ "${QUILL_MODE}" == "wizard" ]]
 then
 query_spell_prepare
-query_spell_conflicts
-query_spell_configure
+#-query_spell_conflicts
+#-query_spell_configure
 query_spell_provides
-query_spell_final
-query_spell_triggers
-query_spell_solo
-query_spell_configs
-query_spell_volatiles
+#-query_spell_final
+#-query_spell_triggers
+#-query_spell_solo
+#-query_spell_configs
+#-query_spell_volatiles
   if [[ "${QUILL_MODE}" == "wizard" ]]; then
-  query_spell_pre_build
-  query_spell_pre_install
-  query_spell_post_install
-  query_spell_pre_remove
-  query_spell_post_remove
-  query_spell_pre_resurrect
-  query_spell_post_resurrect
+#-  query_spell_pre_build
+#-  query_spell_pre_install
+#-  query_spell_post_install
+#-  query_spell_pre_remove
+#-  query_spell_post_remove
+#-  query_spell_pre_resurrect
+#-  query_spell_post_resurrect
+   true
   fi
 fi
 
@@ -147,10 +143,10 @@ then
   add_optional_dependencies
 fi
 
-if [[ "${SPELL_CONFLICTS}" != "" ]]
-then
-  add_conflicts
-fi
+#-if [[ "${SPELL_CONFLICTS}" != "" ]]
+#-then
+#-  add_conflicts
+#-fi
 
 if [[ "${SPELL_PROVIDES}" != "" ]]
 then
@@ -169,20 +165,20 @@ hunt_src_dir
 
 add_details
 
-if [[ "${PREPAREISON}" == "PREPARE, " ]]
-then
-  add_prepare
-fi
+#-if [[ "${PREPAREISON}" == "PREPARE, " ]]
+#-then
+#-  add_prepare
+#-fi
 
-if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
-then
-  add_configure
-fi
+#-if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
+#-then
+#-  add_configure
+#-fi
 
-if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
-then
-  add_pre_build
-fi
+#-if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
+#-then
+#-  add_pre_build
+#-fi
 
 if [[ "${BUILDISON}" == "BUILD, " ]]
 then
@@ -194,15 +190,15 @@ then
   add_install
 fi
 
-if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
-then
-  add_post_install
-fi
+#-if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
+#-then
+#-  add_post_install
+#-fi
 
-if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
-then
-  add_triggers
-fi
+#-if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
+#-then
+#-  add_triggers
+#-fi
 
 if [[ "${BUILD_DTFILE}" != "" ]]
 then

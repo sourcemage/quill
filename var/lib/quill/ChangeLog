@@ -1,3 +1,16 @@
+2006-01-21 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* install.sh: added install/deinstall script
+	* usr/bin/quill:commented out unused functions
+	  added sourcing of modules
+	* var/lib/quill/modules/libcore: made it workable
+	* var/lib/quill/modules/libdepends: made it workable
+	* var/lib/quill/modules/libdetails: made it workable
+	* var/lib/quill/modules/libfreshmeatxml: made it workable
+	* var/lib/quill/modules/libhistory: made it workable
+	* var/lib/quill/modules/libinstall: made it workable
+	* var/lib/quill/modules/libprepare: made it workable
+	* var/lib/quill/modules/libprovides: made it workable
+
 2006-02-12 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* quill: edited ToDo list
 	* libdetails: added substitute_with_variables, a generic 
@@ -35,7 +48,7 @@
 2006-01-22 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* quill: added cmdline flags for most main variables in DETAILS.
 
-2006-01-21 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+2006-01-21 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: reverted the function parese parameters should be there but not as function
 	* libcore: removed parse_parameteres and added some comments
 
@@ -60,10 +73,10 @@
 	* quill: added calls to functions check_if_tarball and
 	  hunt_src_dir
 
-2005-11-13 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+2005-11-13 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: updated hash_get to use only sha512
 
-2005-09-11 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+2005-09-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: added an improved quill_rc to support
 	  the new naming of user ran guru tools also
 	  added stubs to function calls for more advanced

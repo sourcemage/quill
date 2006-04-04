@@ -1,9 +1,10 @@
+#set -x
 #---
 ## @Synopsis libfreshmeatxml
 #---
 
 function quill_fmxml_grab_from_xml() {
-  xml_grep --text_only "$1" "$FRESHMEAT_FILE"
+  xml_grep --text_only "$1" "${QUILL_TMP_DIR}/${2}.xml"
 }
 
 
@@ -25,38 +26,37 @@ function quill_fmxml_core(){
   # if the argument looks like a url then use that, otherwise
   # assume the argument is the name of the spell and construct a
   # url for where we think freshmeat.net stores their xml data
-  if echo $QUILL_FMXML_SPELL|grep -q http://; then
-    FRESHMEAT_XML_URL="${QUILL_FMXML_SPELL}"
+  if echo $1|grep -q http://; then
+    FRESHMEAT_XML_URL="$1"
   else
-    FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/$QUILL_FMXML_SPELL/${QUILL_FMXML_SPELL}.xml
+    FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/${1}/${1}.xml
   fi
   # check if we already have the xml file, if we dont, download it
-  if test -f ${QUILL_TMP_DIR}/${QUILL_FMXML_SPELL}.xml ; then
-    FRESHMEAT_FILE=${QUILL_FMXML_SPELL}.xml
+  if test -f ${QUILL_TMP_DIR}/${1}.xml ; then
+    FRESHMEAT_FILE=${1}.xml
   else
-    if ! curl -O ${FRESHMEAT_XML_URL} ; then
-      message "${ERROR_COLOR}Failed to get ${QUILL_FMXML_SPELL}${DEFAULT_COLOR}"
+    if ! curl -o ${QUILL_TMP_DIR}/${1}.xml ${FRESHMEAT_XML_URL} ; then
+      message "${ERROR_COLOR}Failed to get ${1}${DEFAULT_COLOR}"
       exit 1
     fi
-    FRESHMEAT_FILE=$FILE
+    FRESHMEAT_FILE=$FRESHMEAT_FILE
     unset FILE
   fi
-fi
 
 # fill in variables from xml file
-if [[ $QUILL_FMXML_SPELL ]] ; then
-  SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short|tr 'A-Z' 'a-z')
+if [[ $1 ]] ; then
+  SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short $1|tr 'A-Z' 'a-z')
   for each in url_bz2 url_tgz; do
-    TMP=$(quill_fmxml_grab_from_xml $each)
+    TMP=$(quill_fmxml_grab_from_xml $each $1)
     if [[ $TMP ]] ; then
       SPELL_SRC_URL=$(quill_fmxml_hunt_src_url $SPELL_NAME $TMP)
       break
     fi
   done
-  SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage) 2>&1|\
+  SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage $1) 2>&1|\
               grep Location|awk '{print $2}'|sed 's/\r//g')
-  SPELL_LICENSE=$(quill_fmxml_grab_from_xml license|awk '{print $NF}'|tr -d '()')
-  SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short|sed 's/\r//g')
-  quill_fmxml_grab_from_xml desc_full|fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
+  SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1|awk '{print $NF}'|tr -d '()')
+  SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short $1|sed 's/\r//g')
+  quill_fmxml_grab_from_xml desc_full $1 |fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi
 }
