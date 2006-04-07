@@ -1,5 +1,5 @@
 2006-04-07 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
-	* var/lib/quill/modules/libcore: typo
+	* var/lib/quill/modules/libcore: typo, another one
 
 2006-04-04 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* install.sh: added install/deinstall script
