@@ -1,4 +1,7 @@
-2006-01-21 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+2006-04-07 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* var/lib/quill/modules/libcore: typo
+
+2006-04-04 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* install.sh: added install/deinstall script
 	* usr/bin/quill:commented out unused functions
 	  added sourcing of modules

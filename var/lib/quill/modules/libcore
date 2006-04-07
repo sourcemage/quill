@@ -27,7 +27,7 @@ function download_spell_source(){
 #---
 
 function hash_get() {
-  gpg --print-md sha512} \
+  gpg --print-md sha512 \
   "$QUILL_SOURCE_FILE" |\
   tr -d '\n ' | tr 'A-F' 'a-f' |\
   awk -F: '{printf "%s  %s\n",$2,$1}'
