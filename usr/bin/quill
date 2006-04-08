@@ -50,7 +50,7 @@ do
 done
 QUILL_MODE="apprentice"
 CURRENTPWD="$(pwd)"
-
+HISTORY_DATE="$(date +%Y-%m-%d)
 #---
 ## Not really a function it's supposed to parse the command line parameters
 #---

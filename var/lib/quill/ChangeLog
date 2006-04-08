@@ -1,3 +1,6 @@
+2006-04-08 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* usr/bin/quill: missing HISTORY_DATE
+
 2006-04-07 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* var/lib/quill/modules/libcore: typo, another one, and another one
 
