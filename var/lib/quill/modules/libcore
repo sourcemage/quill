@@ -30,7 +30,7 @@ function hash_get() {
   gpg --print-md sha512 \
   "$@" |\
   tr -d '\n ' | tr 'A-F' 'a-f' |\
-  awk -F: '{printf "%s  %s\n",$2,$1}'
+  awk -F: '{printf $2}'
 }
 
 #---
