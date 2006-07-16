@@ -2,7 +2,7 @@
 if [[ "$1" == "install" ]]
 then
 mkdir -vp /usr
-mkdir -vp /usr/sbin
+mkdir -vp /usr/bin
 mkdir -vp /var
 mkdir -vp /var/lib
 mkdir -vp /var/lib/quill
@@ -30,7 +30,7 @@ fi
 
 if [[ "$1" == "uninstall" ]]
 then
-rm -v /usr/sbin/quill
+rm -v /usr/bin/quill
 rm -v /var/lib/quill/modules/libprovides
 rm -v /var/lib/quill/modules/libdetails
 rm -v /var/lib/quill/modules/libconflicts
