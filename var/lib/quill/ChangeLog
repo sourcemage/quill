@@ -1,3 +1,14 @@
+2006-07-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* install.sh: added INSTALL_ROOT support, ensured it is ran from where 
+	              it is expected to, simplified the copying/removing logic
+	* libfreshmeatxml: grab non-abbreviated licenses too, fix bad color
+	* libcore: implemented the missing quill_help, fix bad color
+	* quill: fix infinite loop on bad/missing parameter -> print help
+	         add && to DEPENDS #10481
+	         simplified the sourcing loop
+	         add missing quote
+
+
 2006-07-16 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* var/lib/quill/modules/libdetails: change for global BUILD_API2
 	  and remove ENETRED and UPDATED

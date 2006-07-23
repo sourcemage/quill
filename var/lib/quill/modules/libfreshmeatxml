@@ -36,7 +36,7 @@ function quill_fmxml_core(){
     FRESHMEAT_FILE=${1}.xml
   else
     if ! curl -o ${QUILL_TMP_DIR}/${1}.xml ${FRESHMEAT_XML_URL} ; then
-      message "${ERROR_COLOR}Failed to get ${1}${DEFAULT_COLOR}"
+      message "${PROBLEM_COLOR}Failed to get ${1}${DEFAULT_COLOR}"
       exit 1
     fi
     FRESHMEAT_FILE=$FRESHMEAT_FILE
@@ -55,7 +55,11 @@ if [[ $1 ]] ; then
   done
   SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage $1) 2>&1|\
               grep Location|awk '{print $2}'|sed 's/\r//g')
-  SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1|awk '{print $NF}'|tr -d '()')
+  
+  SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1)
+  if grep -q "(.*)" <<< "$SPELL_LICENSE"; then
+    SPELL_LICENSE=$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')
+  fi
   SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short $1|sed 's/\r//g')
   quill_fmxml_grab_from_xml desc_full $1 |fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
 fi

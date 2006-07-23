@@ -79,7 +79,7 @@ function quill_welcome() {
   message "The spell will be put into a grimoire/section you define\(if you choose to\)"
   message "and a tar.bz2 file will be created in ~/spells ."
   message "-----------------------------------------------------------------------------"
-  message "${WARNING_COLOR}Any lists i.e. dependencies and optional dependencies should be"
+  message "${PROBLEM_COLOR}Any lists i.e. dependencies and optional dependencies should be"
   message "space delimited and not comma delimited!!!${DEFAULT_COLOR}"
   message "-----------------------------------------------------------------------------"
 }
@@ -135,3 +135,20 @@ function quill_final_put_in_grimoire() {
      scribe reindex ${QUILL_GRIM_NAME}
   fi
 }
+
+#---
+## @Synopsis function that displays help and exits
+#---
+function quill_help() {
+  message "USAGE: quill [OPTIONS]
+
+OPTIONS:  
+  --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
+  --apprentice, -a		apprentice mode	(default)
+  --mage, -m			mage mode (advanced)
+  --wizard, -w			wizard mode (expert)
+  --help, -h			display this help
+"
+  exit 1
+}
+

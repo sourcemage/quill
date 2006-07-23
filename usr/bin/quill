@@ -44,25 +44,31 @@
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
-for i in $(ls -1 /var/lib/quill/modules/lib*)
+for i in /var/lib/quill/modules/lib*
 do
-. $i
+  . $i
 done
 QUILL_MODE="apprentice"
 CURRENTPWD="$(pwd)"
-HISTORY_DATE="$(date +%Y-%m-%d)
+HISTORY_DATE="$(date +%Y-%m-%d)"
 #---
 ## Not really a function it's supposed to parse the command line parameters
 #---
 while  [  -n  "$1"  ];  do
   if  echo  "" $1  |  grep  -q  "^ -";  then
     case  $1  in
-      --fmxml|-f) export QUILL_FMXML_MODE="on"; export QUILL_FMXML_PARAM="$2"; shift 2 ;;
+      --fmxml|-f)
+                  [[ -z $2 ]] && 
+                  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
+                  quill_help
+                  export QUILL_FMXML_MODE="on"; export QUILL_FMXML_PARAM="$2"
+                  shift 2 ;;
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
        --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
      --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
        --help|-h) quill_help ;;
-               *) true ;;
+               *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
+                  quill_help ;;
     esac
   else
     shift
@@ -141,6 +147,15 @@ fi
 if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
 then
   add_optional_dependencies
+fi
+
+# add && where appropriate in DEPENDS
+if [[ ${SPELL_OPTIONAL_DEPENDENCIES} != "" ]] || [[ ${SPELL_DEPENDENCIES} != "" ]]
+then
+  sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' DEPENDS | tac | 
+    awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' | 
+    tac > temporary-DEPENDS
+  mv temporary-DEPENDS DEPENDS
 fi
 
 #-if [[ "${SPELL_CONFLICTS}" != "" ]]
