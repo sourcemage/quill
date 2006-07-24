@@ -43,24 +43,32 @@ function quill_fmxml_core(){
     unset FILE
   fi
 
-# fill in variables from xml file
-if [[ $1 ]] ; then
-  SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short $1|tr 'A-Z' 'a-z')
-  for each in url_bz2 url_tgz; do
-    TMP=$(quill_fmxml_grab_from_xml $each $1)
-    if [[ $TMP ]] ; then
-      SPELL_SRC_URL=$(quill_fmxml_hunt_src_url $SPELL_NAME $TMP)
-      break
-    fi
-  done
-  SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage $1) 2>&1|\
-              grep Location|awk '{print $2}'|sed 's/\r//g')
-  
-  SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1)
-  if grep -q "(.*)" <<< "$SPELL_LICENSE"; then
-    SPELL_LICENSE=$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')
+  # check that the project was found - exsists
+  local not_found='Error: project not found.'
+  if grep -q "$not_found" "$QUILL_TMP_DIR/$1.xml"; then
+    message "$PROBLEM_COLOR$not_found$DEFAULT_COLOR"
+    rm "$QUILL_TMP_DIR/$1.xml"
+    exit 2
   fi
-  SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short $1|sed 's/\r//g')
-  quill_fmxml_grab_from_xml desc_full $1 |fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
-fi
+
+  # fill in variables from xml file
+  if [[ $1 ]] ; then
+    SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short $1|tr 'A-Z' 'a-z')
+    for each in url_bz2 url_tgz; do
+      TMP=$(quill_fmxml_grab_from_xml $each $1)
+      if [[ $TMP ]] ; then
+        SPELL_SRC_URL=$(quill_fmxml_hunt_src_url $SPELL_NAME $TMP)
+        break
+      fi
+    done
+    SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage $1) 2>&1|\
+                grep Location|awk '{print $2}'|sed 's/\r//g')
+    
+    SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1)
+    if grep -q "(.*)" <<< "$SPELL_LICENSE"; then
+      SPELL_LICENSE=$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')
+    fi
+    SPELL_SHORT_DESCRIPTION=$(quill_fmxml_grab_from_xml desc_short $1|sed 's/\r//g')
+    quill_fmxml_grab_from_xml desc_full $1 |fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
+  fi
 }
