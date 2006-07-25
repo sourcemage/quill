@@ -1,3 +1,25 @@
+2006-07-25 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill:updated copyright date, adde 2 more contributors,
+	        added new variable QUILL_VERSION, new mode --reconfigure,
+	        enabled some more queries: pre_build, prepare, conflicts
+	* libbuild:added GPL footer
+	* libconfigure:added GPL footer
+	* libconflicts:added GPL footer
+	* libcore:wget should try -c, new configure vairable, cut away some of the
+	          welcome msg, added some defaults for $EDITOR, copy to the dir
+	          added don't assume it's in /var
+	* libdepends:make it possible to use almost any delimiter in a dependencies
+	             list, added GPL footer
+	* libdesktop:added GPL footer, new ToDo entry
+	* libdetails:added GPL footer
+	* libfreshmeatxml:added GPL footer
+	* libhistory:added GPL footer
+	* libinstall:added GPL footer
+	* libpre_build:added all te necesary functions and the GPL footer
+	* libprepare:added synopsis and GPL footer
+	* libprovides:ugh big mistake this isn't triggers it's provides and they
+	              should be all upcase and added GPL footer
+
 2006-07-24 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libfreshmeatxml: add check for non-exsisting projects; fix indentation
 
@@ -10,7 +32,6 @@
 	         add && to DEPENDS #10481
 	         simplified the sourcing loop
 	         add missing quote
-
 
 2006-07-16 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* var/lib/quill/modules/libdetails: change for global BUILD_API2

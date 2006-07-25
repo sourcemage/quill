@@ -1,8 +1,8 @@
 #!/bin/bash
 #---
 ## @Synopsis Spell creator script for SourceMage GNU/Linux
-## @Copyright Copyright 2005 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
-## @Copyright Copyright 2005 SourceMage GNU/Linux
+## @Copyright Copyright 2006 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
+## @Copyright Copyright 2006 SourceMage GNU/Linux
 ## @License GPL v2 or higher
 ##
 ## @ToDo Add option to use upstream gpg signature as included or 
@@ -24,6 +24,7 @@
 ## @ToDo Make quill the be-all for spells
 ## @ToDo Make quill interface with both sorcery and grimoire to get 
 ## @ToDo functions
+## @ToDo make it possible to reconfigure quill without lossing existing settings
 ##
 ## Asks the user in simple questions about generating a spell.
 ## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON
@@ -37,10 +38,10 @@
 ##
 ## @Thanks BearPerson, dufflebunk, afrayedknot
 ## @Thanks To all testers
-## @Contribution abouter
+## @Contribution abouter, lynxlynxlynx, iuso
 ##
 #---
-
+QUILL_VERSION=0.1-20060725
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
@@ -66,6 +67,7 @@ while  [  -n  "$1"  ];  do
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
        --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
      --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
+--reconfigure|-r) export QUILL_MODE="reconfigure"; shift 1 ;;
        --help|-h) quill_help ;;
                *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
                   quill_help ;;
@@ -94,136 +96,138 @@ mkdir -p $QUILL_TMP_DIR
 ## Questions and stuff
 
 quill_welcome
-
-if [[ "${QUILL_FMXML_MODE}" == "on" ]]
+if [[ "${QUILL_MODE}" == "apprentice" ]] ||
+   [[ "${QUILL_MODE}" == "mage" ]] ||
+   [[ "${QUILL_MODE}" == "wizard" ]]
 then
-  QUILL_FMXML_SPELL="$QUILL_FMXML_PARAM"
-  quill_fmxml_core $QUILL_FMXML_PARAM
-fi
-
-query_spell_name
-query_spell_source_url
-query_spell_license
-query_spell_url
-query_spell_short_description
-query_spell_description
-query_spell_dependencies
-query_spell_optional_dependencies
-query_spell_build
-query_spell_install
-query_spell_desktop_file
-
-if [[ "${QUILL_MODE}" == "mage" ]] || [[ "${QUILL_MODE}" == "wizard" ]]
-then
-query_spell_prepare
-#-query_spell_conflicts
-#-query_spell_configure
-query_spell_provides
-#-query_spell_final
-#-query_spell_triggers
-#-query_spell_solo
-#-query_spell_configs
-#-query_spell_volatiles
-  if [[ "${QUILL_MODE}" == "wizard" ]]; then
-#-  query_spell_pre_build
-#-  query_spell_pre_install
-#-  query_spell_post_install
-#-  query_spell_pre_remove
-#-  query_spell_post_remove
-#-  query_spell_pre_resurrect
-#-  query_spell_post_resurrect
-   true
+  if [[ "${QUILL_FMXML_MODE}" == "on" ]]
+  then
+    QUILL_FMXML_SPELL="$QUILL_FMXML_PARAM"
+    quill_fmxml_core $QUILL_FMXML_PARAM
   fi
+
+  query_spell_name
+  query_spell_source_url
+  query_spell_license
+  query_spell_url
+  query_spell_short_description
+  query_spell_description
+  query_spell_dependencies
+  query_spell_optional_dependencies
+  query_spell_build
+  query_spell_install
+  query_spell_desktop_file
+
+  if [[ "${QUILL_MODE}" == "mage" ]] || [[ "${QUILL_MODE}" == "wizard" ]]
+  then
+    query_spell_prepare
+    query_spell_conflicts
+    #-query_spell_configure
+    query_spell_provides
+    #-query_spell_final
+    #-query_spell_triggers
+    #-query_spell_solo
+    #-query_spell_configs
+    #-query_spell_volatiles
+    if [[ "${QUILL_MODE}" == "wizard" ]]
+    then
+      query_spell_pre_build
+      #-  query_spell_pre_install
+      #-  query_spell_post_install
+      #-  query_spell_pre_remove
+      #-  query_spell_post_remove
+      #-  query_spell_pre_resurrect
+      #-  query_spell_post_resurrect
+    fi
+  fi
+
+
+  create_spell_base
+
+  if [[ "${SPELL_DEPENDENCIES}" != "" ]]
+  then
+    add_dependencies
+  fi
+
+  if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
+  then
+    add_optional_dependencies
+  fi
+
+  # add && where appropriate in DEPENDS
+  if [[ ${SPELL_OPTIONAL_DEPENDENCIES} != "" ]] || [[ ${SPELL_DEPENDENCIES} != "" ]]
+  then
+    sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' DEPENDS | tac | 
+      awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' | 
+      tac > temporary-DEPENDS
+    mv temporary-DEPENDS DEPENDS
+  fi
+
+  if [[ "${SPELL_CONFLICTS}" != "" ]]
+  then
+    add_conflicts
+  fi
+
+  if [[ "${SPELL_PROVIDES}" != "" ]]
+  then
+    add_provides
+  fi
+
+  parse_spell_source_file_info
+
+  show_spell_source_file_info
+
+  download_spell_source
+
+  substitute_url_variables
+
+  hunt_src_dir
+
+  add_details
+
+  if [[ "${PREPAREISON}" == "PREPARE, " ]]
+  then
+    add_prepare
+  fi
+
+  #-if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
+  #-then
+  #-  add_configure
+  #-fi
+
+  if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
+  then
+    add_pre_build
+  fi
+
+  if [[ "${BUILDISON}" == "BUILD, " ]]
+  then
+    add_build
+  fi
+
+  if [[ "${INSTALLISON}" == "INSTALL, " ]]
+  then
+    add_install
+  fi
+
+  #-if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
+  #-then
+  #-  add_post_install
+  #-fi
+
+  #-if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
+  #-then
+  #-  add_triggers
+  #-fi
+
+  if [[ "${BUILD_DTFILE}" != "" ]]
+  then
+    add_desktop_file
+  fi
+
+  add_history
 fi
-
-
-create_spell_base
-
-if [[ "${SPELL_DEPENDENCIES}" != "" ]]
-then
-  add_dependencies
-fi
-
-if [[ "${SPELL_OPTIONAL_DEPENDENCIES}" != "" ]]
-then
-  add_optional_dependencies
-fi
-
-# add && where appropriate in DEPENDS
-if [[ ${SPELL_OPTIONAL_DEPENDENCIES} != "" ]] || [[ ${SPELL_DEPENDENCIES} != "" ]]
-then
-  sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' DEPENDS | tac | 
-    awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' | 
-    tac > temporary-DEPENDS
-  mv temporary-DEPENDS DEPENDS
-fi
-
-#-if [[ "${SPELL_CONFLICTS}" != "" ]]
-#-then
-#-  add_conflicts
-#-fi
-
-if [[ "${SPELL_PROVIDES}" != "" ]]
-then
-  add_provides
-fi
-
-parse_spell_source_file_info
-
-show_spell_source_file_info
-
-download_spell_source
-
-substitute_url_variables
-
-hunt_src_dir
-
-add_details
-
-#-if [[ "${PREPAREISON}" == "PREPARE, " ]]
-#-then
-#-  add_prepare
-#-fi
-
-#-if [[ "${CONFIGUREISON}" == "CONFIGURE, " ]]
-#-then
-#-  add_configure
-#-fi
-
-#-if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
-#-then
-#-  add_pre_build
-#-fi
-
-if [[ "${BUILDISON}" == "BUILD, " ]]
-then
-  add_build
-fi
-
-if [[ "${INSTALLISON}" == "INSTALL, " ]]
-then
-  add_install
-fi
-
-#-if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]
-#-then
-#-  add_post_install
-#-fi
-
-#-if [[ "${TRIGGERSISON}" == "TRIGGERS, " ]]
-#-then
-#-  add_triggers
-#-fi
-
-if [[ "${BUILD_DTFILE}" != "" ]]
-then
-  add_desktop_file
-fi
-
-add_history
-
 cd ${CURRENTPWD}
-
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

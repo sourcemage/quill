@@ -16,7 +16,7 @@ function create_spell_base(){
 
 function download_spell_source(){
   cd ${QUILL_TMP_DIR}
-  wget "${SPELL_SRC_URL}"
+  wget -c "${SPELL_SRC_URL}"
   cd ${CURRENTPWD}
   cd ${SPELL_NAME}
 }
@@ -53,18 +53,21 @@ function quill_rc() {
       message "${PROBLEM_COLOR}Ugghhh... something went wrong...${DEFAULT_COLOR}"
     fi
   fi
-  if [[ -f ${QUILL_QUILLRC} ]]
+  if [[ ! -f ${QUILL_QUILLRC} ]] ||
+     [[ $QUILL_MODE == reconfigure ]]
   then
-    . ${QUILL_QUILLRC}
-  else
     touch ${QUILL_QUILLRC}
     message "${PROBLEM_COLOR}This will create a ${QUILL_QUILLRC} file for you${DEFAULT_COLOR}"
     message "${QUERY_COLOR}Please enter your name for the HISTORY entry.${DEFAULT_COLOR}"
     read "GURU_NAME"
     message "${QUERY_COLOR}Please enter your email for the HISTORY entry.${DEFAULT_COLOR}"
     read "GURU_EMAIL"
+    message "${QUERY_COLOR}Where do you want to store generated spells(absolute path).${DEFAULT_COLOR}"
+    read "QUILL_SPELL_DIR"
     message "Thank you. Now generating ${QUILL_QUILLRC}"
-    echo -e "GURU_NAME=\"${GURU_NAME}\"\n""GURU_EMAIL=\"${GURU_EMAIL}\"" > ${QUILL_QUILLRC}
+    echo -e "QUILL_VERSION=\"${QUILL_VERSION}\"\nGURU_NAME=\"${GURU_NAME}\"\nGURU_EMAIL=\"${GURU_EMAIL}\"\nQUILL_SPELL_DIR=\"${QUILL_SPELL_DIR}\"" > ${QUILL_QUILLRC}
+  else
+     . ${QUILL_QUILLRC}
   fi
 }
 
@@ -79,20 +82,17 @@ function quill_welcome() {
   message "The spell will be put into a grimoire/section you define\(if you choose to\)"
   message "and a tar.bz2 file will be created in ~/spells ."
   message "-----------------------------------------------------------------------------"
-  message "${PROBLEM_COLOR}Any lists i.e. dependencies and optional dependencies should be"
-  message "space delimited and not comma delimited!!!${DEFAULT_COLOR}"
-  message "-----------------------------------------------------------------------------"
 }
 
 #---
 ## @Synopsis used to edit spell files
 #---
 function quill_edit() {
-  message "Now invoking $EDITOR to edit spell files."
+  message "Now invoking ${EDITOR:-nano} to edit spell files."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
   for SPELL_FILE in .
   do
-    $EDITOR ${SPELL_FILE}
+    ${EDITOR:-nano} ${SPELL_FILE}
   done
   message "All modifications complete."
 }
@@ -126,7 +126,7 @@ function quill_final_put_in_grimoire() {
   read QUILL_SECT_NAME
   message "Now scribling spell into ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/${QUILL_SPELL_NAME}"
   cd ${QUILL_SPELL_DIR}/${QUILL_SPELL_NAME}
-  cp -r ${SPELL_NAME} /var/lib/sorcery/codex/${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/
+  cp -r ${SPELL_NAME} ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/
   if $? != 0 ; then
      message "Scribling failed"
   else
