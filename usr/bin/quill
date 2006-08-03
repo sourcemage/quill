@@ -69,7 +69,7 @@ while  [  -n  "$1"  ];  do
      --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
 --reconfigure|-r) export QUILL_MODE="reconfigure"; shift 1 ;;
        --help|-h) quill_help ;;
-    --version|-v) message "Quill version: ${QUILL_VERSION}" ;;
+    --version|-v) message "Quill version: ${QUILL_VERSION}" && exit 0;;
                *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
                   quill_help ;;
     esac
