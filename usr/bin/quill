@@ -41,7 +41,7 @@
 ## @Contribution abouter, lynxlynxlynx, iuso
 ##
 #---
-QUILL_VERSION=0.1
+QUILL_VERSION="0.1"
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config
@@ -229,12 +229,16 @@ then
 
   add_history
 fi
-  if query "Do you want to tarball the spell?" n
-then$
-quill_final_tarball
+if query "Do you want to edit all the spell files?" n
+then
+  quill_edit
+fi
+if query "Do you want to tarball the spell?" n
+then
+  quill_final_tarball
 fi
 if query "Do you want to put the spell into one of the avialable grimoires?" n
-then$
+then
   quill_final_put_in_grimoire
 fi
 cd ${CURRENTPWD}
