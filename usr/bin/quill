@@ -228,18 +228,18 @@ then
   fi
 
   add_history
-fi
-if query "Do you want to edit all the spell files?" n
-then
-  quill_edit
-fi
-if query "Do you want to tarball the spell?" n
-then
-  quill_final_tarball
-fi
-if query "Do you want to put the spell into one of the avialable grimoires?" n
-then
-  quill_final_put_in_grimoire
+  if query "Do you want to edit all the spell files?" n
+  then
+    quill_edit
+  fi
+  if query "Do you want to tarball the spell?" n
+  then
+    quill_final_tarball
+  fi
+  if query "Do you want to put the spell into one of the avialable grimoires?" n
+  then
+    quill_final_put_in_grimoire
+  fi
 fi
 cd ${CURRENTPWD}
 #---

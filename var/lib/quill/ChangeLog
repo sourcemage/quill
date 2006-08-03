@@ -2,7 +2,8 @@
 	* quill: addded --version, updated version to 0.1 getting ready for release
 	         added queries for generating tarball and putting spell in grimoire
 	         moved pre_build to mage mode, added quill_edit to edit the spell
-	         files after generation, quoted the version
+	         files after generation, quoted the version, erm the post
+	         generation still belongs in the global if
 	* libcore: create relevant dirs, make the grimoire copy work, aditions to
 	           help
 	* libfreshmeatxml: added an extra var to store the original project name
