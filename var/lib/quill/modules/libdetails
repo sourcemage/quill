@@ -67,14 +67,14 @@ fi
 }
 
 function query_spell_description(){
-if ! test -f ${QUILL_TMP_DIR}/${SPELL_NAME} ||
+if ! test -f ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}} ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
-       cat ${QUILL_TMP_DIR}/${SPELL_NAME}
+       cat ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
        query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
   message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
   message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
   read
-  ${EDITOR:-nano} ${QUILL_TMP_DIR}/${SPELL_NAME}
+  ${EDITOR:-nano} ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
 fi
 }
 
@@ -83,18 +83,18 @@ fi
 ## @Synopsis version number parsed from source url.
 #---
 function parse_spell_source_file_info(){
-SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
-SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
-SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.t")
+  SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
+  SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
+  SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.t")
 }
 
 #---
 ## @Synopsis Print on screen info gathered from source url.
 #---
 function show_spell_source_file_info(){
-echo "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
-echo "Version: ${SPELL_VERSION}"
-echo "URL: ${SPELL_SRC_URL}"
+  message "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
+  message "Version: ${SPELL_VERSION}"
+  message "URL: ${SPELL_SRC_URL}"
 }
 
 #---

@@ -1,3 +1,14 @@
+2006-08-03 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: addded --version, updated version to 0.1 getting ready for release
+	         added queries for generating tarball and putting spell in grimoire
+	         moved pre_build to mage mode
+	* libcore: create relevant dirs, make the grimoire copy work, aditions to
+	           help
+	* libfreshmeatxml: added an extra var to store the original project name
+	                   fixes a bug
+	* libdetails: modified for libfreshmeatxml bug, some identing and replaced
+	              3 echos with message
+
 2006-07-25 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill:updated copyright date, adde 2 more contributors,
 	        added new variable QUILL_VERSION, new mode --reconfigure,

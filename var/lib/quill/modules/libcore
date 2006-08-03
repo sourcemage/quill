@@ -2,7 +2,7 @@
 ## @Synopsis generate basic spell dir
 #---
 function create_spell_base(){
-  mkdir -p ${SPELL_NAME}
+  mkdir -p ${QUILL_SPELL_DIR}/${SPELL_NAME}
   cd ${SPELL_NAME}
   touch DETAILS
   chmod +x DETAILS
@@ -15,10 +15,10 @@ function create_spell_base(){
 #---
 
 function download_spell_source(){
+  mkdir -p ${QUILL_TMP_DIR}
   cd ${QUILL_TMP_DIR}
   wget -c "${SPELL_SRC_URL}"
-  cd ${CURRENTPWD}
-  cd ${SPELL_NAME}
+  cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
 }
 
 #---
@@ -115,24 +115,25 @@ function quill_final_tarball() {
 #---
 function quill_final_put_in_grimoire() {
   message "You have selected to put the spell into the grimoire"
-  message "Please note there will also be a spell tarball in" 
+  message "Please note there will also be a spell tarball(if so desired) in" 
   message "${USER_HOME}/${QUILL_SPELLDIR} as will be a spelldir"
   message "-----------------------------------------------------------------------------"
-  message "Into which grimoire do you wish to put the spell"
-  quill_list_grimoires
+  message "Into which grimoire do you wish to put the spell(FULL path to it):"
+#  quill_list_grimoires
   read QUILL_GRIM_NAME
-  message "Into which section do you wish to put the spell"
-  quill_list_sections
+  message "Into which section do you wish to put the spell:"
+#  quill_list_sections
   read QUILL_SECT_NAME
   message "Now scribling spell into ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/${QUILL_SPELL_NAME}"
   cd ${QUILL_SPELL_DIR}/${QUILL_SPELL_NAME}
+  mkdir -p ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}
   cp -r ${SPELL_NAME} ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/
   if $? != 0 ; then
-     message "Scribling failed"
+     message "Scribbling failed"
   else
-     message "Scribling succeded"
+     message "Scribbling succeded"
      message "Now running scribe reindex on ${QUILL_GRIM_NAME}"
-     scribe reindex ${QUILL_GRIM_NAME}
+     scribe reindex $(basename ${QUILL_GRIM_NAME})
   fi
 }
 
@@ -146,8 +147,10 @@ OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
-  --wizard, -w			wizard mode (expert)
+  --wizard, -w			wizard mode (expert)(DOES NOTHING FOR NOW)
   --help, -h			display this help
+  --version, -v			display version
+  --reconfigure, -r			reconfigure settings(DOES NOT WORK YET)
 "
   exit 1
 }
