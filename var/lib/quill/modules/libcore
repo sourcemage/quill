@@ -82,7 +82,7 @@ function quill_welcome() {
   message "The spell will be put into a grimoire/section you define if you choose to"
   message "and a tar.bz2 file will be created in $QUILL_SPELL_DIR."
   message "-----------------------------------------------------------------------------"
-  message "All lists should be space delimited - dependencies and optional dependencies
+  message "All lists should be space delimited - dependencies and optional dependencies"
   message "-----------------------------------------------------------------------------"
 }
 
@@ -117,10 +117,10 @@ function quill_final_tarball() {
 #---
 function quill_final_put_in_grimoire() {
   message "You have selected to put the spell into the grimoire"
-  message "Please note there will also be a spell tarball(if so desired) in" 
+  message "Please note there will also be a spell tarball - if so desired in" 
   message "${USER_HOME}/${QUILL_SPELLDIR} as will be a spelldir"
   message "-----------------------------------------------------------------------------"
-  message "Into which grimoire do you wish to put the spell(FULL path to it):"
+  message "Into which grimoire do you wish to put the spell FULL path to it:"
 #  quill_list_grimoires
   read QUILL_GRIM_NAME
   message "Into which section do you wish to put the spell:"
@@ -143,7 +143,7 @@ function quill_final_put_in_grimoire() {
 ## @Synopsis function that displays help and exits
 #---
 function quill_help() {
-  message "USAGE: quill [OPTIONS]
+  message -e "USAGE: quill [OPTIONS]
 
 OPTIONS:  
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
