@@ -60,21 +60,22 @@ fi
 function query_spell_short_description(){
 if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}\n$SPELL_SHORT_DESCRIPTION"
-       query "the proper short description?${DEFAULT_COLOR}" y ; ) ; then
+       query "the proper short description?" y ; ) ; then
   message "${QUERY_COLOR}Please enter a short description of the spell:${DEFAULT_COLOR}"
   read "SPELL_SHORT_DESCRIPTION"
 fi
 }
 
 function query_spell_description(){
-if ! test -f ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}} ||
+local description=${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
+if ! test -f $description ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
-       cat ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
-       query "the proper long description?${DEFAULT_COLOR}" y ; ) ; then
-  message "${QUERY_COLOR}Please enter a description of the spell:${DEFAULT_COLOR}"
-  message "${PROBLEM_COLOR}!!!PRESS ENTER TO CONTINUE!!!${DEFAULT_COLOR}"
-  read
-  ${EDITOR:-nano} ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
+       cat $description
+       query "the proper long description?" y ; ) ; then
+  test -s $description ||
+  echo "Please enter a description of the spell here" > $description
+
+  ${EDITOR:-nano} $description
 fi
 }
 

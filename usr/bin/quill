@@ -8,7 +8,6 @@
 ## @ToDo Add option to use upstream gpg signature as included or 
 ## @ToDo downloadable .sig file
 ## @ToDo Put a multiversion option
-## @ToDo Make an option to edit all the existing files after generation
 ## @ToDo single line or multiline depending on the length of line if 
 ## @ToDo <80 single else multi
 ## @ToDo Interface to add CONFIGURE options
@@ -88,7 +87,7 @@ QUILL_SPELL_DIR=~/.sourcemage/spells
 QUILL_TMP_DIR=~/.sourcemage/tmp
 
 quill_rc
-PROMPT_DELAY="4294967295"
+PROMPT_DELAY="31557807"
 BUILD_API=2
 load_build_api
 mkdir -p $QUILL_TMP_DIR

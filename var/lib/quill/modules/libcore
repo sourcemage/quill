@@ -92,7 +92,7 @@ function quill_welcome() {
 function quill_edit() {
   message "Now invoking ${EDITOR:-nano} to edit spell files."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
-  for SPELL_FILE in .
+  for SPELL_FILE in *
   do
     ${EDITOR:-nano} ${SPELL_FILE}
   done
