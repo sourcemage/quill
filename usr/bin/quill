@@ -41,7 +41,7 @@
 ## @Contribution abouter, lynxlynxlynx, iuso
 ##
 #---
-QUILL_VERSION="0.1"
+QUILL_VERSION="$(cat /var/lib/quill/version)"
 #---
 ## Some basic stuff that should be loaded and set
 . /etc/sorcery/config

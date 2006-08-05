@@ -1,3 +1,10 @@
+2006-08-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: modified the message, added back the need for space delimited
+	           lists
+	* libdepends: fixed some dependency breakage from before
+	* version: added to put version strings in
+	* generate_tarball.sh: to generate a tarball and sign it
+
 2006-08-03 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: addded --version, updated version to 0.1 getting ready for release
 	         added queries for generating tarball and putting spell in grimoire

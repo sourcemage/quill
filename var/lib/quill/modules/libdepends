@@ -6,14 +6,13 @@ function query_spell_dependencies() {
   message "${QUERY_COLOR}Please enter the dependencies(non optional) \
 of the spell if any:${DEFAULT_COLOR}"
   read "SPELL_DEPENDENCIES"
-  SPELL_DEPENDENCIES="$(echo $SPELL_DEPENDENCIES | sed -e 's,\W,,g' -e 's/./& /g')"
+  SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
 }
 
 function query_spell_optional_dependencies() {
   message "${QUERY_COLOR}Please enter the optional dependencies of the \
 spell if any:${DEFAULT_COLOR}"
   read -a "SPELL_OPTIONAL_DEPENDENCIES"
-  SPELL_OPTIONAL_DEPENDENCIES="$(echo $SPELL_DEPENDENCIES | sed -e 's,\W,,g' -e 's/./& /g')"
 }
 
 function add_dependencies() {
