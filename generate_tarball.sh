@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 CURRENTPWD=$(pwd)
 MY_VERSION=$(cat var/lib/quill/version)
 mkdir ../quill-$MY_VERSION
