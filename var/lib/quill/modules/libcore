@@ -82,7 +82,7 @@ function quill_welcome() {
   message "The spell will be put into a grimoire/section you define(if you choose to)"
   message "and a tar.bz2 file will be created in $QUILL_SPELL_DIR."
   message "-----------------------------------------------------------------------------"
-  message "All lists should be space delimited(dependencies and optional dependencies)
+  message "All lists should be space delimited(dependencies and optional dependencies)"
   message "-----------------------------------------------------------------------------"
 }
 
