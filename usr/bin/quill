@@ -9,15 +9,12 @@
 ## @ToDo downloadable .sig file
 ## @ToDo Put a multiversion option
 ## @ToDo Make an option to edit all the existing files after generation
-## @ToDo Make configuring optional depends a must     -     DONE
-## @ToDo Add logic to quill to make it possible to use optional_depends     -     DONE
 ## @ToDo single line or multiline depending on the length of line if 
 ## @ToDo <80 single else multi
 ## @ToDo Interface to add CONFIGURE options
 ## @ToDo Automated bugcli submissions of spells
 ## @ToDo Make a tar.bz2 of the spell immediately
 ## @ToDo Automatic inclusion into a grimoire when finished
-## @ToDo Make it use the ~/.sourcemage dir for config     -     DONE
 ## @ToDo Add cmdline options to make it possible to autoscript it
 ## @ToDo Add a better configuration interface(dialog based I hope)
 ## @ToDo Make it possible to also update spells using quill
@@ -41,16 +38,20 @@
 ## @Contribution abouter, lynxlynxlynx, iuso
 ##
 #---
-QUILL_VERSION="$(cat /var/lib/quill/version)"
+QUILL_VERSION="$(< /var/lib/quill/version)"
 #---
-## Some basic stuff that should be loaded and set
-. /etc/sorcery/config
+## really basic stuff that should be loaded and set
+. /var/lib/sorcery/modules/libmedia
+LOCAL_MEDIA_CONFIG=/etc/sorcery/local/media source /etc/sorcery/media 
+function message() { echo -e "$@"; }
+## end of skeletal prerequisites - we get the rest later
+
 for i in /var/lib/quill/modules/lib*
 do
   . $i
 done
 QUILL_MODE="apprentice"
-CURRENTPWD="$(pwd)"
+CURRENTPWD="$PWD"
 HISTORY_DATE="$(date +%Y-%m-%d)"
 #---
 ## Not really a function it's supposed to parse the command line parameters
@@ -77,6 +78,8 @@ while  [  -n  "$1"  ];  do
     shift
   fi
 done
+unset -f message
+. /etc/sorcery/config
 
 QUILL_HOME_DIR=~/.sourcemage/quill
 QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc

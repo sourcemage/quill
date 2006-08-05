@@ -1,3 +1,6 @@
+2006-08-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: split the sourcing, so parameter parsing occurs earlier
+
 2006-08-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: modified the message, added back the need for space delimited
 	           lists
