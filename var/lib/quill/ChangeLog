@@ -21,6 +21,7 @@
 	* version: another bugfix release 0.1.2, uped to 0.1.3
 	* libcore: a bug reported by lalo, need to create dir first before touching
 	           the file
+	* generate_tarball.sh: changed the key
 
 2006-08-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: split the sourcing, so parameter parsing occurs earlier
