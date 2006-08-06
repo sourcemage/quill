@@ -22,7 +22,7 @@ function add_pre_build()
   else
     echo "default_pre_build" > PRE_BUILD
   fi
-  ${EDITOR:-nano} PRE_BUILD
+  $EDITOR PRE_BUILD
 }
 #---
 ##

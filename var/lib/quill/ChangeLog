@@ -1,3 +1,9 @@
+2006-08-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* added a global EDITOR fallback and removed the single ones
+	  removed trailing white space
+	* quill: removed CURRENTPWD, wasn't used
+	* libcore::quil_rc: refactored, reconfiguration saves previous settings
+
 2006-08-06 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* version: another bugfix release 0.1.2, uped to 0.1.3
 	* libcore: a bug reported by lalo, need to create dir first before touching
@@ -55,7 +61,7 @@
 	* libfreshmeatxml: add check for non-exsisting projects; fix indentation
 
 2006-07-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
-	* install.sh: added INSTALL_ROOT support, ensured it is ran from where 
+	* install.sh: added INSTALL_ROOT support, ensured it is ran from where
 	              it is expected to, simplified the copying/removing logic
 	* libfreshmeatxml: grab non-abbreviated licenses too, fix bad color
 	* libcore: implemented the missing quill_help, fix bad color
@@ -93,12 +99,12 @@
 
 2006-02-12 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* quill: edited ToDo list
-	* libdetails: added substitute_with_variables, a generic 
-	  function to substitute any variables with variable names in a 
-	  given variable string. edited 
-	  substitute_with_mirror_variables to accept any variable, not 
-	  only SPELL_SRC_URL. edited substitute_url_variables to use 
-	  these two edits. added query_spell_signature to query for 
+	* libdetails: added substitute_with_variables, a generic
+	  function to substitute any variables with variable names in a
+	  given variable string. edited
+	  substitute_with_mirror_variables to accept any variable, not
+	  only SPELL_SRC_URL. edited substitute_url_variables to use
+	  these two edits. added query_spell_signature to query for
 	  possible upstream signature key.
 
 
@@ -115,9 +121,9 @@
 	  substitute_with_mirror_variables
 
 2006-01-25 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
-	* libdetails: removed function set_src_dir, now hunt_src_dir 
+	* libdetails: removed function set_src_dir, now hunt_src_dir
 	  sets SPELL_SRC_DIR and is also has more safety checks
-	* libdetails: added function substitute_url_variables that 
+	* libdetails: added function substitute_url_variables that
 	  sanitizes SPELL_SRC_URL. still missing support for e.g.
 	  sourceforge urls
 	* libdetails: lots of documentation added

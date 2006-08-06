@@ -75,7 +75,7 @@ if ! test -f $description ||
   test -s $description ||
   echo "Please enter a description of the spell here" > $description
 
-  ${EDITOR:-nano} $description
+  $EDITOR $description
 fi
 }
 
@@ -99,10 +99,10 @@ function show_spell_source_file_info(){
 }
 
 #---
-## @Synopsis Substitute any number of expanded variables in given string 
-## @Synopsis with corresponding variable names, store resulting string 
-## @Synopsis in $SUBSTITUTIONS. $1 is target variable, $2 and so on are 
-## @Synopsis variables to substitute with var names. Omit $, give only 
+## @Synopsis Substitute any number of expanded variables in given string
+## @Synopsis with corresponding variable names, store resulting string
+## @Synopsis in $SUBSTITUTIONS. $1 is target variable, $2 and so on are
+## @Synopsis variables to substitute with var names. Omit $, give only
 ## @Synopsis var names. Example:
 ## @Synopsis substitute_with_variables SPELL_SRC_URL SPELL VERSION
 #---
@@ -119,8 +119,8 @@ fi
 }
 
 #---
-## @Synopsis Process SPELL_SRC_URL: Subsitute expanded with escaped 
-## @Synopsis SPELL and VERSION, Substitute mirror urls with mirror url 
+## @Synopsis Process SPELL_SRC_URL: Subsitute expanded with escaped
+## @Synopsis SPELL and VERSION, Substitute mirror urls with mirror url
 ## @Synopsis variables.
 #---
 function substitute_url_variables(){
@@ -131,9 +131,9 @@ function substitute_url_variables(){
 }
 
 #---
-## @Synopsis Substitute download mirror urls with variable names in 
-## @Synopsis given variable. Store resulting string in 
-## @Synopsis SUBSTITUTIONS. Urls and variables are parsed from contents 
+## @Synopsis Substitute download mirror urls with variable names in
+## @Synopsis given variable. Store resulting string in
+## @Synopsis SUBSTITUTIONS. Urls and variables are parsed from contents
 ## @Synopsis of /etc/sorcery/mirrors/. Example:
 ## @Synopsis substitute_with_mirror_variables SPELL_SRC_URL
 #---

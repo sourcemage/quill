@@ -16,7 +16,7 @@ if [[ "${PREPAREISON}" == "PREPARE, " ]]
 then
   touch PREPARE
   chmod +x PREPARE
-  ${EDITOR:-nano} PREPARE
+  $EDITOR PREPARE
 fi
 }
 #---

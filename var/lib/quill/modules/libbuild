@@ -25,7 +25,7 @@ function add_build() {
      else
        echo "default_build" > BUILD
      fi
-     ${EDITOR:-nano} BUILD
+     $EDITOR BUILD
    fi
 
 }

@@ -16,7 +16,7 @@ then
   else
     echo "default_install" > INSTALL
   fi
-  ${EDITOR:-nano} INSTALL
+  $EDITOR INSTALL
 fi
 }
 
