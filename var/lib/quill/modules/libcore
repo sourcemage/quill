@@ -56,6 +56,7 @@ function quill_rc() {
   if [[ ! -f ${QUILL_QUILLRC} ]] ||
      [[ $QUILL_MODE == reconfigure ]]
   then
+    mkdir -p ~/.sourcemage/quill
     touch ${QUILL_QUILLRC}
     message "${PROBLEM_COLOR}This will create a ${QUILL_QUILLRC} file for you${DEFAULT_COLOR}"
     message "${QUERY_COLOR}Please enter your name for the HISTORY entry.${DEFAULT_COLOR}"
@@ -66,6 +67,7 @@ function quill_rc() {
     read "QUILL_SPELL_DIR"
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     echo -e "QUILL_VERSION=\"${QUILL_VERSION}\"\nGURU_NAME=\"${GURU_NAME}\"\nGURU_EMAIL=\"${GURU_EMAIL}\"\nQUILL_SPELL_DIR=\"${QUILL_SPELL_DIR}\"" > ${QUILL_QUILLRC}
+    exit 0
   else
      . ${QUILL_QUILLRC}
   fi
