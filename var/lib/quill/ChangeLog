@@ -2,7 +2,20 @@
 	* added a global EDITOR fallback and removed the single ones
 	  removed trailing white space
 	* quill: removed CURRENTPWD, wasn't used
+	  move the quill lib sourcing after sorcery, so we can override functions
+	    this was the case with hash_get, now hash generation works.
+	  substitute SOURCE with variables too
+	  generate the hash here, where the vars are virgin
 	* libcore::quil_rc: refactored, reconfiguration saves previous settings
+	* lib*: removed $*ISON check from add_* functions, quill already checks it
+	* libbuild, libdetails: fixed indentation
+	* libdetails: try SPELL_DESC_NAME first when searching for the description
+	  add some quoting to handle spaces in SOURCE and SOURCE_DIRECTORY
+	  enabled the SOURCE_DIRECTORY extrapolation
+	  fix substitute_url_variables to use proper vars. Found a bug here, we
+	    either pass the right values or substitute the right vars, but not both
+	    FIXME - disabled this on SOURCE_URL for now, others made to work
+	* version: 0.1.4
 
 2006-08-06 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* version: another bugfix release 0.1.2, uped to 0.1.3

@@ -6,8 +6,6 @@ INSTALLISON=""
 
 function add_install()
 {
-if [[ "${INSTALLISON}" == "INSTALL, " ]]
-then
   touch INSTALL
   chmod +x INSTALL
   if query "Do you want the default_install function dumped into the INSTALL file" "n"
@@ -17,7 +15,6 @@ then
     echo "default_install" > INSTALL
   fi
   $EDITOR INSTALL
-fi
 }
 
 function query_spell_install()

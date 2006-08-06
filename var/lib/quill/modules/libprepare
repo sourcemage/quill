@@ -12,12 +12,9 @@ fi
 
 function add_prepare()
 {
-if [[ "${PREPAREISON}" == "PREPARE, " ]]
-then
   touch PREPARE
   chmod +x PREPARE
   $EDITOR PREPARE
-fi
 }
 #---
 ##

@@ -23,8 +23,6 @@ fi
 }
 
 add_desktop_file() {
-if [[ "${BUILD_DTFILE}" != "" ]]
-then
   mkdir -p desktop
   cd desktop
   echo "[Desktop Entry]" >> ${SPELL_NAME}.desktop
@@ -38,8 +36,6 @@ then
   echo "Categories=${DTFILE_MENUPATH}" >> ${SPELL_NAME}.desktop
   echo "Term=${DTFILE_TERM}" >> ${SPELL_NAME}.desktop
   cd ..
-fi
-
 }
 #---
 ##

@@ -11,8 +11,6 @@ function query_spell_conflicts() {
 }
 
 function add_conflicts() {
-if [[ "${SPELL_CONFLICTS}" != "" ]]
-then
   touch CONFLICTS
   chmod +x CONFLICTS
   CONFLICTSISON="CONFLICTS, "
@@ -20,7 +18,6 @@ then
   do
      echo "conflicts ${n}" >> CONFLICTS
   done
-fi
 }
 #---
 ##

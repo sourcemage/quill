@@ -94,11 +94,11 @@ function quill_welcome() {
 ## @Synopsis used to edit spell files
 #---
 function quill_edit() {
-  message "Now invoking ${EDITOR:-nano} to edit spell files."
+  message "Now invoking $EDITOR to edit spell files."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
   for SPELL_FILE in *
   do
-    ${EDITOR:-nano} ${SPELL_FILE}
+    $EDITOR ${SPELL_FILE}
   done
   message "All modifications complete."
 }

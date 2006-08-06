@@ -11,15 +11,12 @@ function query_spell_provides() {
 }
 
 function add_provides() {
-if [[ "${SPELL_PROVIDES}" != "" ]]
-then
   touch PROVIDES
   PROVIDESISON="PROVIDES, "
   for n in ${SPELL_PROVIDES}
   do
      echo "${n}" | tr "a-z" "A-Z" >> PROVIDES
   done
-fi
 }
 #---
 ##

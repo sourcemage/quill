@@ -42,12 +42,9 @@ QUILL_VERSION="$(< /var/lib/quill/version)"
 . /var/lib/sorcery/modules/libmedia
 LOCAL_MEDIA_CONFIG=/etc/sorcery/local/media source /etc/sorcery/media
 function message() { echo -e "$@"; }
+. /var/lib/quill/modules/libcore
 ## end of skeletal prerequisites - we get the rest later
 
-for i in /var/lib/quill/modules/lib*
-do
-  . $i
-done
 QUILL_MODE="apprentice"
 HISTORY_DATE="$(date +%Y-%m-%d)"
 #---
@@ -78,6 +75,10 @@ done
 unset -f message
 . /etc/sorcery/config
 EDITOR=${EDITOR:-nano}
+for i in /var/lib/quill/modules/lib*
+do
+  . $i
+done
 
 QUILL_HOME_DIR=~/.sourcemage/quill
 QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
@@ -182,9 +183,14 @@ then
 
   download_spell_source
 
-  substitute_url_variables
-
   hunt_src_dir
+
+  # use this once it is possible
+  #substitute_with_variables SPELL_SRC_FILE SPELL_NAME SPELL_VERSION
+  QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
+  SPELL_SRC_FILE=${SPELL_SRC_FILE//${SPELL_NAME}/\$\{SPELL\}}
+  SPELL_SRC_FILE=${SPELL_SRC_FILE//${SPELL_VERSION}/\$\{VERSION\}}
+  substitute_url_variables
 
   add_details
 
