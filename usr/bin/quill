@@ -181,16 +181,9 @@ then
 
   show_spell_source_file_info
 
-  download_spell_source
+  get_spell_source
 
   hunt_src_dir
-
-  # use this once it is possible
-  #substitute_with_variables SPELL_SRC_FILE SPELL_NAME SPELL_VERSION
-  QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
-  SPELL_SRC_FILE=${SPELL_SRC_FILE//${SPELL_NAME}/\$\{SPELL\}}
-  SPELL_SRC_FILE=${SPELL_SRC_FILE//${SPELL_VERSION}/\$\{VERSION\}}
-  substitute_url_variables
 
   add_details
 
