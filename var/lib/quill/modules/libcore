@@ -17,8 +17,10 @@ function create_spell_base(){
 function get_spell_source(){
   mkdir -p ${QUILL_TMP_DIR}
   cd ${QUILL_TMP_DIR}
-  if [[ -e $SOURCE_CACHE/$SPELL_SRC_FILE ]]; then
-    message -n "Copying the spell tarball over from the sorcery cache ... "
+  if [[ -e $SPELL_SRC_FILE ]]; then
+    message "Found the spell tarball in the quill dir, continuing ..."
+  elif [[ -e $SOURCE_CACHE/$SPELL_SRC_FILE ]]; then
+    message "Found the spell tarball in the sorcery cache, copying it over ..."
     cp $SOURCE_CACHE/$SPELL_SRC_FILE .
     message "Done."
   else

@@ -1,3 +1,11 @@
+2006-08-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: made the get_spell_source output more consistent
+	  added check for exsisting tarball
+	* libdetails: removed substitute_url_variables()
+	  moved its two calls to add_details
+	  fixed substitute_with_mirror_variables and sped it up; try apache :D
+	  removed check_if_tarball(), do a check in hunt_src_dir
+
 2006-08-07 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdetails: first try substituting SOURCE_URL with $SOURCE
 	  moved substitutions to add_details

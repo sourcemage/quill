@@ -122,18 +122,6 @@ fi
 }
 
 #---
-## @Synopsis Process SPELL_SRC_URL: Subsitute expanded with escaped
-## @Synopsis SOURCE, SPELL and VERSION, Substitute mirror urls with mirror url
-## @Synopsis variables.
-#---
-function substitute_url_variables(){
-  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" SOURCE \
-    "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
-  substitute_with_mirror_variables SPELL_SRC_URL
-  SPELL_SRC_URL="$SUBSTITUTIONS"
-}
-
-#---
 ## @Synopsis Substitute download mirror urls with variable names in
 ## @Synopsis given variable. Store resulting string in
 ## @Synopsis SUBSTITUTIONS. Urls and variables are parsed from contents
@@ -141,33 +129,18 @@ function substitute_url_variables(){
 ## @Synopsis substitute_with_mirror_variables SPELL_SRC_URL
 #---
 function substitute_with_mirror_variables(){
-if [ -n "$1" ]; then
-  local TARGET_STRING="${!1}"
-  local MIRROR_LIST_FILE
-  local MIRROR_VARIABLE
-  local MIRROR_ENTRY
-  for MIRROR_LIST_FILE in $(ls /etc/sorcery/mirrors/); do
-    MIRROR_VARIABLE="${MIRROR_LIST_FILE}_URL"
-    for MIRROR_ENTRY in $(cat /etc/sorcery/mirrors/${MIRROR_LIST_FILE}); do
-      if [[ "$MIRROR_ENTRY" =~ "://" ]]; then
-        TARGET_STRING=${TARGET_STRING//$MIRROR_ENTRY/\$\{$MIRROR_VARIABLE\}}
+if [[ -n $1 ]]; then
+  local target=$1 target_value mirror_list mirror_variable mirror_entry
+  eval target_value="\$$1"
+  for mirror_list in /etc/sorcery/mirrors/*; do
+    mirror_variable="$(smgl_basename $mirror_list)_URL"
+    while read mirror_entry; do
+      if [[ $mirror_entry != "Custom" ]]; then
+        target_value=${target_value/$mirror_entry/\$$mirror_variable}
       fi
-    done
+    done < <(sed 's,^.*\s\s*,,' $mirror_list)
   done
-  SUBSTITUTIONS="$TARGET_STRING"
-fi
-}
-
-#---
-## @Synopsis Check if file is a tarball.
-## @return 0 if a tarball
-## @return 1 if not a tarball
-#---
-function check_if_tarball(){
-if [[ -z $(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1) ]]; then
-  return 0
-else
-  return 1
+  eval "$target=\"\$target_value\""
 fi
 }
 
@@ -178,14 +151,14 @@ fi
 ## @return 2 if not a tarball.
 #---
 function hunt_src_dir(){
-if check_if_tarball; then
-  message -n "Checking what is in the tarball ... "
+  message "Checking what is in the tarball ..."
   SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | grep / | sed -e "s=/.*$==g;q")
+  if [[ $? != 0 ]]; then
+    message "Not a tarball."
+    unset SPELL_SRC_DIR
+    return 1
+  fi
   message "Done.\n"
-else
-  unset SPELL_SRC_DIR
-  return 1
-fi
 }
 
 #---
@@ -197,8 +170,9 @@ function add_details(){
   SPELL_DATE=$(date +%Y%m%d)
   QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
-  substitute_url_variables
-
+  substitute_with_mirror_variables SPELL_SRC_URL
+  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" SOURCE \
+    "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
   substitute_with_variables SPELL_SRC_DIR "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
   substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
 
@@ -217,7 +191,7 @@ $(fmt -u -w80 ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME})
 EOF" > DETAILS
   rm ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME}
 
-  message "Done."
+  message "Done.\n"
 }
 #---
 ##
