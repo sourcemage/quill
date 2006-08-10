@@ -20,7 +20,7 @@
 2006-08-10 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* install.sh: fix #12951, install.sh was failing with staging or sth
 	* version: 0.1.5
-	* libdetails: substitute prdownloads SF pseudolinks too
+	* libdetails: substitute prdownloads SF pseudolinks too, fixed some indents
 	* libcore, quill: use appropriate exit codes when terminating in quill_help
 	* libfreshmeatxml: removed unused variable
 

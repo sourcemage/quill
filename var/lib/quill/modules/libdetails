@@ -6,18 +6,21 @@
 # and if so, give the user an opportunity to change the value
 
 function query_spell_name(){
-if ! [[ $SPELL_NAME ]] ||
-   ! query "Is $SPELL_NAME the proper spell name?" y; then
-  message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
-  read "SPELL_NAME"
-fi
+  if ! [[ $SPELL_NAME ]] ||
+    ! query "Is $SPELL_NAME the proper spell name?" y; then
+    message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
+    read "SPELL_NAME"
+  fi
 }
 
 function query_spell_source_url(){
+  # misc sf fix
+  SPELL_SRC_URL=$(sed "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," <<< $SPELL_SRC_URL)
 if ! [[ $SPELL_SRC_URL ]] ||
    ! query "Is $SPELL_SRC_URL the proper source url?" y; then
   message "${QUERY_COLOR}Please enter the url of the source:${DEFAULT_COLOR}"
   read "SPELL_SRC_URL"
+  SPELL_SRC_URL=$(sed "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," <<< $SPELL_SRC_URL)
 fi
 }
 
@@ -140,8 +143,6 @@ if [[ -n $1 ]]; then
       fi
     done < <(sed 's,^.*\s\s*,,' $mirror_list)
   done
-  # misc sf fix
-  target_value=$(sed 's,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL,' <<< $target_value)
   eval "$target=\"\$target_value\""
 fi
 }
