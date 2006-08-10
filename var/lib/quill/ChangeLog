@@ -1,3 +1,7 @@
+2006-08-10 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* install.sh: fix #12951, install.sh was failing with staging or sth
+	* version: 0.1.5
+
 2006-08-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: made the get_spell_source output more consistent
 	  added check for exsisting tarball
