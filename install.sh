@@ -7,7 +7,7 @@ else
 fi
 
 if [[ "$1" == "install" ]]; then
-  if [[ "$0" != "./install.sh" ]]; then 
+  if ! grep -q "\./install.sh$" <<< "$0"; then
     echo "This script must be ran from the quill checkout dir!"
     exit 1
   fi

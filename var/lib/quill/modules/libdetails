@@ -99,35 +99,26 @@ function show_spell_source_file_info(){
 }
 
 #---
-## @Synopsis Substitute any number of expanded variables in given string
-## @Synopsis with corresponding variable names, store resulting string
-## @Synopsis in $SUBSTITUTIONS. $1 is target variable, $2 and so on are
-## @Synopsis variables to substitute with var names. Omit $, give only
-## @Synopsis var names. Example:
-## @Synopsis substitute_with_variables SPELL_SRC_URL SPELL VERSION
+## @Synopsis Substitute any number of expanded variables in given variable
+## @Synopsis with corresponding variable names
+## @param target variable
+## @param the string to search for (variable contents)
+## @param the replacement for said string (variable name)
+## @param the string to search for (variable contents)
+## @param the replacement for said string (variable name)
+## @param ...
 #---
 function substitute_with_variables() {
-if [ -n "$1" ]; then
-  local TARGET_STRING="${!1}"
+if [[ -n $1 ]]; then
+  local target=$1 target_value
+  eval target_value="\$$1"
   shift 1
-  while [ -n "$1" ]; do
-    TARGET_STRING=${TARGET_STRING//${!1}/\$\{$1\}}
-    shift 1
+  while [[ -n $2 ]]; do
+    target_value="${target_value//$1/\$$2}"
+    shift 2
   done
-  SUBSTITUTIONS=$TARGET_STRING
+  eval "$target=\"\$target_value\""
 fi
-}
-
-#---
-## @Synopsis Process SPELL_SRC_URL: Subsitute expanded with escaped
-## @Synopsis SPELL and VERSION, Substitute mirror urls with mirror url
-## @Synopsis variables.
-#---
-function substitute_url_variables(){
-  substitute_with_variables SPELL_SRC_URL SPELL VERSION
-  SPELL_SRC_URL="$SUBSTITUTIONS"
-  substitute_with_mirror_variables SPELL_SRC_URL
-  SPELL_SRC_URL="$SUBSTITUTIONS"
 }
 
 #---
@@ -138,67 +129,52 @@ function substitute_url_variables(){
 ## @Synopsis substitute_with_mirror_variables SPELL_SRC_URL
 #---
 function substitute_with_mirror_variables(){
-if [ -n "$1" ]; then
-  local TARGET_STRING="${!1}"
-  local MIRROR_LIST_FILE
-  local MIRROR_VARIABLE
-  local MIRROR_ENTRY
-  for MIRROR_LIST_FILE in $(ls /etc/sorcery/mirrors/); do
-    MIRROR_VARIABLE="${MIRROR_LIST_FILE}_URL"
-    for MIRROR_ENTRY in $(cat /etc/sorcery/mirrors/${MIRROR_LIST_FILE}); do
-      if [[ "$MIRROR_ENTRY" =~ "://" ]]; then
-        TARGET_STRING=${TARGET_STRING//$MIRROR_ENTRY/\$\{$MIRROR_VARIABLE\}}
+if [[ -n $1 ]]; then
+  local target=$1 target_value mirror_list mirror_variable mirror_entry
+  eval target_value="\$$1"
+  for mirror_list in /etc/sorcery/mirrors/*; do
+    mirror_variable="$(smgl_basename $mirror_list)_URL"
+    while read mirror_entry; do
+      if [[ $mirror_entry != "Custom" ]]; then
+        target_value=${target_value/$mirror_entry/\$$mirror_variable}
       fi
-    done
+    done < <(sed 's,^.*\s\s*,,' $mirror_list)
   done
-  SUBSTITUTIONS="$TARGET_STRING"
-fi
-}
-
-#---
-## @Synopsis Check if file is a tarball.
-## @return 0 if a tarball
-## @return 1 if not a tarball
-#---
-function check_if_tarball(){
-if [[ -z $(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" 2>&1 | grep "^tar: " | head -n1) ]]; then
-  return 0
-else
-  return 1
+  eval "$target=\"\$target_value\""
 fi
 }
 
 #---
 ## @Synopsis Assign to SPELL_SRC_DIR the source dir inside a tarball,
-## @Synopsis substitute expanded with escaped SPELL and VERSION.
 ## @return 0 if a tarball and has a src dir
 ## @return 1 if a tarball but has no src dir
 ## @return 2 if not a tarball.
 #---
 function hunt_src_dir(){
-if check_if_tarball; then
+  message "Checking what is in the tarball ..."
   SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | grep / | sed -e "s=/.*$==g;q")
-  if [ -n "$SPELL_SRC_DIR" ]; then
-    SPELL_SRC_DIR=${SPELL_SRC_DIR//${SPELL_NAME}/\$\{SPELL\}}
-    SPELL_SRC_DIR=${SPELL_SRC_DIR//${SPELL_VERSION}/\$\{VERSION\}}
-    return 0
-  else
+  if [[ $? != 0 ]]; then
+    message "Not a tarball."
+    unset SPELL_SRC_DIR
     return 1
   fi
-else
-  unset SPELL_SRC_DIR
-  return 2
-fi
+  message "Done.\n"
 }
 
 #---
 ## @Synopsis generate DETAILS file
 #---
 function add_details(){
+  message "Generating the DETAILS file..."
 
   SPELL_DATE=$(date +%Y%m%d)
+  QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
 
-  message "Generating DETAILS file..."
+  substitute_with_mirror_variables SPELL_SRC_URL
+  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" SOURCE \
+    "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
+  substitute_with_variables SPELL_SRC_DIR "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
+  substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
 
 echo \
 "          SPELL=${SPELL_NAME}
@@ -215,7 +191,7 @@ $(fmt -u -w80 ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME})
 EOF" > DETAILS
   rm ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME}
 
-  message "Done..."
+  message "Done.\n"
 }
 #---
 ##

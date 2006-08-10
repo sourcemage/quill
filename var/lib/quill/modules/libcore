@@ -14,10 +14,18 @@ function create_spell_base(){
 ## @Synopsis download spell's source file
 #---
 
-function download_spell_source(){
+function get_spell_source(){
   mkdir -p ${QUILL_TMP_DIR}
   cd ${QUILL_TMP_DIR}
-  wget -c "${SPELL_SRC_URL}"
+  if [[ -e $SPELL_SRC_FILE ]]; then
+    message "Found the spell tarball in the quill dir, continuing ..."
+  elif [[ -e $SOURCE_CACHE/$SPELL_SRC_FILE ]]; then
+    message "Found the spell tarball in the sorcery cache, copying it over ..."
+    cp $SOURCE_CACHE/$SPELL_SRC_FILE .
+    message "Done."
+  else
+    wget -c "${SPELL_SRC_URL}"
+  fi
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
 }
 
@@ -110,7 +118,7 @@ function quill_final_tarball() {
   message "Now creating a bziped2 tarball of the spell files"
   cd ${QUILL_SPELL_DIR}
   tar -jcvf ${SPELL_NAME}.tar.bz2 ${SPELL_NAME}
-  if $? != 0 ; then
+  if [[ $? != 0 ]]; then
      message "Failed to create spell tarball"
   else
      message "Spell tarball created successfully"
