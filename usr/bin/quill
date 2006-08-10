@@ -55,7 +55,7 @@ while  [  -n  "$1"  ];  do
       --fmxml|-f)
                   [[ -z $2 ]] &&
                   message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
-                  quill_help
+                  quill_help 101
                   export QUILL_FMXML_MODE="on"; export QUILL_FMXML_PARAM="$2"
                   shift 2 ;;
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
@@ -65,7 +65,7 @@ while  [  -n  "$1"  ];  do
        --help|-h) quill_help ;;
     --version|-v) quill_version ;;
                *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
-                  quill_help ;;
+                  quill_help 102;;
     esac
   else
     shift

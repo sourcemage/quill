@@ -39,7 +39,6 @@ function quill_fmxml_core(){
       exit 1
     fi
     FRESHMEAT_FILE=$FRESHMEAT_FILE
-    unset FILE
   fi
 
   # check that the project was found - exsists
@@ -63,7 +62,7 @@ function quill_fmxml_core(){
     done
     SPELL_URL=$(curl -I $(quill_fmxml_grab_from_xml url_homepage $1) 2>&1|\
                 grep Location|awk '{print $2}'|sed 's/\r//g')
-    
+
     SPELL_LICENSE=$(quill_fmxml_grab_from_xml license $1)
     if grep -q "(.*)" <<< "$SPELL_LICENSE"; then
       SPELL_LICENSE=$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')

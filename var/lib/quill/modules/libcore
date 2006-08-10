@@ -201,6 +201,6 @@ OPTIONS:
   --version, -v			display version
   --reconfigure, -r		reconfigure settings
 "
-  exit 0
+  exit ${1:-0}
 }
 

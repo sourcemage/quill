@@ -140,6 +140,8 @@ if [[ -n $1 ]]; then
       fi
     done < <(sed 's,^.*\s\s*,,' $mirror_list)
   done
+  # misc sf fix
+  target_value=$(sed 's,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL,' <<< $target_value)
   eval "$target=\"\$target_value\""
 fi
 }
