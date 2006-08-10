@@ -152,10 +152,45 @@ function quill_final_put_in_grimoire() {
 }
 
 #---
+## @Synopsis function that displays the version and exits
+#---
+function quill_version() {
+
+
+  message "quill - $QUILL_VERSION
+Copyright (C) 2006 Source Mage
+This is free software.  You may redistribute copies of it under the terms of
+the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Originaly written by:
+Andraž 'ruskie' Levstik
+Rewritten by:
+Andraž 'ruskie' Levstik
+Jaka 'lynxlynxlynx' Kranjc
+Juuso 'iuso' Alasuutari
+
+Contributions by:
+Andrew 'afrayedknot' Stitt
+Arjan 'abouter' Bouter
+"
+  exit 0
+}
+
+
+#---
 ## @Synopsis function that displays help and exits
 #---
 function quill_help() {
-  message "USAGE: quill [OPTIONS]
+
+
+  message "quill -$QUILL_VERSION
+Copyright (C) 2006 Source Mage
+This is free software.  You may redistribute copies of it under the terms of
+the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+USAGE: quill [OPTIONS]
 
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
@@ -166,6 +201,6 @@ OPTIONS:
   --version, -v			display version
   --reconfigure, -r		reconfigure settings
 "
-  exit 1
+  exit 0
 }
 

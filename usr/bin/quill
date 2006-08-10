@@ -1,7 +1,6 @@
 #!/bin/bash
 #---
 ## @Synopsis Spell creator script for SourceMage GNU/Linux
-## @Copyright Copyright 2006 Andrew "ruskie" Levstik <ruskie@mages.ath.cx>
 ## @Copyright Copyright 2006 SourceMage GNU/Linux
 ## @License GPL v2 or higher
 ##
@@ -64,7 +63,7 @@ while  [  -n  "$1"  ];  do
      --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
 --reconfigure|-r) export QUILL_MODE="reconfigure"; shift 1 ;;
        --help|-h) quill_help ;;
-    --version|-v) message "Quill version: ${QUILL_VERSION}" && exit 0;;
+    --version|-v) quill_version ;;
                *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
                   quill_help ;;
     esac
@@ -236,10 +235,11 @@ then
   then
     quill_final_tarball
   fi
-  if query "Do you want to put the spell into one of the avialable grimoires?" n
-  then
-    quill_final_put_in_grimoire
-  fi
+# This is broken in a way
+#  if query "Do you want to put the spell into one of the avialable grimoires?" n
+#  then
+#    quill_final_put_in_grimoire root
+#  fi
 fi
 
 #---

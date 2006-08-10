@@ -1,3 +1,8 @@
+2006-08-10 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* librcore: added a GPL header and authors and contributors, quill_version
+	  added
+	* GPL: added a copy of the GPL
+
 2006-08-10 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* install.sh: fix #12951, install.sh was failing with staging or sth
 	* version: 0.1.5
@@ -28,7 +33,7 @@
 	  removed trailing white space
 	* quill: removed CURRENTPWD, wasn't used
 	  move the quill lib sourcing after sorcery, so we can override functions
-	    this was the case with hash_get, now hash generation works.
+	  this was the case with hash_get, now hash generation works.
 	  substitute SOURCE with variables too
 	  generate the hash here, where the vars are virgin
 	* libcore::quil_rc: refactored, reconfiguration saves previous settings
@@ -38,54 +43,54 @@
 	  add some quoting to handle spaces in SOURCE and SOURCE_DIRECTORY
 	  enabled the SOURCE_DIRECTORY extrapolation
 	  fix substitute_url_variables to use proper vars. Found a bug here, we
-	    either pass the right values or substitute the right vars, but not both
-	    FIXME - disabled this on SOURCE_URL for now, others made to work
+	  either pass the right values or substitute the right vars, but not both
+	  FIXME - disabled this on SOURCE_URL for now, others made to work
 	* version: 0.1.4
 
 2006-08-06 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* version: another bugfix release 0.1.2, uped to 0.1.3
 	* libcore: a bug reported by lalo, need to create dir first before touching
-	           the file
+	  the file
 	* generate_tarball.sh: changed the key
 
 2006-08-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: split the sourcing, so parameter parsing occurs earlier
-	         together with ruskie fixed the prompt heisenberg
+	  together with ruskie fixed the prompt heisenberg
 	* libdetails: fix redundant coloring, simplify query
 	* libcore: fix globbing in quill_edit, wanted to edit .
 
 2006-08-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: modified the message, added back the need for space delimited
-	           lists
+	  lists
 	* libdepends: fixed some dependency breakage from before
 	* version: added to put version strings in
 	* generate_tarball.sh: to generate a tarball and sign it
 
 2006-08-03 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: addded --version, updated version to 0.1 getting ready for release
-	         added queries for generating tarball and putting spell in grimoire
-	         moved pre_build to mage mode, added quill_edit to edit the spell
-	         files after generation, quoted the version, erm the post
-	         generation still belongs in the global if
+	  added queries for generating tarball and putting spell in grimoire
+	  moved pre_build to mage mode, added quill_edit to edit the spell
+	  files after generation, quoted the version, erm the post
+	  generation still belongs in the global if
 	* libcore: create relevant dirs, make the grimoire copy work, aditions to
-	           help
+	  help
 	* libfreshmeatxml: added an extra var to store the original project name
-	                   fixes a bug
+	  fixes a bug
 	* libdetails: modified for libfreshmeatxml bug, some identing and replaced
-	              3 echos with message
+	  3 echos with message
 
 2006-07-25 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill:updated copyright date, adde 2 more contributors,
-	        added new variable QUILL_VERSION, new mode --reconfigure,
-	        enabled some more queries: pre_build, prepare, conflicts
+	  added new variable QUILL_VERSION, new mode --reconfigure,
+	  enabled some more queries: pre_build, prepare, conflicts
 	* libbuild:added GPL footer
 	* libconfigure:added GPL footer
 	* libconflicts:added GPL footer
 	* libcore:wget should try -c, new configure vairable, cut away some of the
-	          welcome msg, added some defaults for $EDITOR, copy to the dir
-	          added don't assume it's in /var
+	  welcome msg, added some defaults for $EDITOR, copy to the dir
+	  added don't assume it's in /var
 	* libdepends:make it possible to use almost any delimiter in a dependencies
-	             list, added GPL footer
+	  list, added GPL footer
 	* libdesktop:added GPL footer, new ToDo entry
 	* libdetails:added GPL footer
 	* libfreshmeatxml:added GPL footer
@@ -101,40 +106,40 @@
 
 2006-07-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* install.sh: added INSTALL_ROOT support, ensured it is ran from where
-	              it is expected to, simplified the copying/removing logic
+	  it is expected to, simplified the copying/removing logic
 	* libfreshmeatxml: grab non-abbreviated licenses too, fix bad color
 	* libcore: implemented the missing quill_help, fix bad color
 	* quill: fix infinite loop on bad/missing parameter -> print help
-	         add && to DEPENDS #10481
-	         simplified the sourcing loop
-	         add missing quote
+	  add && to DEPENDS #10481
+	  simplified the sourcing loop
+	  add missing quote
 
 2006-07-16 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
-	* var/lib/quill/modules/libdetails: change for global BUILD_API2
+	* libdetails: change for global BUILD_API2
 	  and remove ENETRED and UPDATED
-	* usr/bin/quill: removed excessive whitespaces in the GPL footer
+	* quill: removed excessive whitespaces in the GPL footer
 
 2006-04-13 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
-	* var/lib/quill/modules/libcore: outputing from sha512 string
+	* libcore: outputing from sha512 string
 
 2006-04-08 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
-	* usr/bin/quill: missing HISTORY_DATE
+	* quill: missing HISTORY_DATE
 
 2006-04-07 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
-	* var/lib/quill/modules/libcore: typo, another one, and another one
+	* libcore: typo, another one, and another one
 
 2006-04-04 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* install.sh: added install/deinstall script
-	* usr/bin/quill:commented out unused functions
+	* quill:commented out unused functions
 	  added sourcing of modules
-	* var/lib/quill/modules/libcore: made it workable
-	* var/lib/quill/modules/libdepends: made it workable
-	* var/lib/quill/modules/libdetails: made it workable
-	* var/lib/quill/modules/libfreshmeatxml: made it workable
-	* var/lib/quill/modules/libhistory: made it workable
-	* var/lib/quill/modules/libinstall: made it workable
-	* var/lib/quill/modules/libprepare: made it workable
-	* var/lib/quill/modules/libprovides: made it workable
+	* libcore: made it workable
+	* libdepends: made it workable
+	* libdetails: made it workable
+	* libfreshmeatxml: made it workable
+	* libhistory: made it workable
+	* libinstall: made it workable
+	* libprepare: made it workable
+	* libprovides: made it workable
 
 2006-02-12 Juuso Alasuutari <juuso.alasuutari@tamperelainen.org>
 	* quill: edited ToDo list
