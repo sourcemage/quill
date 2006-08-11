@@ -14,7 +14,6 @@ function query_spell_build() {
 
 function add_build() {
   touch BUILD
-  chmod +x BUILD
   if query "Do you want the default_build function dumped into the BUILD file" "n"
   then
     (declare -f real_default_build | \

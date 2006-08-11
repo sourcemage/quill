@@ -1,3 +1,17 @@
+2006-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: addded quill_set_executable_bit to set all the relevant files to +x
+	* libcore: added quill_set_executable_bit to set all the relevant files to
+	  +x
+	* COPYING, GPL: GLP moved to COPYING
+	* libbuild: removed chmod +x
+	* libconflicts: removed chmod +x
+	* libdepends: removed chmod +x, added by default to use multiline optional
+	  depends, fixed bug #12973
+	* libdetails: fixed an indentation issue #12972
+	* libinstall: removed chmod +x
+	* libpre_build: removed chmod +x
+	* libprepare: removed chmod +x
+
 2006-08-10 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* librcore: added a GPL header and authors and contributors, quill_version
 	  added

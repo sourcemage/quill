@@ -15,7 +15,6 @@ function query_spell_pre_build()
 function add_pre_build()
 {
   touch PRE_BUILD
-  chmod +x PRE_BUILD
   if query "Do you want the default_pre_build function dumped into the PRE_BUILD file" "n"
   then
      (declare -f real_default_pre_build | tail -n -2 | head -n 1 | sed "s:&&:\&\&\n:g") > PRE_BUILD

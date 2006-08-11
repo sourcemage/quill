@@ -179,7 +179,7 @@ function add_details(){
   substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
 
 echo \
-"          SPELL=${SPELL_NAME}
+"           SPELL=${SPELL_NAME}
          VERSION=${SPELL_VERSION}
           SOURCE=\"${SPELL_SRC_FILE}\"
    SOURCE_URL[0]=${SPELL_SRC_URL}

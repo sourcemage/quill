@@ -13,7 +13,6 @@ fi
 function add_prepare()
 {
   touch PREPARE
-  chmod +x PREPARE
   $EDITOR PREPARE
 }
 #---

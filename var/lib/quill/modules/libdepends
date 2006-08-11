@@ -17,7 +17,6 @@ spell if any:${DEFAULT_COLOR}"
 
 function add_dependencies() {
   touch DEPENDS
-  chmod +x DEPENDS
   DEPENDSISON="DEPENDS, "
   for i in ${SPELL_DEPENDENCIES}
   do
@@ -27,7 +26,6 @@ function add_dependencies() {
 
 function add_optional_dependencies() {
   touch DEPENDS
-  chmod +x DEPENDS
   DEPENDSISON="DEPENDS, "
   SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
   SPELL_OPTIONAL_DEPENDENCIES_DISABLED[0]=""
@@ -42,7 +40,10 @@ function add_optional_dependencies() {
     message "${QUERY_COLOR}${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description${DEFAULT_COLOR}"
     read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]
 
-    echo "optional_depends \"${SPELL_OPTIONAL_DEPENDENCIES[$MN]}\" \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]}\" \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]}\" \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]}\"" >> DEPENDS
+    message "optional_depends \"${SPELL_OPTIONAL_DEPENDENCIES[$MN]}\" \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]}\" \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]}\" \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]}\"" >> DEPENDS
   done
 # "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\""
 }

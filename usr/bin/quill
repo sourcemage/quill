@@ -227,6 +227,7 @@ then
   fi
 
   add_history
+  quill_set_executable_bit
   if query "Do you want to edit all the spell files?" n
   then
     quill_edit
