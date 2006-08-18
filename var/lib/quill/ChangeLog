@@ -2,7 +2,7 @@
 	* quill: added perlcpan mode
 	* libbuild: added minor fixes for perlcpan mode
 	* libcore: added perlcpan option to help
-	* libdepends: minor fixes, now it can be predefined
+	* libdepends: minor fixes, now it can be predefined, and uniqed
 	* libperlcpan: the main module
 	* version: new version 0.1.6
 
