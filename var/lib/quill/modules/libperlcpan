@@ -31,7 +31,7 @@ function quill_cpan_core()
   echo $description > ${QUILL_TMP_DIR}/${SPELL_NAME}
   BUILDISON="BUILD, "
   touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
-  echo "default_perl_build" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
+  echo "default_build_perl" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
   DEPENDSISON="DEPENDS, "
   SPELL_DEPENDENCIES="perl"
 }
