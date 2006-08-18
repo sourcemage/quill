@@ -1,3 +1,11 @@
+2006-08-18 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: added perlcpan mode
+	* libbuild: added minor fixes for perlcpan mode
+	* libcore: added perlcpan option to help
+	* libdepends: minor fixes, now it can be predefined
+	* libperlcpan: the main module
+	* version: new version 0.1.6
+
 2006-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: addded quill_set_executable_bit to set all the relevant files to +x
 	* libcore: added quill_set_executable_bit to set all the relevant files to

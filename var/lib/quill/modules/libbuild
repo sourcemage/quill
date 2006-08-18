@@ -6,21 +6,27 @@
 BUILDISON=""
 
 function query_spell_build() {
-  if query "Will you be adding a custom BUILD file:" "n"
-  then
-    BUILDISON="BUILD, "
+  if [[ "$QUILL_CPAN_MODE" != "on" ]]; then
+     if query "Will you be adding a custom BUILD file:" "n"
+     then
+       BUILDISON="BUILD, "
+     fi
   fi
 }
 
 function add_build() {
-  touch BUILD
-  if query "Do you want the default_build function dumped into the BUILD file" "n"
-  then
-    (declare -f real_default_build | \
-    tail -n -2 | head -n 1 | sed 's:\(.\{20,41\}\)--:\1\\\n --:g' | \
-    sed "s:&&:\&\&\n:g") > BUILD
+  if [[ "$QUILL_CPAN_MODE" == "on" ]]; then
+    cp ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
   else
-    echo "default_build" > BUILD
+    touch BUILD
+    if query "Do you want the default_build function dumped into the BUILD file" "n"
+    then
+      (declare -f real_default_build | \
+      tail -n -2 | head -n 1 | sed 's:\(.\{20,41\}\)--:\1\\\n --:g' | \
+      sed "s:&&:\&\&\n:g") >> BUILD
+    else
+      echo "default_build" >> BUILD
+    fi
   fi
   $EDITOR BUILD
 }

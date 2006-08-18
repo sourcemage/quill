@@ -208,6 +208,7 @@ USAGE: quill [OPTIONS]
 
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
+  --perlcpan, -c <SPELL>		get spell data from Perl-CPAN if possible
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
   --wizard, -w			wizard mode (expert)(DOES NOTHING FOR NOW)

@@ -3,10 +3,14 @@
 #---
 
 function query_spell_dependencies() {
-  message "${QUERY_COLOR}Please enter the dependencies(non optional) \
+  if ! [[ $SPELL_DEPENDENCIES ]] ||
+     ! query "Are \"${SPELL_DEPENDENCIES}\" the proper dependencies for this spell" y
+  then
+    message "${QUERY_COLOR}Please enter the dependencies(non optional) \
 of the spell if any:${DEFAULT_COLOR}"
-  read "SPELL_DEPENDENCIES"
-  SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
+    read "SPELL_DEPENDENCIES"
+    SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
+  fi
 }
 
 function query_spell_optional_dependencies() {

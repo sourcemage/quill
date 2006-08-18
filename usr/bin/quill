@@ -58,6 +58,12 @@ while  [  -n  "$1"  ];  do
                   quill_help 101
                   export QUILL_FMXML_MODE="on"; export QUILL_FMXML_PARAM="$2"
                   shift 2 ;;
+   --perlcpan|-c)
+                  [[ -z $2 ]] &&
+                  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
+                  quill_help 101
+                  export QUILL_CPAN_MODE="on"; export QUILL_CPAN_PARAM="$2"
+                  shift 2 ;;
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
        --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
      --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
@@ -106,6 +112,11 @@ then
   then
     QUILL_FMXML_SPELL="$QUILL_FMXML_PARAM"
     quill_fmxml_core $QUILL_FMXML_PARAM
+  fi
+  if [[ "${QUILL_CPAN_MODE}" == "on" ]]
+  then
+    QUILL_CPAN_SPELL="$QUILL_CPAN_PARAM"
+    quill_cpan_core $QUILL_CPAN_PARAM
   fi
 
   query_spell_name

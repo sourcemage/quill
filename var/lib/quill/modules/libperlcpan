@@ -1,0 +1,56 @@
+#---
+## @Synopsis Perl-cpan module to generate spells from perl-cpan metadata
+#---
+
+function quill_get_cpan_meta()
+{
+  if [[ $FORCE_CPAN_DOWNLOAD == on ]] ||
+     [ ! -f $QUILL_TMP_DIR/02packages.details.txt.gz ] ||
+     [ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]
+  then
+    cd $QUILL_TMP_DIR
+    wget -O 02packages.details.txt.gz ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz
+    wget -O 03modlist.data.gz ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz
+  fi
+  eval QUILL_CPAN_INFO="( $(zgrep -w "$1" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
+  eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 "$1" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
+}
+
+function quill_cpan_core()
+{
+  quill_get_cpan_meta $1
+  SPELL_NAME="${1/::/-}"
+  SPELL_SRC_URL="http://www.cpan.org/authors/id/${QUILL_CPAN_INFO[2]}"
+  SPELL_VERSION="${QUILL_CPAN_INFO[1]}"
+  SPELL_SHORT_DESCRIPTION="${QUILL_CPAN_METADATA[6]}"
+  SPELL_LICENSE="ART"
+  SPELL_URL="http://search.cpan.org/~${QUILL_CPAN_METADATA[7]}/${SPELL_NAME}/"
+  local description
+  description="${QUILL_CPAN_METADATA[6]}"
+  SPELL_NAME="$(echo $SPELL_NAME | tr "A-Z" "a-z")"
+  echo $description > ${QUILL_TMP_DIR}/${SPELL_NAME}
+  BUILDISON="BUILD, "
+  touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
+  echo "default_perl_build" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
+  DEPENDSISON="DEPENDS, "
+  SPELL_DEPENDENCIES="perl"
+}
+
+#---
+##
+## This software is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+#---
+
