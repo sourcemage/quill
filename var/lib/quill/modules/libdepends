@@ -10,6 +10,7 @@ function query_spell_dependencies() {
 of the spell if any:${DEFAULT_COLOR}"
     read "SPELL_DEPENDENCIES"
     SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
+    SPELL_DEPENDENCIES=$(sort <<< "$SPELL_DEPENDENCIES")
     SPELL_DEPENDENCIES=$(uniq <<< "$SPELL_DEPENDENCIES")
 fi
 }
