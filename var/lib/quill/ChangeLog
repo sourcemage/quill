@@ -4,7 +4,8 @@
 	* libcore: added perlcpan option to help
 	* libdepends: minor fixes, now it can be predefined, and uniqed and sorted
 	* libperlcpan: the main module
-	* version: new version 0.1.6
+	* version: new version 0.1.6, 0.1.7
+	* libdetails: added ENTERED back
 
 2006-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: addded quill_set_executable_bit to set all the relevant files to +x
