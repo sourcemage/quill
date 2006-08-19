@@ -136,7 +136,7 @@ if [[ -n $1 ]]; then
   local target=$1 target_value mirror_list mirror_variable mirror_entry
   eval target_value="\$$1"
   for mirror_list in /etc/sorcery/mirrors/*; do
-    mirror_variable="$(smgl_basename $mirror_list)_URL"
+    mirror_variable="$(basename $mirror_list)_URL"
     while read mirror_entry; do
       if [[ $mirror_entry != "Custom" ]]; then
         target_value=${target_value/$mirror_entry/\$$mirror_variable}
