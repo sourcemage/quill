@@ -1,3 +1,17 @@
+2006-11-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: remove a bad message and add two mentioning update capabilities
+	* libfreshmeatxml: no need to exit; use the variables that are there
+	* libconfigure, libfinal, libpost_install, libpre_install, libtriggers: rm
+	  empty files, they can be created when they are needed
+	* quill-old: removed
+	* quill: rearranged some code to make room for the update mode
+	  added the beginnings of the update mode and lots of pseudocode (disabled)
+	  simplified and removed some vairables
+	  added one simple check for good settings
+	  FIXME take care of cpan mode too
+	* libhistory: added add_history_entry and add_history_entries
+	* libdetails: added query_spell_version
+
 2006-08-19 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libdetails: changed smgl_basename to basename
 	* version: 0.1.9-20060819

@@ -24,6 +24,15 @@ if ! [[ $SPELL_SRC_URL ]] ||
 fi
 }
 
+# used in update mode only
+function query_spell_version(){
+  if ! [[ $SPELL_VERSION ]] ||
+    ! query "Is $SPELL_VERSION the proper spell version?" y; then
+    message "${QUERY_COLOR}Please enter the new version:$DEFAULT_COLOR"
+    read SPELL_VERSION
+  fi
+}
+
 function query_spell_signature(){
 if [[ $SPELL_SIGNATURE ]] &&
    ! query "Is $SPELL_SIGNATURE the proper signature key url?" y; then

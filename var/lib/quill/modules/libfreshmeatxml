@@ -30,23 +30,22 @@ function quill_fmxml_core(){
   else
     FRESHMEAT_XML_URL=http://freshmeat.net/projects-xml/${1}/${1}.xml
   fi
+
   # check if we already have the xml file, if we dont, download it
-  if test -f ${QUILL_TMP_DIR}/${1}.xml ; then
-    FRESHMEAT_FILE=${1}.xml
-  else
-    if ! curl -o ${QUILL_TMP_DIR}/${1}.xml ${FRESHMEAT_XML_URL} ; then
+  FRESHMEAT_FILE=$QUILL_TMP_DIR/$1.xml
+  if ! test -f $FRESHMEAT_FILE; then
+    if ! curl -o $FRESHMEAT_FILE $FRESHMEAT_XML_URL; then
       message "${PROBLEM_COLOR}Failed to get ${1}${DEFAULT_COLOR}"
-      exit 1
+      return 1
     fi
-    FRESHMEAT_FILE=$FRESHMEAT_FILE
   fi
 
   # check that the project was found - exsists
   local not_found='Error: project not found.'
-  if grep -q "$not_found" "$QUILL_TMP_DIR/$1.xml"; then
+  if grep -q "$not_found" "$FRESHMEAT_FILE"; then
     message "$PROBLEM_COLOR$not_found$DEFAULT_COLOR"
-    rm "$QUILL_TMP_DIR/$1.xml"
-    exit 2
+    rm "$FRESHMEAT_FILE"
+    return 2
   fi
 
   # fill in variables from xml file

@@ -88,8 +88,8 @@ function quill_rc() {
 function quill_welcome() {
   message "Welcome to SourceMage GNU/Linux quill - a spell creator script."
   message "-----------------------------------------------------------------------------"
-  message "This makes an immediately useable spell from some minor data."
-  message "Does not create a \$SPELL-\$VERSION SOURCE construct but uses real filename"
+  message "This makes an immediately useable spell from some minor data or "
+  message "updates an exsisting one.."
   message "-----------------------------------------------------------------------------"
   message "The spell will be put into a grimoire/section you define(if you choose to)"
   message "and a tar.bz2 file will be created in $QUILL_SPELL_DIR."
@@ -209,6 +209,7 @@ USAGE: quill [OPTIONS]
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
   --perlcpan, -c <SPELL>		get spell data from Perl-CPAN if possible
+  --update, -u <SPELL>		update exsisting spell (DISABLED)
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
   --wizard, -w			wizard mode (expert)(DOES NOTHING FOR NOW)

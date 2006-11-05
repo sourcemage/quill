@@ -13,6 +13,39 @@ echo \
 message "Done..."
 
 }
+
+#---
+## @Synopsis Adds a new HISTORY entry. Uses idempotent date title handling.
+## @param entry without the leading tab, bullet and space
+#---
+function add_history_entry()
+{
+  local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>"
+
+  if grep -q "$title" HISTORY;
+  then
+    sed -i "/$title/ a\	* $1" HISTORY
+  else # first time
+    sed -i "1 s/^.*$/$title\n	* $1\n\n&/" HISTORY
+  fi
+}
+
+#---
+## @Synopsis Adds new HISTORY entries.
+## @param entry without the leading tab, bullet and space
+#---
+function add_history_entries()
+{
+  local each
+  message "Updating HISTORY ..."
+
+  for each in "$@"; do
+    add_history_entry "$each"
+  done
+
+  message "Done ..."
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify
