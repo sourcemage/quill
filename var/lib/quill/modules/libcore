@@ -104,7 +104,7 @@ function quill_welcome() {
 function quill_edit() {
   message "Now invoking $EDITOR to edit spell files."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
-  for SPELL_FILE in *
+  for SPELL_FILE in ${1:-*}
   do
     $EDITOR ${SPELL_FILE}
   done

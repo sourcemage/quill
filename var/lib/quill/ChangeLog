@@ -1,3 +1,7 @@
+2006-11-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: made quill_edit take a parameter to specify arbitrary files
+	* quill: updated update of update mode :) almost done, untested
+
 2006-11-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: remove a bad message and add two mentioning update capabilities
 	* libfreshmeatxml: no need to exit; use the variables that are there

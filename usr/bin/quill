@@ -11,14 +11,11 @@
 ## @ToDo <80 single else multi
 ## @ToDo Interface to add CONFIGURE options
 ## @ToDo Automated bugcli submissions of spells
-## @ToDo Make a tar.bz2 of the spell immediately
 ## @ToDo Automatic inclusion into a grimoire when finished
-## @ToDo Add cmdline options to make it possible to autoscript it
 ## @ToDo Add a better configuration interface(dialog based I hope)
 ## @ToDo Make it possible to also update spells using quill
 ## @ToDo Make quill the be-all for spells
-## @ToDo Make quill interface with both sorcery and grimoire to get
-## @ToDo functions
+## @ToDo Make quill interface with grimoire to get functions
 ##
 ## Asks the user in simple questions about generating a spell.
 ## @Globals BUILDISON, INSTALLISON, PREBUILDISON, TRIGGERSISON
@@ -165,20 +162,94 @@ then
           then
             query_spell_version
 
-            #save versions
-            sed -i "s/\<VERSION=$version/VERSION=$SPELL_VERSION/" DETAILS
+            #save the chosen version
+            sed -i "s/\<VERSION=$version\>/VERSION=$SPELL_VERSION/" DETAILS
 
-            #check that source urls are ok
-              #if not ask for fixed ones
-            #download
-            #get hashes
-            #save hashes
+            #check for multiversion spells
+            if [[ $(grep -c "\<SOURCE=") != 1 ]]
+            then #we have problems
+              message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
+              message "and then you will tell me which variable I need to set, so I can get "
+              message "to the correct version ($SPELL_VERSION)."
+              sleep 3
+              cat DETAILS
+              query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR}"
+            fi
+
+            #check that (usually new) source urls are ok
+            sources_and_urls=$($if_var; . /DETAILS &> /dev/null; get_spell_files_and_urls)
+            sources=$(sed 's/^\(\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
+            source_urls=$(sed 's/^\S*\s*\(.\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
+            i=
+            for su in $source_urls
+            do
+              wget -S --spider "$su" 2>&1 | grep -q "ERROR 404"
+              #... if they are not ask for fixed ones
+              if [[ $? != 0 ]]
+              then
+                message "SOURCE${i}_URL[0] is ok!"
+              else
+                message  "SOURCE${i}_URL[0] is broken! Fix it manually."
+                quill_edit DETAILS
+              fi
+              let i=+1
+            done
+
+            #recheck that (usually new) source urls are ok
+            #FIXME: avoid duplication by moving this in a function
+            sources_and_urls=$($if_var; . /DETAILS &> /dev/null; get_spell_files_and_urls)
+            sources=$(sed 's/^\(\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
+            source_urls=$(sed 's/^\S*\s*\(.\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
+
+            #download; we are not a grimoire so some hacking is needed
+            summon -r <<< "$sources_and_urls"
+
+            #get hashes and save them, removing any previous hash/gpg
+            i=
+            for source in $sources
+            do
+              hash=$(hash_get $source)
+              current_check=$( $if_var; . /DETAILS &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE)
+
+              #skip SOURCE_IGNORE
+              if grep -Eq "volatile|signature|unversioned" <<< "$current_check"
+              then
+                [[ ! $i ]] && i=1
+                let i=+1
+                continue
+              fi
+
+              #SOURCE_GPG?
+              if grep -q ":.*:" <<< "$current_check"
+              then #it is a gpg
+                if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
+                then
+                  message "Here is the hash for SOURCE$i anyway, if you need it later: $hash"
+                  [[ ! $i ]] && i=1
+                  let i=+1
+                  continue
+                fi
+              fi
+
+              #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
+              sed -ir "s/^(\s*)SOURCE${i}_(GPG|HASH)=$current_check$/\1SOURCE${i}_HASH=$hash/" DETAILS
+              [[ ! $i ]] && i=1
+              let i=+1
+            done
+
             #restore patchlevel
-
+            sed -i "/^[^#]*\<PATCHLEVEL=/d" DETAILS
           fi
         done
+
 #update HISTORY
+add_history_entries "DETAILS: updated to $SPELL_VERSION"
+
 #copy the spell back to the grimoire?
+#FIXME: root only, fix the end of quill first
+cp -rv $QUILL_SPELL_DIR/$SPELL_NAME $(codex_find_spell_by_name $SPELL_NAME|dirname)
+
+message "Done with updating the spell!"
 
         echo ++"$ANSWER"++ ;;
       "${actions[1]}") #"Manage patches"
