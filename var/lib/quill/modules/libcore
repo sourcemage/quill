@@ -1,4 +1,18 @@
 #---
+## @Synopsis query_list function from init-manager
+## $1 - the question
+## $2 - the VARIABLE to which to store the answer
+## $3...$n - the options for the list
+#---
+function query_list()
+{
+  local question="$1"
+  shift
+  message "$question"
+  select_list "$@"
+}
+
+#---
 ## @Synopsis generate basic spell dir
 #---
 function create_spell_base(){

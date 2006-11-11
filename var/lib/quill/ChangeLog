@@ -1,3 +1,7 @@
+2006-11-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: added query_list function from init-manager
+	* quill: use query_list intead of directcly calling select_list
+
 2006-11-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: made quill_edit take a parameter to specify arbitrary files
 	* quill: updated update of update mode :) almost done, untested
