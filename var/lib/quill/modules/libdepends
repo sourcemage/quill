@@ -46,7 +46,7 @@ function add_optional_dependencies() {
     message "${QUERY_COLOR}${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description${DEFAULT_COLOR}"
     read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]
 
-    message "optional_depends \"${SPELL_OPTIONAL_DEPENDENCIES[$MN]}\" \\" >> DEPENDS
+    message "optional_depends ${SPELL_OPTIONAL_DEPENDENCIES[$MN]} \\" >> DEPENDS
     message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]}\" \\" >> DEPENDS
     message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]}\" \\" >> DEPENDS
     message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]}\"" >> DEPENDS

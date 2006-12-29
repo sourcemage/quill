@@ -177,10 +177,9 @@ function hunt_src_dir(){
 ## @Synopsis generate DETAILS file
 #---
 function add_details(){
-  message "Generating the DETAILS file..."
+  message "Generating the DETAILS file ..."
 
-  SPELL_DATE=$(date +%Y%m%d)
-  QUILL_SPELL_HASH="$(hash_get ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})"
+  QUILL_SPELL_HASH="$(quill_hash_get $QUILL_TMP_DIR/$SPELL_SRC_FILE)"
 
   substitute_with_mirror_variables SPELL_SRC_URL
   substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" SOURCE \
@@ -197,7 +196,7 @@ echo \
 SOURCE_DIRECTORY=\"\${BUILD_DIRECTORY}/$SPELL_SRC_DIR\"
         WEB_SITE=${SPELL_URL}
       LICENSE[0]=${SPELL_LICENSE}
-         ENTERED=${SPELL_DATE}
+         ENTERED=${HISTORY_DATE//-/}
            SHORT=\"${SPELL_SHORT_DESCRIPTION}\"
 cat << EOF
 $(fmt -u -w80 ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME})

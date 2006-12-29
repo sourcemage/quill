@@ -22,7 +22,7 @@
 ## @Globals SPELL_HISTORY_NAME, SPELL_HISTORY_EMAIL, SPELL_NAME,
 ## @Globals SPELL_SRC_URL, SPELL_LICENSE, SPELL_URL, SPELL_SHORT_DESCRIPTION,
 ## @Globals SPELL_DESCRIPTION, SPELL_DEPENDENCIES, SPELL_OPTIONAL_DEPENDENCIES,
-## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_DATE, SPELL_SRC_FILE,
+## @Globals SPELL_CONFLICTS, HISOTRY_DATE, SPELL_SRC_FILE,
 ## @Globals SPELL_SANITIZED_FILE_NAME, SPELL_MD5_UNPACKED, SPELL_VERSION,
 ## @Globals i, j, n, BUILD_DTFILE, DTFILE_MENUENTRY, DTFILE_EXEC
 ## @Globals DTFILE_MENUPATH, DTFILE_ICON, DTFILE_TERM, SPELL_SRC_DIR
@@ -207,7 +207,7 @@ then
             i=
             for source in $sources
             do
-              hash=$(hash_get $source)
+              hash=$(quill_hash_get $source)
               current_check=$( $if_var; . /DETAILS &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE)
 
               #skip SOURCE_IGNORE
@@ -219,7 +219,7 @@ then
               fi
 
               #SOURCE_GPG?
-              if grep -q ":.*:" <<< "$current_check"
+              if ! grep -Eq "(sha(512|256|1)|md5):.*:" <<< "$current_check"
               then #it is a gpg
                 if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
                 then
@@ -274,7 +274,6 @@ message "Done with updating the spell!"
     esac
 
   done
-  exit 0
 else
   query_spell_name
   query_spell_source_url
@@ -344,11 +343,11 @@ else
     add_provides
   fi
 
-  if [[ "$QUILL_FMXML_MODE" != "on" ]]
-  then
-    parse_spell_source_file_info
-  fi
+  # redo it for fmxml - so it works if the xml didn't contain a valid source url
+  # first time for other modes
+  parse_spell_source_file_info
   show_spell_source_file_info
+  echo
 
   get_spell_source
 
@@ -406,14 +405,14 @@ else
   then
     quill_final_tarball
   fi
-  message "The spell has been generated and put into:"
-  message "$QUILL_SPELL_DIR/$SPELL_NAME"
-# This is broken in a way
-#  if query "Do you want to put the spell into one of the avialable grimoires?" n
-#  then
-#    quill_final_put_in_grimoire root
-#  fi
+  message ""
+  message "The spell has been generated and put into: $QUILL_SPELL_DIR/$SPELL_NAME"
+  if query "Do you want to put the spell into one of the avialable grimoires?" n
+  then
+    quill_final_put_in_grimoire
+  fi
 fi
+message "That's all folks!"
 
 #---
 ##

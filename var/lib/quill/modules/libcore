@@ -44,15 +44,12 @@ function get_spell_source(){
 }
 
 #---
-## @Synopsis hash_get function by afreydknot
+## @Synopsis Print the sha512 hash, a simplified gpg_hashsum
 ##
 #---
 
-function hash_get() {
-  gpg --print-md sha512 \
-  "$@" |\
-  tr -d '\n ' | tr 'A-F' 'a-f' |\
-  awk -F: '{printf $2}'
+function quill_hash_get() {
+  gpg --print-md sha512 "$@" | tr -d '\n ' | tr 'A-F' 'a-f' | cut -d: -f2
 }
 
 #---
@@ -156,27 +153,39 @@ function quill_set_executable_bit() {
 ## @Synopsis function to put the spell into the grimoire
 #---
 function quill_final_put_in_grimoire() {
-  message "You have selected to put the spell into the grimoire"
-  message "Please note there will also be a spell tarball(if so desired) in"
-  message "${USER_HOME}/${QUILL_SPELLDIR} as will be a spelldir"
-  message "-----------------------------------------------------------------------------"
-  message "Into which grimoire do you wish to put the spell(FULL path to it):"
-#  quill_list_grimoires
-  read QUILL_GRIM_NAME
-  message "Into which section do you wish to put the spell:"
-#  quill_list_sections
-  read QUILL_SECT_NAME
-  message "Now scribling spell into ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/${QUILL_SPELL_NAME}"
-  cd ${QUILL_SPELL_DIR}/${QUILL_SPELL_NAME}
-  mkdir -p ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}
-  cp -r ${SPELL_NAME} ${QUILL_GRIM_NAME}/${QUILL_SECT_NAME}/
-  if $? != 0 ; then
-     message "Scribbling failed"
+
+  query_list "Into which grimoire do you wish to put the spell:" QUILL_GRIM_NAME \
+    $(codex_get_all_grimoires | get_basenames)
+  echo
+  QUILL_GRIM_NAME=$(codex_canonicalize_grimoire_name $QUILL_GRIM_NAME)
+
+  # can't use query_list, as the section count can be bigger than the available index
+  message "Available sections in grimoire $QUILL_GRIM_NAME:"
+  codex_get_section_names $QUILL_GRIM_NAME | column
+  query_string QUILL_SECT_NAME "Into which section do you wish to put the spell: "
+
+  message "Scribbling spell into $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ..."
+
+  quill_final_put_in_grimoire_sub(){
+    mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME
+    cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
+    if [[ $? != 0 ]]; then
+      echo "Scribbling failed!"
+    else
+      echo "Scribbling succeded"
+      echo
+      echo "Running scribe reindex on $QUILL_GRIM_NAME ..."
+      scribe reindex $(basename $QUILL_GRIM_NAME)
+    fi
+  }
+  if [[ $UID == 0 ]]; then
+    quill_final_put_in_grimoire_sub
   else
-     message "Scribbling succeded"
-     message "Now running scribe reindex on ${QUILL_GRIM_NAME}"
-     scribe reindex $(basename ${QUILL_GRIM_NAME})
+    export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
+    su -c "$(declare -f quill_final_put_in_grimoire_sub); \
+      quill_final_put_in_grimoire_sub"
   fi
+
 }
 
 #---

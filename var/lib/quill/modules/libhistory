@@ -4,13 +4,13 @@
 
 function add_history()
 {
-message "Generating HISTORY file..."
+message "Generating HISTORY file ..."
 
 echo \
 "${HISTORY_DATE} ${GURU_NAME} <${GURU_EMAIL}>
 	* DETAILS, ${PROVIDESISON}${DEPENDSISON}${CONFIGUREISON}${PREPAREISON}${CONFLICTSISON}${PREBUILDISON}${BUILDISON}${INSTALLISON}${POSTINSTALLISON}${TRIGGERSISON}${FINALISON}HISTORY${BUILD_DTFILE}: created spell" > HISTORY
 
-message "Done..."
+message "Done."
 
 }
 
@@ -43,7 +43,7 @@ function add_history_entries()
     add_history_entry "$each"
   done
 
-  message "Done ..."
+  message "Done."
 }
 
 #---

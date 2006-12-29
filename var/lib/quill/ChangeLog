@@ -1,3 +1,13 @@
+2006-12-29 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: fixed SOURCE_GPG check, reenabled quill_final_put_in_grimoire,
+	  fixed fmxml mode by having it redo parse_spell_source_file_info
+	  use quill_hash_get, remove SPELL_DATE
+	* libcore: fixed quill_final_put_in_grimoire,
+	  renamed hash_get to quill_hash_get as it overrode the sorcery one
+	* libdetails: use quill_hash_get, use HISTORY_DATE instead of SPELL_DATE
+	* libhistory, libdepends: cosmetic fixes
+	* version: 0.1.10
+
 2006-11-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: added query_list function from init-manager
 	* quill: use query_list intead of directcly calling select_list
