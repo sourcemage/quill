@@ -5,6 +5,7 @@
 	* libcore: fixed quill_final_put_in_grimoire,
 	  renamed hash_get to quill_hash_get as it overrode the sorcery one
 	* libdetails: use quill_hash_get, use HISTORY_DATE instead of SPELL_DATE
+	  the return of the ugly braces
 	* libhistory, libdepends: cosmetic fixes
 	* version: 0.1.10
 

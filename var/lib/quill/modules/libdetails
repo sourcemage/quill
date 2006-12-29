@@ -182,10 +182,10 @@ function add_details(){
   QUILL_SPELL_HASH="$(quill_hash_get $QUILL_TMP_DIR/$SPELL_SRC_FILE)"
 
   substitute_with_mirror_variables SPELL_SRC_URL
-  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" SOURCE \
-    "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
-  substitute_with_variables SPELL_SRC_DIR "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
-  substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" SPELL "$SPELL_VERSION" VERSION
+  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" {SOURCE} \
+    "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+  substitute_with_variables SPELL_SRC_DIR "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+  substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
 echo \
 "           SPELL=${SPELL_NAME}
