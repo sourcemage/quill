@@ -1,3 +1,12 @@
+2006-01-08 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: added dump_default_function, since now the names are different
+	  in devel sorcery (was dumping "false")
+	  TODO: add overwriting-of-exsisting-spell prevention to final put
+	* libbuild, libpre_build, libinstall: made use of it
+	  add missing && - if you're adding the file, you'll be adding custom code
+	* quill: ask if the user is feeling lucky and wants to cast #11884
+	* version: 0.1.10.1
+
 2006-12-29 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: fixed SOURCE_GPG check, reenabled quill_final_put_in_grimoire,
 	  fixed fmxml mode by having it redo parse_spell_source_file_info

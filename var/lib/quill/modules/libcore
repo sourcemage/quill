@@ -171,6 +171,7 @@ function quill_final_put_in_grimoire() {
     cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
     if [[ $? != 0 ]]; then
       echo "Scribbling failed!"
+      return 1
     else
       echo "Scribbling succeded"
       echo
@@ -186,6 +187,17 @@ function quill_final_put_in_grimoire() {
       quill_final_put_in_grimoire_sub"
   fi
 
+}
+
+#---
+## @Synopsis dumps the default spell file function, taking into
+## account that devel has a new spell file inheritance scheme
+#---
+function dump_default_function() {
+  if ! declare -f real_default_sorcery_$1; then
+    # old sorcery
+    declare -f real_default_$1
+  fi | tail -n -2 | head -n 1
 }
 
 #---

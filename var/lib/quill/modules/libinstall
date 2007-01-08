@@ -9,9 +9,9 @@ function add_install()
   touch INSTALL
   if query "Do you want the default_install function dumped into the INSTALL file" "n"
   then
-    (declare -f real_default_install | tail -n -2 | head -n 1) > INSTALL
+    dump_default_function install > INSTALL
   else
-    echo "default_install" > INSTALL
+    echo "default_install &&" > INSTALL
   fi
   $EDITOR INSTALL
 }

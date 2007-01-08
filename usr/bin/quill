@@ -409,7 +409,11 @@ else
   message "The spell has been generated and put into: $QUILL_SPELL_DIR/$SPELL_NAME"
   if query "Do you want to put the spell into one of the avialable grimoires?" n
   then
-    quill_final_put_in_grimoire
+    quill_final_put_in_grimoire &&
+    if query "Do you want to *try* to cast the spell?" n
+    then
+      cast $SPELL_NAME
+    fi
   fi
 fi
 message "That's all folks!"
