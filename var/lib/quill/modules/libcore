@@ -2,7 +2,8 @@
 ## @Synopsis query_list function from init-manager
 ## $1 - the question
 ## $2 - the VARIABLE to which to store the answer
-## $3...$n - the options for the list
+## $3 - the default answer
+## $4...$n - the options for the list
 #---
 function query_list()
 {
@@ -155,7 +156,7 @@ function quill_set_executable_bit() {
 function quill_final_put_in_grimoire() {
 
   query_list "Into which grimoire do you wish to put the spell:" QUILL_GRIM_NAME \
-    $(codex_get_all_grimoires | get_basenames)
+    "" $(codex_get_all_grimoires | get_basenames)
   echo
   QUILL_GRIM_NAME=$(codex_canonicalize_grimoire_name $QUILL_GRIM_NAME)
 
@@ -163,6 +164,14 @@ function quill_final_put_in_grimoire() {
   message "Available sections in grimoire $QUILL_GRIM_NAME:"
   codex_get_section_names $QUILL_GRIM_NAME | column
   query_string QUILL_SECT_NAME "Into which section do you wish to put the spell: "
+
+  if [[ -e $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ]]; then
+    message "${MESSAGE_COLOR}There is an exsisting spell for $SPELL_NAME in $QUILL_GRIM_NAME/$QUILL_SECT_NAME"
+    if ! query "Do you want to overwrite it?" y; then
+      quill_final_put_in_grimoire
+      return
+    fi
+  fi
 
   message "Scribbling spell into $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ..."
 
@@ -197,7 +206,7 @@ function dump_default_function() {
   if ! declare -f real_default_sorcery_$1; then
     # old sorcery
     declare -f real_default_$1
-  fi | tail -n -2 | head -n 1
+  fi | sed -e '1,3 d' -e '$ d' -e 's,    ,,'
 }
 
 #---
@@ -212,7 +221,7 @@ This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
 
-Originaly written by:
+Originally written by:
 Andraž 'ruskie' Levstik
 Rewritten by:
 Andraž 'ruskie' Levstik

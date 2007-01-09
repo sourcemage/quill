@@ -20,8 +20,7 @@ function add_build() {
   else
     if query "Do you want the default_build function dumped into the BUILD file" "n"
     then
-      dump_default_function build | sed 's:\(.\{20,41\}\)--:\1\\\n --:g' | \
-      sed "s:&&:\&\&\n:g" >> BUILD
+      dump_default_function build | sed -e 's:\( --[^hb]\): \\\n \1:g' -e "s:&& make:\&\&\nmake:" >> BUILD
     else
       echo "default_build &&" >> BUILD
     fi

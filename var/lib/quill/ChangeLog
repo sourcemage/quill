@@ -1,3 +1,10 @@
+2006-01-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: fixed query_list header and usage; further improved dumping
+	  added overwriting-of-exsisting-spell managment to final put
+	* quill: fix query_list usage
+	* libbuild: beautified and improved the default_build dump
+	* version: 0.1.10.2
+
 2006-01-08 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added dump_default_function, since now the names are different
 	  in devel sorcery (was dumping "false")

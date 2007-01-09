@@ -138,7 +138,7 @@ then
              "Add a \$SCM version" \
              "Try it out" \
              "Quit" )
-    query_list "What do you want to do?" ANSWER "${actions[@]}"
+    query_list "What do you want to do?" ANSWER ${actions[0]} "${actions[@]}"
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
