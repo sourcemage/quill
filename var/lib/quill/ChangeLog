@@ -1,3 +1,7 @@
+2007-01-10 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libperlcpan: fixed searching for the proper module
+	  better spell name setup
+
 2006-01-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed query_list header and usage; further improved dumping
 	  added overwriting-of-exsisting-spell managment to final put

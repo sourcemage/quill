@@ -1,7 +1,6 @@
 #---
 ## @Synopsis Perl-cpan module to generate spells from perl-cpan metadata
 #---
-
 function quill_get_cpan_meta()
 {
   if [[ $FORCE_CPAN_DOWNLOAD == on ]] ||
@@ -12,14 +11,14 @@ function quill_get_cpan_meta()
     wget -O 02packages.details.txt.gz ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz
     wget -O 03modlist.data.gz ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz
   fi
-  eval QUILL_CPAN_INFO="( $(zgrep -w "$1" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
-  eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 "$1" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
+  eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
+  eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 -E "^${1}" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
 }
 
 function quill_cpan_core()
 {
   quill_get_cpan_meta $1
-  SPELL_NAME="${1/::/-}"
+  SPELL_NAME="$(echo ${1} | sed -e 's/::/-/g')"
   SPELL_SRC_URL="http://www.cpan.org/authors/id/${QUILL_CPAN_INFO[2]}"
   SPELL_VERSION="${QUILL_CPAN_INFO[1]}"
   SPELL_SHORT_DESCRIPTION="${QUILL_CPAN_METADATA[6]}"
