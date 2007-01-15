@@ -1,3 +1,13 @@
+2007-01-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: made quill_final_put_in_grimoire be optionally non-interactive
+	  quill_rc creates the QUILL_SPELL_DIR now
+	  made quill_edit edit only text files
+	  improved a few messages
+	* quill: further improvements in the update code
+	* libupdate: a new module that holds a few update specific functions
+	* version: 0.1.11
+	  TODO: custom copy+config, robusting and then it's 0.2-ready
+
 2007-01-10 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libperlcpan: fixed searching for the proper module
 	  better spell name setup
