@@ -84,15 +84,19 @@ function quill_rc() {
     query_string GURU_NAME "${QUERY_COLOR}Please enter your name for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_NAME"
     query_string GURU_EMAIL "${QUERY_COLOR}Please enter your email for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_EMAIL"
     query_string QUILL_SPELL_DIR "${QUERY_COLOR}Where do you want to store generated spells (absolute path)?${DEFAULT_COLOR}" "$QUILL_SPELL_DIR"
+    query_string QUILL_GIT_DIR "${QUERY_COLOR}Where is the dir that contains your git grimoires if you have any (absolute path)?${DEFAULT_COLOR}" "$QUILL_GIT_DIR"
     message "Thank you. Now generating ${QUILL_QUILLRC}"
-    echo -e "QUILL_CONFIG_VERSION=\"${quill_version}\"" \
-            "\nGURU_NAME=\"${GURU_NAME}\"" \
-            "\nGURU_EMAIL=\"${GURU_EMAIL}\"" \
-            "\nQUILL_SPELL_DIR=\"${QUILL_SPELL_DIR}\"" > $QUILL_QUILLRC
-    mkdir -p $QUILL_SPELL_DIR
+    cat << QUA > $QUILL_QUILLRC
+  QUILL_CONFIG_VERSION="$quill_version"
+  GURU_NAME="$GURU_NAME"
+  GURU_EMAIL="$GURU_EMAIL"
+  QUILL_SPELL_DIR="$QUILL_SPELL_DIR"
+  QUILL_GIT_DIR="$QUILL_GIT_DIR"
+QUA
+    mkdir -p "$QUILL_SPELL_DIR" "$QUILL_GIT_DIR"
     exit 0
   else
-     . ${QUILL_QUILLRC}
+     . $QUILL_QUILLRC
   fi
 }
 
@@ -162,7 +166,7 @@ function quill_set_executable_bit() {
 ##           toggle interactivity and the third the reindexing of the grimoire
 ##
 ## @param internal flag toggling interactivity - grimoire (canonical)
-## @param internal flag toggling interactivity - section
+## @param internal flag toggling interactivity - section name
 ## @param flag toggling scribe reindex, set it to "no" to toggle
 #---
 function quill_final_put_in_grimoire() {
@@ -198,7 +202,7 @@ function quill_final_put_in_grimoire() {
       echo "Copying failed!"
       return 1
     else
-      echo "Copying succeded"
+      echo "Copying succeded."
       if [[ $1 != no ]]; then
         echo
         echo "Running scribe reindex on $QUILL_GRIM_NAME ..."
@@ -206,7 +210,8 @@ function quill_final_put_in_grimoire() {
       fi
     fi
   }
-  if [[ $UID == 0 ]]; then
+
+  if [[ -w $QUILL_GRIM_NAME && -w $QUILL_GRIM_NAME/$QUILL_SECT_NAME ]]; then
     quill_final_put_in_grimoire_sub $3
   else
     export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
@@ -271,7 +276,7 @@ USAGE: quill [OPTIONS]
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
   --perlcpan, -c <SPELL>		get spell data from Perl-CPAN if possible
-  --update, -u <SPELL>		update exsisting spell (DISABLED)
+  --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
   --wizard, -w			wizard mode (expert)(DOES NOTHING FOR NOW)

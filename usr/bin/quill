@@ -122,21 +122,21 @@ fi
 
 if [[ "$QUILL_UPDATE" == "on" ]]
 then
+  SPELL_NAME=$QUILL_TARGET
+  if ! codex_does_spell_exist $SPELL_NAME
+  then
+    message "${PROBLEM_COLOR}$SPELL_NAME is not a spell!$DEFAULT_COLOR"
+    exit 6
+  fi
   while true; do
-    SPELL_NAME=$QUILL_TARGET
-    if ! codex_does_spell_exist $SPELL_NAME
-    then
-      message "${PROBLEM_COLOR}$SPELL_NAME is not a spell!$DEFAULT_COLOR"
-      exit 6
-    fi
-
-    actions=("Update the spell to a newer version" \
-             "Manage patches" \
-             "Convert to gpg signing" \
-             "Add a \$SCM version" \
-             "Try it out" \
-             "Quit" )
-    query_list "What do you want to do?" ANSWER "${actions[0]}" "${actions[@]}"
+    actions=('Update the spell to a newer version' \
+             'Manage patches' \
+             'Convert to gpg signing' \
+             'Add a SCM version' \
+             'Copy it under QUILL_GIT_DIR' \
+             'Try it out' \
+             'Quit' )
+    query_list "What do you want to do?" ANSWER "${actions[6]}" "${actions[@]}"
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
@@ -212,10 +212,22 @@ then
 
             #reparse the possibly new source urls and company
             get_sources_and_urls
+            echo
 
             #download; we are not a grimoire so some hacking is needed
-            echo
-            summon -r <<< "$sources_and_urls"
+            # also workaround sorcery bug #13412
+            to_summon="$sources_and_urls"
+            for source in $sources
+            do
+              [[ -e $SOURCE_CACHE/$source ]] &&
+              to_summon="$(sed "/^$source /d" <<< "$to_summon")"
+            done
+            if [[ -z $to_summon ]]
+            then
+              message "Nothing new to summon, all sources found."
+            else
+              summon -r <<< "$to_summon"
+            fi
 
             # ask for SECURITY_PATCHing
             update_patchlevel SECURITY_PATCH
@@ -252,8 +264,6 @@ then
                 fi
               fi
 
-              #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
-
               # SOURCE_GPG usually has unexpanded variables, while we have the expanded
               if ! grep -q $current_check DETAILS.orig
               then # looks like it is expanded
@@ -281,34 +291,39 @@ then
                 continue
               fi
 
-              echo sed -ir "s/^(\s*)SOURCE${i}_(GPG|HASH)=$current_check\s*$/\1SOURCE${i}_HASH=$hash/" DETAILS
-sed -ir "s/^(\s*)SOURCE${i}_(GPG|HASH)=$current_check\s*$/\1SOURCE${i}_HASH=$hash/" DETAILS
-#exit
-# sed -ir s/^(\s*)SOURCE_(GPG|HASH)=gnu.gpg:$SOURCE.sig:UPSTREAM_KEY\s*$/\1SOURCE_HASH=b341b5b172472338ff2bcffe569f3a0796defe1d326eb85ce52daeff5ce1fb0c9304ec10052c604cadea4056f58f50d11c302ba02b979e88e1d9f112e614b7a9/ DETAILS
-# sed: -e expression #1, char 206: invalid reference \1 on `s' command's RHS
-# Do you want to replace SOURCE3_GPG with a hash? [n] y
-# sed -ir s/^(\s*)SOURCE3_(GPG|HASH)=sha512:e7ee7a09880d19dea3d2c0d498631ee9d269738e7acdeba0a346da3b8bd0629628582973de33e6ac0c913e8c691806a50e07d520d6f6d078b76a3e74b9b61fd7\s*$/\1SOURCE3_HASH=e7ee7a09880d19dea3d2c0d498631ee9d269738e7acdeba0a346da3b8bd0629628582973de33e6ac0c913e8c691806a50e07d520d6f6d078b76a3e74b9b61fd7/ DETAILS
-# sed: -e expression #1, char 311: invalid reference \1 on `s' command's RHS
+              #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
+echo "+$current_check++"
+              sed -i "s/^\(\s*\)SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/\1SOURCE${i}_HASH=sha512:$hash/" DETAILS
+
+              # remove sigs, trying not to touch any that are still needed
+              if ! grep -q "VERSION=$version";
+              then
+                [[ -e *$version*.sig ]] && rm *$version*.sig
+              fi
 
               [[ ! $i ]] && i=1
               let i+=1
             done
 
+            echo
             #update HISTORY
             add_history_entries "DETAILS: updated ${if_var:-spell} to $SPELL_VERSION"
-
+            echo
           fi
         done
 
-        message "Time for review and custom modifications"
+        echo
         sleep 1
-        quill_edit
+        rm DETAILS.orig
+        if query "Do you want to review the update or add custom modifications?" y
+        then
+          quill_edit
+        fi
         echo
 
         message "Copying the spell back ..."
         quill_final_put_in_grimoire $GRIMOIRE $SECTION no
 
-        rm DETAILS.orig
         echo
         message "Done with updating the spell!"
         echo
@@ -328,7 +343,32 @@ sed -ir "s/^(\s*)SOURCE${i}_(GPG|HASH)=$current_check\s*$/\1SOURCE${i}_HASH=$has
 #update HISTORY
 #copy the spell back to the grimoire?
         echo ++"$ANSWER"++ ;;
-      "${actions[4]}") #"Try it out"
+      "${actions[4]}") #"Copy it to $QUILL_GIT_DIR"
+
+        if [[ -z $QUILL_GIT_DIR ]]
+        then
+          message "$PROBLEM_COLOR\$QUILL_GIT_DIR is empty, run quill -r to set it!$DEFAULT_COLOR"
+          echo
+          continue
+        fi
+
+        # find where under $QUILL_GIT_DIR the spell actually is
+        # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
+        SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf %h)
+        if [[ -z $SECTION2 ]]
+        then
+          message "${PROBLEM_COLOR}Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!$DEFAULT_COLOR"
+          echo
+          continue
+        fi
+        GRIMOIRE2="${SECTION2%/*}"
+        # we need just the name
+        SECTION2="${SECTION2##*/}"
+
+        quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
+        echo
+      ;;
+      "${actions[5]}") #"Try it out"
         cast -c $SPELL_NAME
       ;;
     esac
