@@ -12,7 +12,7 @@ function quill_get_cpan_meta()
     wget -O 03modlist.data.gz ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz
   fi
   eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
-  eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 -E "^${1}" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
+  eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
 }
 
 function quill_cpan_core()
