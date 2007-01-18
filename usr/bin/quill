@@ -65,26 +65,7 @@ while  [  -n  "$1"  ];  do
                   quill_help 101
                   export QUILL_CPAN_MODE="on"; export QUILL_TARGET="$2"
                   shift 2 ;;
-   --purge|-p)
-                  message -n "Purging ... "
-                  if [[ $2 == "tmp" ]]
-                  then
-                    [[ -d $QUILL_TMP_DIR ]] && rm -rf $QUILL_TMP_DIR/*
-                  elif [[ $2 == "spells" ]]
-                  then
-                    [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/*
-                  else
-                    [[ -d $QUILL_TMP_DIR ]] && [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/* $QUILL_TMP_DIR/*
-                  fi
-
-                 rc=$?
-                  if [[ $rc == 0 ]]
-                  then
-                    message "done."
-                  else
-                    message "${PROBLEM_COLOR}failed!$DEFAULT_COLOR"
-                  fi
-                  exit $rc ;;
+      --purge|-p) export QUILL_MODE="purge"; quill_purge $2 ;;
      --update|-u) export QUILL_UPDATE="on" QUILL_TARGET="$2"; shift 2 ;;
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
        --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
@@ -108,6 +89,7 @@ do
 done
 
 quill_rc
+
 # we should do some quillrc sanity checking someday
 [[ ! -d $QUILL_SPELL_DIR ]] &&
   echo "PEBKAC: bad QUILL_SPELL_DIR ($QUILL_SPELL_DIR)" &&

@@ -222,6 +222,32 @@ function quill_final_put_in_grimoire() {
 }
 
 #---
+## @Synopsis cleans out $QUILL_TMP_DIR and/or $QUILL_SPELL_DIR
+#---
+function quill_purge() {
+  quill_rc
+  message -n "Purging ... "
+  if [[ $1 == "tmp" ]]
+  then
+    [[ -d $QUILL_TMP_DIR ]] && rm -rf $QUILL_TMP_DIR/*
+  elif [[ $1 == "spells" ]]
+  then
+    [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/*
+  else
+    [[ -d $QUILL_TMP_DIR ]] && [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/* $QUILL_TMP_DIR/*
+  fi
+
+  rc=$?
+  if [[ $rc == 0 ]]
+  then
+    message "done."
+  else
+    message "${PROBLEM_COLOR}failed!$DEFAULT_COLOR"
+  fi
+  exit $rc ;;
+}
+
+#---
 ## @Synopsis dumps the default spell file function, taking into
 ## account that devel has a new spell file inheritance scheme
 #---

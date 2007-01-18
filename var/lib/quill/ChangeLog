@@ -1,4 +1,8 @@
 2007-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: moved purging to libcore
+	* libcore: made quill_purge run a safe quill_rc
+
+2007-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: made the update stop if no versions were updated
 	  moved some more code to libupdate
 	  ask to remove signatures if they don't seem to be needed anymore
