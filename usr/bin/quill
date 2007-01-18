@@ -40,6 +40,13 @@ function message() { echo -e "$@"; }
 
 QUILL_MODE="apprentice"
 HISTORY_DATE="$(date +%Y-%m-%d)"
+
+QUILL_HOME_DIR=~/.sourcemage/quill
+QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
+QUILL_OLD_QUILLRC=~/.quillrc
+QUILL_SPELL_DIR=~/.sourcemage/spells
+QUILL_TMP_DIR=~/.sourcemage/tmp
+
 #---
 ## Not really a function it's supposed to parse the command line parameters
 #---
@@ -58,6 +65,26 @@ while  [  -n  "$1"  ];  do
                   quill_help 101
                   export QUILL_CPAN_MODE="on"; export QUILL_TARGET="$2"
                   shift 2 ;;
+   --purge|-p)
+                  message -n "Purging ... "
+                  if [[ $2 == "tmp" ]]
+                  then
+                    [[ -d $QUILL_TMP_DIR ]] && rm -rf $QUILL_TMP_DIR/*
+                  elif [[ $2 == "spells" ]]
+                  then
+                    [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/*
+                  else
+                    [[ -d $QUILL_TMP_DIR ]] && [[ -d $QUILL_SPELL_DIR ]] && rm -rf $QUILL_SPELL_DIR/* $QUILL_TMP_DIR/*
+                  fi
+
+                 rc=$?
+                  if [[ $rc == 0 ]]
+                  then
+                    message "done."
+                  else
+                    message "${PROBLEM_COLOR}failed!$DEFAULT_COLOR"
+                  fi
+                  exit $rc ;;
      --update|-u) export QUILL_UPDATE="on" QUILL_TARGET="$2"; shift 2 ;;
  --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
        --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
@@ -79,12 +106,6 @@ for i in /var/lib/quill/modules/lib*
 do
   . $i
 done
-
-QUILL_HOME_DIR=~/.sourcemage/quill
-QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
-QUILL_OLD_QUILLRC=~/.quillrc
-QUILL_SPELL_DIR=~/.sourcemage/spells
-QUILL_TMP_DIR=~/.sourcemage/tmp
 
 quill_rc
 # we should do some quillrc sanity checking someday
@@ -118,6 +139,9 @@ fi
 if [[ "$QUILL_CPAN_MODE" == "on" ]]
 then
   quill_cpan_core $QUILL_TARGET
+
+  # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
+  parse_spell_source_file_info
 fi
 
 if [[ "$QUILL_UPDATE" == "on" ]]
@@ -134,27 +158,32 @@ then
              'Convert to gpg signing' \
              'Add a SCM version' \
              'Copy it under QUILL_GIT_DIR' \
+             'Copy it back to the grimoire' \
              'Try it out' \
              'Quit' )
+    echo
     query_list "What do you want to do?" ANSWER "${actions[6]}" "${actions[@]}"
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
-    #copy spell over and move there
-    codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-    rm -fr $QUILL_SPELL_DIR/$SPELL_NAME
-    cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR
-    cd $QUILL_SPELL_DIR/$SPELL_NAME
-    cp DETAILS DETAILS.orig
-
+    if [[ $ANSWER != ${actions[4]} || $ANSWER == ${actions[5]} || $ANSWER == ${actions[6]} ]]
+    then
+      #copy spell over and move there
+      codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+      rm -fr $QUILL_SPELL_DIR/$SPELL_NAME
+      cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR
+      cd $QUILL_SPELL_DIR/$SPELL_NAME
+      cp DETAILS DETAILS.orig
+    fi
     case "$ANSWER" in
       "${actions[0]}") #"Update the spell to a newer version"
 
         #fetch current versions, ignoring SCM ones
         versions=( $(sed -n 's/\s*\<VERSION=//p' DETAILS |
-                   grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm') )
+                   grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort | uniq) )
         message "Current relevant version(s): ${versions[@]}"
 
+        update_counter="${#versions[@]}"
         #suggest the new one from fm and/or ask for input
         for version in "${versions[@]}"
         do
@@ -193,7 +222,7 @@ then
                   rc=0
                 fi
               else
-                wget -S "${su%/*}/" 2>&1 | grep -q "${su##*/}"
+                wget -O - -S "${su%/*}/" 2>&1 | grep -q "${su##*/}"
                 rc=$?
               fi
               #echo
@@ -296,9 +325,12 @@ echo "+$current_check++"
               sed -i "s/^\(\s*\)SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/\1SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
               # remove sigs, trying not to touch any that are still needed
-              if ! grep -q "VERSION=$version";
+              if ! grep -q "VERSION=$version *$" DETAILS;
               then
-                [[ -e *$version*.sig ]] && rm *$version*.sig
+                # compgen has a plain wierd output
+                files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
+                files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
+                [[ $files != " " ]] && rm -i $files
               fi
 
               [[ ! $i ]] && i=1
@@ -309,20 +341,23 @@ echo "+$current_check++"
             #update HISTORY
             add_history_entries "DETAILS: updated ${if_var:-spell} to $SPELL_VERSION"
             echo
+          else
+            let update_counter-=1
           fi
         done
 
+        if [[ $update_counter == 0 ]];
+        then # there were no updates
+          continue
+        fi
+
         echo
-        sleep 1
         rm DETAILS.orig
         if query "Do you want to review the update or add custom modifications?" y
         then
           quill_edit
         fi
         echo
-
-        message "Copying the spell back ..."
-        quill_final_put_in_grimoire $GRIMOIRE $SECTION no
 
         echo
         message "Done with updating the spell!"
@@ -344,31 +379,18 @@ echo "+$current_check++"
 #copy the spell back to the grimoire?
         echo ++"$ANSWER"++ ;;
       "${actions[4]}") #"Copy it to $QUILL_GIT_DIR"
-
-        if [[ -z $QUILL_GIT_DIR ]]
-        then
-          message "$PROBLEM_COLOR\$QUILL_GIT_DIR is empty, run quill -r to set it!$DEFAULT_COLOR"
-          echo
-          continue
-        fi
-
-        # find where under $QUILL_GIT_DIR the spell actually is
-        # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
-        SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf %h)
-        if [[ -z $SECTION2 ]]
-        then
-          message "${PROBLEM_COLOR}Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!$DEFAULT_COLOR"
-          echo
-          continue
-        fi
-        GRIMOIRE2="${SECTION2%/*}"
-        # we need just the name
-        SECTION2="${SECTION2##*/}"
-
-        quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
-        echo
+        copy_to_git
       ;;
-      "${actions[5]}") #"Try it out"
+      "${actions[5]}") #"Copy it back to the grimoire"
+        codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+        if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
+        then
+          message "There is nothing to copy back!"
+        else
+          quill_final_put_in_grimoire $GRIMOIRE $SECTION no
+        fi
+      ;;
+      "${actions[6]}") #"Try it out"
         cast -c $SPELL_NAME
       ;;
     esac

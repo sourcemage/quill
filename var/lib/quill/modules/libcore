@@ -275,7 +275,7 @@ USAGE: quill [OPTIONS]
 
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
-  --perlcpan, -c <SPELL>		get spell data from Perl-CPAN if possible
+  --perlcpan, -c <SPELL>	get spell data from Perl-CPAN if possible
   --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
@@ -283,6 +283,15 @@ OPTIONS:
   --help, -h			display this help
   --version, -v			display version
   --reconfigure, -r		reconfigure settings
+  --purge, -p [spells|tmp]	purge internal quill files, defaults to both dirs
+
+EXAMPLES:
+  Create a spell; try to get some information from Freshmeat and ask about some
+  additional spell files:
+    quill -f wormux -m
+
+  Update a spell; try to get some information from Perl-CPAN:
+    quill -c wormux -u wormux
 "
   exit ${1:-0}
 }

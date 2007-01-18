@@ -50,17 +50,50 @@ function update_patchlevel_sub()
   local current_value=$2 action=$3 new_value
   new_value=$(( current_value+=1 ))
 
-  if (( $(grep -c "^[^#]*$1=$current_value" DETAILS) > 1 ))
+  if (( $(grep -c "^[^#]*$1=['\"]*${current_value}['\"]*" DETAILS) > 1 ))
   then
     message "Two or more $1 variables with the same value found."
     message "All will be changed - revert the bad ones manually."
   fi
   if [[ $action != remove ]]
   then
-    sed -i "/^[^#]*$1=$current_value/ s,=.*$,=$new_value," DETAILS
+    sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/ s,=.*$,=$new_value," DETAILS
   else #PATCHLEVEL removal on version updates
-    sed -i "/^[^#]*$1=$current_value/d" DETAILS
+    sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/d" DETAILS
   fi
+}
+
+
+#---
+## @Synopsis Copies the spell to $QUILL_GIT_DIR
+#---
+function copy_to_git()
+{
+  if [[ -z $QUILL_GIT_DIR ]]
+  then
+    message "$PROBLEM_COLOR\$QUILL_GIT_DIR is empty, run quill -r to set it!$DEFAULT_COLOR"
+    echo
+    continue
+  fi
+
+  # find where under $QUILL_GIT_DIR the spell actually is
+  # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
+  SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf %h)
+  if [[ -z $SECTION2 ]]
+  then
+    message "${PROBLEM_COLOR}Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!$DEFAULT_COLOR"
+    echo
+    continue
+  fi
+  GRIMOIRE2="${SECTION2%/*}"
+  # we need just the name
+  SECTION2="${SECTION2##*/}"
+
+  # we wipe it first, so we can handle any files that we deleted before
+  rm -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME"/*
+
+  quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
+  echo
 }
 
 #---

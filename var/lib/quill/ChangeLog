@@ -1,3 +1,16 @@
+2007-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: made the update stop if no versions were updated
+	  moved some more code to libupdate
+	  ask to remove signatures if they don't seem to be needed anymore
+	  uniq the found versions, we modify all anyway
+	  updated the menu and moved some code around
+	  added parse_spell_source_file_info after perlcpan too
+	  added --purge to wipe temporary files and/or spells
+	* libupdate: copy_to_git clears the target first to avoid copying deleted *
+	  improved update_patchlevel matching
+	* libcore: removed an extra tab in quill_help, added --purge and examples
+	* version: 0.1.12
+
 2007-01-17 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: further improvements in the update code, notably git copy support
 	  workaround sorcery bug #13412 - only summon when necesary
