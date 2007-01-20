@@ -1,3 +1,11 @@
+2007-01-20 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: improved the parameter parsing and added two shortcuts (getopts?)
+	  removed redundant message, codex_does_spell_exsist prints its own
+	* libcore: added check_parameter to check for missing parameters
+	  added shorthand combo examples to quill_help
+	  fixed quill_purge move syntax error
+	* libhistory: don't use hardcoded tabs, so the function is easier to reuse
+
 2007-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: moved purging to libcore
 	* libcore: made quill_purge run a safe quill_rc

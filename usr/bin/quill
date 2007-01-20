@@ -50,36 +50,46 @@ QUILL_TMP_DIR=~/.sourcemage/tmp
 #---
 ## Not really a function it's supposed to parse the command line parameters
 #---
-while  [  -n  "$1"  ];  do
-  if  echo  "" $1  |  grep  -q  "^ -";  then
+while [[ -n $1 ]]; do
+  if grep -q "^ -" <<< " $1"; then
     case  $1  in
       --fmxml|-f)
-                  [[ -z $2 ]] &&
-                  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
-                  quill_help 101
-                  export QUILL_FMXML_MODE="on"; export QUILL_TARGET="$2"
-                  shift 2 ;;
+                  check_parameter $2
+                  QUILL_FMXML_MODE="on"
+                  shift ;;
    --perlcpan|-c)
-                  [[ -z $2 ]] &&
-                  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
-                  quill_help 101
-                  export QUILL_CPAN_MODE="on"; export QUILL_TARGET="$2"
-                  shift 2 ;;
-      --purge|-p) export QUILL_MODE="purge"; quill_purge $2 ;;
-     --update|-u) export QUILL_UPDATE="on" QUILL_TARGET="$2"; shift 2 ;;
- --apprentice|-a) export QUILL_MODE="apprentice"; shift 1 ;;
-       --mage|-m) export QUILL_MODE="mage"; shift 1 ;;
-     --wizard|-w) export QUILL_MODE="wizard"; shift 1 ;;
---reconfigure|-r) export QUILL_MODE="reconfigure"; shift 1 ;;
+                  check_parameter $2
+                  QUILL_CPAN_MODE="on"
+                  shift ;;
+     --update|-u)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  shift ;;
+         -uf|-fu)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FMXML_MODE="on"
+                  shift ;;
+         -uc|-cu)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_CPAN_MODE="on"
+                  shift ;;
+      --purge|-p) QUILL_MODE="purge"; quill_purge $2 ;;
+ --apprentice|-a) QUILL_MODE="apprentice" ;;
+       --mage|-m) QUILL_MODE="mage" ;;
+     --wizard|-w) QUILL_MODE="wizard" ;;
+--reconfigure|-r) QUILL_MODE="reconfigure" ;;
        --help|-h) quill_help ;;
     --version|-v) quill_version ;;
                *) message "${PROBLEM_COLOR}Invalid parameter $1$DEFAULT_COLOR"
-                  quill_help 102;;
+                  quill_help 102 ;;
     esac
-  else
-    shift
   fi
+  shift
 done
+export QUILL_MODE QUILL_FMXML_MODE QUILL_CPAN_MODE QUILL_TARGET
+
 unset -f message
 . /etc/sorcery/config
 EDITOR=${EDITOR:-nano}
@@ -92,7 +102,7 @@ quill_rc
 
 # we should do some quillrc sanity checking someday
 [[ ! -d $QUILL_SPELL_DIR ]] &&
-  echo "PEBKAC: bad QUILL_SPELL_DIR ($QUILL_SPELL_DIR)" &&
+  echo "Bad QUILL_SPELL_DIR ($QUILL_SPELL_DIR)!" &&
   echo "Try running quill -r" &&
   exit 7
 
@@ -129,11 +139,8 @@ fi
 if [[ "$QUILL_UPDATE" == "on" ]]
 then
   SPELL_NAME=$QUILL_TARGET
-  if ! codex_does_spell_exist $SPELL_NAME
-  then
-    message "${PROBLEM_COLOR}$SPELL_NAME is not a spell!$DEFAULT_COLOR"
-    exit 6
-  fi
+  codex_does_spell_exist $SPELL_NAME || exit 6
+
   while true; do
     actions=('Update the spell to a newer version' \
              'Manage patches' \
@@ -144,7 +151,7 @@ then
              'Try it out' \
              'Quit' )
     echo
-    query_list "What do you want to do?" ANSWER "${actions[6]}" "${actions[@]}"
+    query_list "What do you want to do?" ANSWER "Quit" "${actions[@]}"
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
@@ -225,6 +232,7 @@ then
             get_sources_and_urls
             echo
 
+            message "Summoning ..."
             #download; we are not a grimoire so some hacking is needed
             # also workaround sorcery bug #13412
             to_summon="$sources_and_urls"

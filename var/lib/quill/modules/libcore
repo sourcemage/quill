@@ -244,7 +244,7 @@ function quill_purge() {
   else
     message "${PROBLEM_COLOR}failed!$DEFAULT_COLOR"
   fi
-  exit $rc ;;
+  exit $rc
 }
 
 #---
@@ -262,7 +262,6 @@ function dump_default_function() {
 ## @Synopsis function that displays the version and exits
 #---
 function quill_version() {
-
 
   message "quill - $QUILL_VERSION
 Copyright (C) 2006 Source Mage
@@ -284,12 +283,21 @@ Arjan 'abouter' Bouter
   exit 0
 }
 
+#---
+## @Synopsis checks if the parameter is missing
+## @Synopsis if not, saves it in QUILL_TARGET
+#---
+function check_parameter() {
+  [[ -z $1 ]] &&
+  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
+  quill_help 101 ||
+  QUILL_TARGET="$1"
+}
 
 #---
 ## @Synopsis function that displays help and exits
 #---
 function quill_help() {
-
 
   message "quill -$QUILL_VERSION
 Copyright (C) 2006 Source Mage
@@ -318,6 +326,9 @@ EXAMPLES:
 
   Update a spell; try to get some information from Perl-CPAN:
     quill -c wormux -u wormux
+
+  The same can be done with shorter forms (fu, uf, cu and uc are supported):
+    quill -cu wormux
 "
   exit ${1:-0}
 }

@@ -24,9 +24,9 @@ function add_history_entry()
 
   if grep -q "$title" HISTORY;
   then
-    sed -i "/$title/ a\	* $1" HISTORY
+    sed -i "/$title/ a\\\t* $1" HISTORY
   else # first time
-    sed -i "1 s/^.*$/$title\n	* $1\n\n&/" HISTORY
+    sed -i "1 s/^.*$/$title\n\t* $1\n\n&/" HISTORY
   fi
 }
 
