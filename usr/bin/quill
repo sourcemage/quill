@@ -155,7 +155,7 @@ then
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
-    if [[ $ANSWER != ${actions[4]} || $ANSWER == ${actions[5]} || $ANSWER == ${actions[6]} ]]
+    if [[ $ANSWER != ${actions[4]} && $ANSWER != ${actions[5]} && $ANSWER != ${actions[6]} ]]
     then
       #copy spell over and move there
       codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
@@ -181,7 +181,7 @@ then
             query_spell_version
 
             #save the chosen version
-            sed -i "s/\<VERSION=$version\>/VERSION=$SPELL_VERSION/" DETAILS
+            sed -i "s/\<VERSION=['\"]*${version}['\"]*\s*$/VERSION=$SPELL_VERSION/" DETAILS
 
             #check for multiversion spells
             if [[ $(grep -cE "\<SOURCE.?=" DETAILS) != 1 ]]
@@ -245,13 +245,16 @@ then
             then
               message "Nothing new to summon, all sources found."
             else
-              summon -r <<< "$to_summon"
+              summon -r <<< "$to_summon" || {
+              message "${PROBLEM_COLOR}Summoning failed, aborting update!$DEFAULT_COLOR"
+              continue 2;  }
             fi
+            echo
 
             # ask for SECURITY_PATCHing
             update_patchlevel SECURITY_PATCH
 
-            #restore patchlevel?
+            # restore patchlevel
             update_patchlevel PATCHLEVEL skip remove
 
             #get hashes and save them, removing any previous hash/gpg
@@ -271,15 +274,28 @@ then
               fi
 
               #SOURCE_GPG?
-              if ! grep -Eq "(sha(512|256|1)|md5):.*:" <<< "$current_check"
-              then #it is a gpg
-                if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
+              if ! grep -Eq "(^(sha(512|256|1)|md5):.*|UPSTREAM_KEY)" <<< "$current_check"
+              then #it is a non-upstream gpg
+                echo "SOURCE${i}_GPG=$current_check"
+                if query "Do you want to replace SOURCE${i}_GPG with a hash?" n
                 then
+                  #TODO: else sign it and continue
+                  [[ ! $i ]] && i=1
+                  let i+=1
+                  continue
+                else
                   message "Here is the hash for SOURCE$i anyway, if you need it later: $hash"
                   [[ ! $i ]] && i=1
                   let i+=1
                   continue
-                #TODO: else sign it and continue
+                fi
+              else
+                # UPSTREAM_HASH is rare and probably not fetched - ignoring
+                if grep -q "UPSTREAM_KEY" <<< "$current_check"
+                then
+                  [[ ! $i ]] && i=1
+                  let i+=1
+                  continue
                 fi
               fi
 
@@ -311,8 +327,9 @@ then
               fi
 
               #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
-echo "+$current_check++"
-              sed -i "s/^\(\s*\)SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/\1SOURCE${i}_HASH=sha512:$hash/" DETAILS
+#echo "+$current_check++"
+              new_value=$(count_spaces SOURCE${i}_HASH)
+              sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
               # remove sigs, trying not to touch any that are still needed
               if ! grep -q "VERSION=$version *$" DETAILS;
@@ -341,13 +358,12 @@ echo "+$current_check++"
           continue
         fi
 
-        echo
         rm DETAILS.orig
         if query "Do you want to review the update or add custom modifications?" y
         then
           quill_edit
+          echo
         fi
-        echo
 
         echo
         message "Done with updating the spell!"
@@ -381,7 +397,11 @@ echo "+$current_check++"
         fi
       ;;
       "${actions[6]}") #"Try it out"
+      if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
+        cast -r $SPELL_NAME
+      else
         cast -c $SPELL_NAME
+      fi
       ;;
     esac
 

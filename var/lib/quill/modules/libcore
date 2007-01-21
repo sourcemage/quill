@@ -121,7 +121,7 @@ function quill_welcome() {
 function quill_edit() {
   local spell_file type
 
-  message "Now invoking $EDITOR to edit spell files."
+  message "Now invoking $EDITOR to edit ${1:-spell files}."
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
   for spell_file in ${1:-*}
   do

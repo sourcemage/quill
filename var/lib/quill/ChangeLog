@@ -1,3 +1,14 @@
+2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: improved version, hash matching and error handling
+	  added reconfigure query to "Try it out"
+	  skip upstream keys when asking for substitution with hashes
+	  misc gpg and hash changing fixes
+	* libupdate: update history when incrementing patchlevels
+	  simplified get_sources_and_urls
+	  fixed update_patchlevel and made it add the variable if it isn't there
+	  added a new function count_spaces for '=' aligning purposes
+	* libcore: improved quill_edit invocation message
+
 2007-01-20 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: improved the parameter parsing and added two shortcuts (getopts?)
 	  removed redundant message, codex_does_spell_exsist prints its own

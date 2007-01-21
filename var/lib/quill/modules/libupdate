@@ -4,8 +4,8 @@
 function get_sources_and_urls()
 {
   sources_and_urls=$(eval ${if_var:-:}; . DETAILS &> /dev/null; get_spell_files_and_urls)
-  sources=$(sed 's/^\(\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
-  source_urls=$(sed 's/^\S*\s\(.\S*\)\s.*$/\1/' <<< "$sources_and_urls" )
+  sources=$(cut -d" " -f1 <<< "$sources_and_urls")
+  source_urls=$(cut -d" " -f2 <<< "$sources_and_urls")
 }
 
 #---
@@ -18,28 +18,28 @@ function conditional_set_var()
 }
 
 #---
-## @Synopsis Increments or removes PATCHLEVEL or SECURITY_PATCH. Ask first
-## @Synopsis unless the second argument is "skip"
+## @Synopsis Increments or removes PATCHLEVEL or SECURITY_PATCH. Asks first
+## @Synopsis unless the second argument is "skip". Adds variable if necessary.
 ##
 ## @param PATCHLEVEL or SECURITY_PATCH - work with which wone?
 ## @param (optional) skip the query? skip to skip
-## @param (optional) remove or increment? remove to remove
+## @param (optional) remove, increment, add? remove to remove
 ## @param (optional) default answer for the query, default is n
 #---
 function update_patchlevel()
 {
-  local current_value
+  local current_value=$(conditional_set_var $1)
 
-  current_value=$(conditional_set_var $1)
-  if [[ ! -z $current_value ]]
+  if [[ -z $current_value ]]
   then
-    if [[ $2 != skip ]]
+    [[ $3 == remove ]] && message "${PROBLEM_COLOR}remove or add?$DEFAULT_COLOR" && return 1
+    if [[ $2 == skip ]] || query "Do you want to add $1?" ${4:-n}
     then
-      if query "Do you want to increment $1?" ${4:-n}
-      then
-        update_patchlevel_sub $1 $current_value $3
-      fi
-    else
+      update_patchlevel_sub $1 none add
+    fi
+  else
+    if [[ $2 == skip ]] || query "Do you want to increment $1?" ${4:-n}
+    then
       update_patchlevel_sub $1 $current_value $3
     fi
   fi
@@ -47,22 +47,48 @@ function update_patchlevel()
 
 function update_patchlevel_sub()
 {
-  local current_value=$2 action=$3 new_value
-  new_value=$(( current_value+=1 ))
+  local current_value=$2 action=$3 new_value count
 
-  if (( $(grep -c "^[^#]*$1=['\"]*${current_value}['\"]*" DETAILS) > 1 ))
+  if [[ $current_value == none ]]
   then
-    message "Two or more $1 variables with the same value found."
-    message "All will be changed - revert the bad ones manually."
-  fi
-  if [[ $action != remove ]]
-  then
-    sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/ s,=.*$,=$new_value," DETAILS
-  else #PATCHLEVEL removal on version updates
-    sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/d" DETAILS
+    new_value=$(count_spaces $1)
+    sed -i "s,VERSION=$SPELL_VERSION,&\n$new_value$1=1," DETAILS
+    add_history_entry "DETAILS: $1++"
+  else
+    new_value=$(( current_value + 1 ))
+    count=$(grep -c "^[^#]*$1=['\"]*${current_value}['\"]* *$" DETAILS)
+    if (( $count  > 1 ))
+    then
+      echo
+      message "Two or more $1 variables with the same value found."
+      message "All will be changed - revert the bad ones manually."
+      echo
+    fi
+    if [[ $action == remove ]]
+    then #PATCHLEVEL removal on version updates
+      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/d" DETAILS
+    else
+      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/ s,=.*$,=$new_value," DETAILS
+      add_history_entry "DETAILS: $1++"
+    fi
   fi
 }
 
+#---
+## @Synopsis Compute how to insert $1, so = will be aligned properly
+##
+## @return string with adequate number of spaces
+#---
+function count_spaces()
+{
+  local count spaces eq_col
+  eq_col=$(awk -F '=' '{ print length($1); exit}' DETAILS)
+  count=$(( $eq_col - ${#1} ))
+  for (( i=0 ; i<$count; i++ )) ; do
+    spaces="$spaces "
+  done
+  echo "$spaces"
+}
 
 #---
 ## @Synopsis Copies the spell to $QUILL_GIT_DIR
@@ -93,7 +119,6 @@ function copy_to_git()
   rm -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME"/*
 
   quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
-  echo
 }
 
 #---
