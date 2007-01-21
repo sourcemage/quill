@@ -245,9 +245,12 @@ then
             then
               message "Nothing new to summon, all sources found."
             else
-              summon -r <<< "$to_summon" || {
-              message "${PROBLEM_COLOR}Summoning failed, aborting update!$DEFAULT_COLOR"
-              continue 2;  }
+              if ! summon -r <<< "$to_summon"
+              then
+                message "${PROBLEM_COLOR}Summoning failed, aborting update!$DEFAULT_COLOR"
+                query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
+                continue 2
+              fi
             fi
             echo
 

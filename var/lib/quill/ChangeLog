@@ -3,6 +3,7 @@
 	  added reconfigure query to "Try it out"
 	  skip upstream keys when asking for substitution with hashes
 	  misc gpg and hash changing fixes
+	  added query to summon failure handling for those rare failed checks
 	* libupdate: update history when incrementing patchlevels
 	  simplified get_sources_and_urls
 	  fixed update_patchlevel and made it add the variable if it isn't there
