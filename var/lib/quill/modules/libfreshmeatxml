@@ -35,7 +35,7 @@ function quill_fmxml_core(){
   FRESHMEAT_FILE=$QUILL_TMP_DIR/$1.xml
   if ! test -f $FRESHMEAT_FILE; then
     if ! curl -o $FRESHMEAT_FILE $FRESHMEAT_XML_URL; then
-      message "${PROBLEM_COLOR}Failed to get ${1}${DEFAULT_COLOR}"
+      error_msg "Failed to get $1"
       return 1
     fi
   fi
@@ -43,7 +43,7 @@ function quill_fmxml_core(){
   # check that the project was found - exsists
   local not_found='Error: project not found.'
   if grep -q "$not_found" "$FRESHMEAT_FILE"; then
-    message "$PROBLEM_COLOR$not_found$DEFAULT_COLOR"
+    error_msg "$not_found"
     rm "$FRESHMEAT_FILE"
     return 2
   fi

@@ -61,7 +61,7 @@ function update_patchlevel_sub()
     then
       echo
       message "Two or more $1 variables with the same value found."
-      message "All will be changed - revert the bad ones manually."
+      error_msg "All will be changed - revert the bad ones manually."
       echo
     fi
     if [[ $action == remove ]]
@@ -91,15 +91,15 @@ function count_spaces()
 }
 
 #---
-## @Synopsis Copies the spell to $QUILL_GIT_DIR
+## @Synopsis Finds the spell under $QUILL_GIT_DIR
 #---
-function copy_to_git()
+function copy_git_sub()
 {
   if [[ -z $QUILL_GIT_DIR ]]
   then
-    message "$PROBLEM_COLOR\$QUILL_GIT_DIR is empty, run quill -r to set it!$DEFAULT_COLOR"
+    error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
     echo
-    continue
+    return 1
   fi
 
   # find where under $QUILL_GIT_DIR the spell actually is
@@ -107,18 +107,46 @@ function copy_to_git()
   SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf %h)
   if [[ -z $SECTION2 ]]
   then
-    message "${PROBLEM_COLOR}Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!$DEFAULT_COLOR"
+    error_msg "Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!"
     echo
-    continue
+    return 1
   fi
-  GRIMOIRE2="${SECTION2%/*}"
+  GRIMOIRE2="${SECTION2%/*}" # full path
   # we need just the name
   SECTION2="${SECTION2##*/}"
+}
+
+#---
+## @Synopsis Copies the spell to $QUILL_GIT_DIR
+#---
+function copy_to_git()
+{
+  copy_git_sub || return 1
 
   # we wipe it first, so we can handle any files that we deleted before
   rm -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME"/*
 
   quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
+  unset GRIMOIRE2 SECTION2
+}
+
+#---
+## @Synopsis Copies the spell from $QUILL_GIT_DIR to $QUILL_SPELL_DIR
+#---
+function copy_from_git()
+{
+  copy_git_sub || return 1
+
+  # we wipe it first, so we can handle any files that were deleted
+  rm -r "$QUILL_SPELL_DIR/$SPELL_NAME"
+
+  if [[ -w $QUILL_SPELL_DIR ]]
+  then
+    cp -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
+  else
+    su -c "cp -r '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
+  fi
+  unset GRIMOIRE2 SECTION2
 }
 
 #---

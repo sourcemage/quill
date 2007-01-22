@@ -6,8 +6,8 @@ function query_spell_dependencies() {
   if ! [[ $SPELL_DEPENDENCIES ]] ||
      ! query "Are \"${SPELL_DEPENDENCIES}\" the proper dependencies for this spell" y
   then
-    message "${QUERY_COLOR}Please enter the dependencies(non optional) \
-of the spell if any:${DEFAULT_COLOR}"
+    query_msg "Please enter the dependencies(non optional) \
+of the spell if any:"
     read "SPELL_DEPENDENCIES"
     SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
     SPELL_DEPENDENCIES=$(sort <<< "$SPELL_DEPENDENCIES")
@@ -16,8 +16,8 @@ fi
 }
 
 function query_spell_optional_dependencies() {
-  message "${QUERY_COLOR}Please enter the optional dependencies of the \
-spell if any:${DEFAULT_COLOR}"
+  query_msg "Please enter the optional dependencies of the \
+spell if any:"
   read -a "SPELL_OPTIONAL_DEPENDENCIES"
 }
 
@@ -39,11 +39,11 @@ function add_optional_dependencies() {
   NM=${#SPELL_OPTIONAL_DEPENDENCIES[*]}
   for  ((MN=0; MN < $NM; MN++))
   do
-    message "${QUERY_COLOR}${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure enable option${DEFAULT_COLOR}"
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure enable option"
     read SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]
-    message "${QUERY_COLOR}${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure disable option${DEFAULT_COLOR}"
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure disable option"
     read SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]
-    message "${QUERY_COLOR}${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description${DEFAULT_COLOR}"
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description"
     read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]
 
     message "optional_depends ${SPELL_OPTIONAL_DEPENDENCIES[$MN]} \\" >> DEPENDS

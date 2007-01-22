@@ -6,7 +6,7 @@
 PROVIDESISON=""
 
 function query_spell_provides() {
-  message "${QUERY_COLOR}Please enter provides if any:${DEFAULT_COLOR}"
+  query_msg "Please enter provides if any:"
   read "SPELL_PROVIDES"
 }
 

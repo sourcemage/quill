@@ -1,4 +1,16 @@
 2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: fixed the multiversion check to actually look at the versions
+	  added some more sanity checks
+	  aded "Copy it back from under QUILL_GIT_DIR" option, removed wierd gpg
+	  fixed a mistake from yesterday regarding substitution with hashes
+	  made putting the spell back in the grimoire clear the spelldir first too
+	* libcore: added error_msg and query_msg and made use of 'em in all modules
+	* libdetails: fixed hunt_src_dir() header
+	* libhistory: made add_history_entry fully comformant with our standard
+	* libupdate: added copy_from_git; now we can sync all three ways
+	* version: 0.1.13, first 0.2 release candidate
+
+2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: improved version, hash matching and error handling
 	  added reconfigure query to "Try it out"
 	  skip upstream keys when asking for substitution with hashes

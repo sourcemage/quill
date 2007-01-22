@@ -8,7 +8,7 @@
 function query_spell_name(){
   if ! [[ $SPELL_NAME ]] ||
     ! query "Is $SPELL_NAME the proper spell name?" y; then
-    message "${QUERY_COLOR}Please enter the spell name:${DEFAULT_COLOR}"
+    query_msg "Please enter the spell name:"
     read "SPELL_NAME"
   fi
 }
@@ -18,7 +18,7 @@ function query_spell_source_url(){
   SPELL_SRC_URL=$(sed "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," <<< $SPELL_SRC_URL)
 if ! [[ $SPELL_SRC_URL ]] ||
    ! query "Is $SPELL_SRC_URL the proper source url?" y; then
-  message "${QUERY_COLOR}Please enter the url of the source:${DEFAULT_COLOR}"
+  query_msg "Please enter the url of the source:"
   read "SPELL_SRC_URL"
   SPELL_SRC_URL=$(sed "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," <<< $SPELL_SRC_URL)
 fi
@@ -28,7 +28,7 @@ fi
 function query_spell_version(){
   if ! [[ $SPELL_VERSION ]] ||
     ! query "Is $SPELL_VERSION the proper spell version?" y; then
-    message "${QUERY_COLOR}Please enter the new version:$DEFAULT_COLOR"
+    query_msg "Please enter the new version:"
     read SPELL_VERSION
   fi
 }
@@ -36,12 +36,12 @@ function query_spell_version(){
 function query_spell_signature(){
 if [[ $SPELL_SIGNATURE ]] &&
    ! query "Is $SPELL_SIGNATURE the proper signature key url?" y; then
-  message "${QUERY_COLOR}Please enter the url of the signature key:${DEFAULT_COLOR}"
+  query_msg "Please enter the url of the signature key:"
   read "SPELL_SIGNATURE"
 fi
 if ! [[ $SPELL_SIGNATURE ]]; then
   if query "Do you want to use an upstream signature key?" n; then
-    message "${QUERY_COLOR}Please enter the url of the signature key:${DEFAULT_COLOR}"
+    query_msg "Please enter the url of the signature key:"
     read "SPELL_SIGNATURE"
   fi
 fi
@@ -56,7 +56,7 @@ fi
 function query_spell_license(){
 if ! [[ $SPELL_LICENSE ]] ||
    ! query "Is $SPELL_LICENSE the proper license?" y; then
-  message "${QUERY_COLOR}Please enter the license of the spell:${DEFAULT_COLOR}"
+  query_msg "Please enter the license of the spell:"
   read "SPELL_LICENSE"
 fi
 }
@@ -64,7 +64,7 @@ fi
 function query_spell_url(){
 if ! [[ $SPELL_URL ]] ||
    ! query "Is $SPELL_URL the proper website?" y; then
-  message "${QUERY_COLOR}Please enter a website for the spell:${DEFAULT_COLOR}"
+  query_msg "Please enter a website for the spell:"
   read "SPELL_URL"
 fi
 }
@@ -73,7 +73,7 @@ function query_spell_short_description(){
 if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}\n$SPELL_SHORT_DESCRIPTION"
        query "the proper short description?" y ; ) ; then
-  message "${QUERY_COLOR}Please enter a short description of the spell:${DEFAULT_COLOR}"
+  query_msg "Please enter a short description of the spell:"
   read "SPELL_SHORT_DESCRIPTION"
 fi
 }
@@ -81,7 +81,7 @@ fi
 function query_spell_description(){
 local description=${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
 if ! test -f $description ||
-   ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}"
+   ! ( query_msg "Is"
        cat $description
        query "the proper long description?" y ; ) ; then
   test -s $description ||
@@ -158,9 +158,8 @@ fi
 
 #---
 ## @Synopsis Assign to SPELL_SRC_DIR the source dir inside a tarball,
-## @return 0 if a tarball and has a src dir
-## @return 1 if a tarball but has no src dir
-## @return 2 if not a tarball.
+## @return 0 if a tarball
+## @return 1 if not a tarball.
 #---
 function hunt_src_dir(){
   message "Checking what is in the tarball ..."

@@ -20,11 +20,20 @@ message "Done."
 #---
 function add_history_entry()
 {
-  local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>"
+  local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
 
   if grep -q "$title" HISTORY;
   then
-    sed -i "/$title/ a\\\t* $1" HISTORY
+    # check if we already have an entry for the same file
+    file="${1%%:*}"
+    if [[ -z $(sed -n "1,/^\s*$/ s,\* $file:,&,p" HISTORY) ]]
+    then
+      sed -i "/$title/ a\\\t* $1" HISTORY
+    else
+      sed -i "1,/^\s*$/ {
+              /\* $file:/ a\\\t ${1#*:}
+              }" HISTORY
+    fi
   else # first time
     sed -i "1 s/^.*$/$title\n\t* $1\n\n&/" HISTORY
   fi

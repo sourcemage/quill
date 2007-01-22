@@ -6,7 +6,7 @@
 CONFLICTSISON=""
 
 function query_spell_conflicts() {
-  message "${QUERY_COLOR}Please enter any conflicting spell names if any:${DEFAULT_COLOR}"
+  query_msg "Please enter all conflicting spell names if any:"
   read "SPELL_CONFLICTS"
 }
 

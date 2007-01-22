@@ -9,7 +9,7 @@ function query_list()
 {
   local question="$1"
   shift
-  message "$question"
+  query_msg "$question"
   select_list "$@"
 }
 
@@ -61,16 +61,16 @@ function quill_hash_get() {
 function quill_rc() {
   if [[ -f ${QUILL_OLD_QUILLRC} ]]
   then
-    message "${QUERY_COLOR}With accordance to Source Mage standards moving${DEFAULT_COLOR}"
-    message "${QUERY_COLOR}${QUILL_OLD_QUILLRC} to ${QUILL_QUILLRC}${DEFAULT_COLOR}"
+    query_msg "With accordance to Source Mage standards moving"
+    query_msg "$QUILL_OLD_QUILLRC to $QUILL_QUILLRC"
     mkdir -p ~/.sourcemage/quill
     cp ${QUILL_OLD_QUILLRC} ${QUILL_QUILLRC}
     if [[ -f ${QUILL_QUILLRC} ]]
     then
-      message "${QUERY_COLOR}Removing ${QUILL_OLD_QUILLRC}${DEFAULT_COLOR}"
+      query_msg "Removing $QUILL_OLD_QUILLRC"
       rm ${QUILL_OLD_QUILLRC}
     else
-      message "${PROBLEM_COLOR}Ugghhh... something went wrong...${DEFAULT_COLOR}"
+      error_msg "Ugghhh... something went wrong..."
     fi
   fi
   if [[ ! -f ${QUILL_QUILLRC} ]] ||
@@ -80,7 +80,7 @@ function quill_rc() {
     touch $QUILL_QUILLRC
     local quill_version=$QUILL_VERSION # can get overridden by the sourcing
     . $QUILL_QUILLRC # get the contents if there are any (for defaults)
-    message "${PROBLEM_COLOR}This will (re)create ${QUILL_QUILLRC} for you${DEFAULT_COLOR}"
+    message "${MESSAGE_COLOR}This will (re)create ${QUILL_QUILLRC} for you${DEFAULT_COLOR}"
     query_string GURU_NAME "${QUERY_COLOR}Please enter your name for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_NAME"
     query_string GURU_EMAIL "${QUERY_COLOR}Please enter your email for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_EMAIL"
     query_string QUILL_SPELL_DIR "${QUERY_COLOR}Where do you want to store generated spells (absolute path)?${DEFAULT_COLOR}" "$QUILL_SPELL_DIR"
@@ -142,7 +142,7 @@ function quill_final_tarball() {
   cd ${QUILL_SPELL_DIR}
   tar -jcvf ${SPELL_NAME}.tar.bz2 ${SPELL_NAME}
   if [[ $? != 0 ]]; then
-     message "Failed to create spell tarball"
+     error_msg "Failed to create spell tarball"
   else
      message "Spell tarball created successfully"
   fi
@@ -199,7 +199,7 @@ function quill_final_put_in_grimoire() {
     mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME
     cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
     if [[ $? != 0 ]]; then
-      echo "Copying failed!"
+      error_msg "Copying failed!"
       return 1
     else
       echo "Copying succeded."
@@ -242,7 +242,7 @@ function quill_purge() {
   then
     message "done."
   else
-    message "${PROBLEM_COLOR}failed!$DEFAULT_COLOR"
+    error_msg "failed!"
   fi
   exit $rc
 }
@@ -289,9 +289,23 @@ Arjan 'abouter' Bouter
 #---
 function check_parameter() {
   [[ -z $1 ]] &&
-  message "${PROBLEM_COLOR}Missing parameter$DEFAULT_COLOR" &&
+  error_msg "Missing parameter" &&
   quill_help 101 ||
   QUILL_TARGET="$1"
+}
+
+#---
+## @Synopsis prints a colored error message
+#---
+function error_msg() {
+  message "$PROBLEM_COLOR$@$DEFAULT_COLOR"
+}
+
+#---
+## @Synopsis prints a colored query message
+#---
+function query_msg() {
+  message "$QUERY_COLOR$@$DEFAULT_COLOR"
 }
 
 #---
