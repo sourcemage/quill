@@ -1,4 +1,11 @@
 2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libupdate: try harder to find the real spelldir when copying to git
+	* quill: ask for where to copy from when starting an update
+	  added another check, so missing gpg/hash variables are caught nicely
+	  fixed the multiversion check to use the already stripped value
+	  fixed error messages appearing from missing $PWD
+
+2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: fixed the multiversion check to actually look at the versions
 	  added some more sanity checks
 	  aded "Copy it back from under QUILL_GIT_DIR" option, removed wierd gpg

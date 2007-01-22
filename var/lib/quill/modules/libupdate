@@ -104,7 +104,7 @@ function copy_git_sub()
 
   # find where under $QUILL_GIT_DIR the spell actually is
   # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
-  SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf %h)
+  SECTION2=$(find "$QUILL_GIT_DIR" -name $SPELL_NAME -type d -printf "%h\n"| grep "${QUILL_GIT_DIR%/}/[^/]*/[^/]*$")
   if [[ -z $SECTION2 ]]
   then
     error_msg "Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!"
@@ -138,6 +138,7 @@ function copy_from_git()
   copy_git_sub || return 1
 
   # we wipe it first, so we can handle any files that were deleted
+  cd $QUILL_SPELL_DIR
   rm -r "$QUILL_SPELL_DIR/$SPELL_NAME"
 
   if [[ -w $QUILL_SPELL_DIR ]]
@@ -147,6 +148,7 @@ function copy_from_git()
     su -c "cp -r '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
   fi
   unset GRIMOIRE2 SECTION2
+  cd $QUILL_SPELL_DIR/$SPELL_NAME
 }
 
 #---

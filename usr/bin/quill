@@ -158,11 +158,20 @@ then
     if [[ $ANSWER != ${actions[3]} && $ANSWER != ${actions[4]} && $ANSWER != ${actions[5]} && $ANSWER != ${actions[6]} ]]
     then
       #copy spell over and move there
-      codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-      rm -fr $QUILL_SPELL_DIR/$SPELL_NAME
-      cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR
+      echo
+      query_msg "Do you want to copy the spell from the grimoire or QUILL_GIT_DIR?"
+      if query "Answer y for grimoire, n for QUILL_GIT_DIR:" y
+      then
+        codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+        cd $QUILL_SPELL_DIR
+        rm -fr $QUILL_SPELL_DIR/$SPELL_NAME
+        cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR
+      else
+        copy_from_git || continue
+      fi
       cd $QUILL_SPELL_DIR/$SPELL_NAME
       cp DETAILS DETAILS.orig
+      echo
     fi
     case "$ANSWER" in
       "${actions[0]}") #"Update the spell to a newer version"
@@ -186,7 +195,7 @@ then
             sed -i "s/\<VERSION=['\"]*${version}['\"]*\s*$/VERSION=$SPELL_VERSION/" DETAILS
 
             #check for multiversion spells
-            if [[ $(grep -cE "\<VERSION=" DETAILS) != 1 ]]
+            if [[ ${#versions[@]} != 1 ]]
             then #we have a problem
               message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
               message "and then you will tell me which variable I need to set, so I can get "
@@ -273,6 +282,15 @@ then
               hash=$(quill_hash_get $SOURCE_CACHE/$source)
               # use the original DETAILS, as we already changed the VERSION
               current_check=$(eval ${if_var:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE)
+
+              if [[ -z $current_check ]]
+              then
+                error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
+                message "Add the appropriate one!"
+                [[ ! $i ]] && i=1
+                let i+=1
+                continue
+              fi
 
               #skip SOURCE_IGNORE
               if grep -Eq "volatile|signature|unversioned" <<< "$current_check"
