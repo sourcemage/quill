@@ -205,39 +205,11 @@ then
               query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
             fi
 
-            #check that (usually new) source urls are ok
+            # reparse the (usually new) source urls
             get_sources_and_urls
 
-            i=
-            for su in $source_urls
-            do
-              if ! grep -q ftp:// <<< "$su"
-              then
-                # the return value acrobatics make both blocks return the same
-                wget -S --spider "$su" 2>&1 | grep -q "ERROR 404"
-                if [[ $? == 0 ]]
-                then
-                  rc=1
-                else
-                  rc=0
-                fi
-              else
-                wget -O - -S "${su%/*}/" 2>&1 | grep -q "${su##*/}"
-                rc=$?
-              fi
-              #echo
-              #... if they are not ok ask for fixed ones
-              if [[ $rc == 0 ]]
-              then
-                message "SOURCE${i}_URL[0] is ok!"
-              else
-                error_msg  "SOURCE${i}_URL[0] is broken! Fix it manually."
-                sleep 2
-                quill_edit DETAILS
-              fi
-              [[ ! $i ]] && i=1
-              let i+=1
-            done
+            # check that (usually new) source urls are ok
+            check_source_urls
 
             #reparse the possibly new source urls and company
             get_sources_and_urls
@@ -274,6 +246,9 @@ then
 
             # restore patchlevel
             update_patchlevel PATCHLEVEL skip remove
+
+            # remove UPDATED if any
+            sed -i "/^\s*UPDATED=/d" DETAILS
 
             #get hashes and save them, removing any previous hash/gpg
             i=
@@ -418,12 +393,6 @@ then
           continue
         fi
 
-        if [[ -w $GRIMOIRE/$SECTION/$SPELL_NAME && -w $GRIMOIRE/$SECTION ]]
-        then
-          rm -r "$GRIMOIRE/$SECTION/$SPELL_NAME"
-        else
-          su -c "rm -r '$GRIMOIRE/$SECTION/$SPELL_NAME'"
-        fi
         quill_final_put_in_grimoire $GRIMOIRE $SECTION no
       ;;
       "${actions[6]}") #"Try it out"
@@ -576,6 +545,10 @@ else
     then
       cast $SPELL_NAME
     fi
+  fi
+  if query "Do you want to put the spell into QUILL_GIT_DIR?" n
+  then
+    copy_from_git
   fi
 fi
 message "That's all folks!"

@@ -123,9 +123,6 @@ function copy_to_git()
 {
   copy_git_sub || return 1
 
-  # we wipe it first, so we can handle any files that we deleted before
-  rm -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME"/*
-
   quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
   unset GRIMOIRE2 SECTION2
 }
@@ -139,7 +136,7 @@ function copy_from_git()
 
   # we wipe it first, so we can handle any files that were deleted
   cd $QUILL_SPELL_DIR
-  rm -r "$QUILL_SPELL_DIR/$SPELL_NAME"
+  rm -rf "$QUILL_SPELL_DIR/$SPELL_NAME"
 
   if [[ -w $QUILL_SPELL_DIR ]]
   then

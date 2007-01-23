@@ -196,7 +196,11 @@ function quill_final_put_in_grimoire() {
   message "Copying spell into $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ..."
 
   quill_final_put_in_grimoire_sub(){
-    mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME
+    mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME
+
+    # we wipe it first, so we can handle any files that we deleted before
+    rm -r "$QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME"
+
     cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
     if [[ $? != 0 ]]; then
       error_msg "Copying failed!"
@@ -245,6 +249,74 @@ function quill_purge() {
     error_msg "failed!"
   fi
   exit $rc
+}
+
+#---
+## @Synopsis checks if spell source urls are valid
+#---
+function check_source_urls() {
+  local su i= oldsu old_source_urls="$source_urls"
+
+  for su in $source_urls
+  do
+    check_source_url "$su" "$i"
+    if [[ $? == 0 ]]
+    then
+      message "SOURCE${i}_URL[0] is ok!"
+    else
+      # first retry with a changed suffix
+      oldsu="$su"
+      [[ ${su/.gz/.bz2} == $su ]] && su="${su/.bz2/.gz}" || su="${su/.gz/.bz2}"
+      if check_source_url "$su" "$i"
+      then
+        message "SOURCE${i}_URL[0] is ok after changing the file extension!"
+        old_source_urls="${old_source_urls/$oldsu/$su}"
+      else
+        # if they are still not ok ask for fixed ones
+        error_msg  "SOURCE${i}_URL[0] is hopelessly broken! Fix it manually."
+        sleep 2
+        quill_edit DETAILS
+      fi
+    fi
+    [[ ! $i ]] && i=1
+    let i+=1
+  done
+  source_urls="$old_source_urls"
+
+}
+
+#---
+## @Synopsis checks if passed source url is valid
+##
+## @param source url
+## @param current source iterator
+##
+## @return 0 if source url either is valid or just not trivially checkable
+## @return 1 otherwise (http or ftp source url failure)
+#---
+function check_source_url() {
+  local rc su="$1" i="$2"
+
+  if grep -q ftp:// <<< "$su"
+  then
+    wget -O - -S "${su%/*}/" 2>&1 | grep -q "${su##*/}"
+    rc=$?
+  elif grep -q http:// <<< "$su"
+  then
+    # the return value acrobatics make both blocks return the same
+    wget -S --spider "$su" 2>&1 | grep -q "ERROR 404"
+    if [[ $? == 0 ]]
+    then
+      rc=1
+    else
+      rc=0
+    fi
+  else
+    message "SOURCE${i}_URL[0] is not a http or ftp link, assuming it works."
+    rc=0
+  fi
+
+  return $rc
 }
 
 #---

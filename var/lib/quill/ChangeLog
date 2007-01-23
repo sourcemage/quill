@@ -1,3 +1,10 @@
+2007-01-22 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: remove UPDATED if any; handle other link types nicely
+	  added copy_to_git query when creating spells too
+	* libcore: moved some deletions to quill_final_put_in_grimoire, one su less
+	  moved some code from quill to create check_source_url{,s}
+	  try also changing the source url suffix before bailing out
+
 2007-01-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: try harder to find the real spelldir when copying to git
 	* quill: ask for where to copy from when starting an update
