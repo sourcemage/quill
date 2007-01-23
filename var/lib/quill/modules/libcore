@@ -196,10 +196,10 @@ function quill_final_put_in_grimoire() {
   message "Copying spell into $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ..."
 
   quill_final_put_in_grimoire_sub(){
-    mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME
+    mkdir -p $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME || return 1
 
     # we wipe it first, so we can handle any files that we deleted before
-    rm -r "$QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME"
+    rm -r "$QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME" || return 1
 
     cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
     if [[ $? != 0 ]]; then
@@ -217,6 +217,13 @@ function quill_final_put_in_grimoire() {
 
   if [[ -w $QUILL_GRIM_NAME && -w $QUILL_GRIM_NAME/$QUILL_SECT_NAME ]]; then
     quill_final_put_in_grimoire_sub $3
+    if [[ $? == 1 ]]
+    then
+      error_msg "Permission problems, trying as root ..."
+      export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
+      su -c "$(declare -f quill_final_put_in_grimoire_sub); \
+        quill_final_put_in_grimoire_sub $3"
+    fi
   else
     export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
     su -c "$(declare -f quill_final_put_in_grimoire_sub); \
