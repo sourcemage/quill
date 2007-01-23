@@ -1,4 +1,11 @@
 2007-01-22 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libupdate: use find -regex instead of find and grep
+	  fixed count_spaces for unusual files by making it do statistics
+	  factored out remove_old_sigs and unexpand_source_gpg from quill
+	* quill: added gpg signing support
+	* version: 0.1.14, second 0.2 release candidate
+
+2007-01-22 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: remove UPDATED if any; handle other link types nicely
 	  added copy_to_git query when creating spells too
 	* libcore: moved some deletions to quill_final_put_in_grimoire, one su less

@@ -211,7 +211,7 @@ then
             # check that (usually new) source urls are ok
             check_source_urls
 
-            #reparse the possibly new source urls and company
+            # reparse the possibly new source urls and company
             get_sources_and_urls
             echo
 
@@ -261,7 +261,7 @@ then
               if [[ -z $current_check ]]
               then
                 error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
-                message "Add the appropriate one!"
+                message "Add the appropriate one to the spell!"
                 [[ ! $i ]] && i=1
                 let i+=1
                 continue
@@ -276,17 +276,8 @@ then
               fi
 
               #SOURCE_GPG?
-              if ! grep -Eq "(^(sha(512|256|1)|md5):.*|UPSTREAM_KEY)" <<< "$current_check"
-              then #it is a non-upstream gpg
-                echo "SOURCE${i}_GPG=$current_check"
-                if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
-                then
-                  #TODO: else sign it and continue
-                  [[ ! $i ]] && i=1
-                  let i+=1
-                  continue
-                fi
-              else
+              if grep -Eq "(^(sha(512|256|1)|md5):.*|UPSTREAM_KEY)" <<< "$current_check"
+              then
                 # UPSTREAM_HASH is rare and probably not fetched - ignoring
                 if grep -q "UPSTREAM_KEY" <<< "$current_check"
                 then
@@ -294,34 +285,36 @@ then
                   let i+=1
                   continue
                 fi
+                # otherwise just do nothing, SOURCE_HASH handling comes next
+              else
+                #it is a non-upstream gpg
+                echo "SOURCE${i}_GPG=$current_check"
+                if ! grep -q "gurus.gpg" <<< "$current_check"
+                then
+                  error_msg "This looks like an upstream keyring and should be marked as such."
+                  error_msg "Probably with :UPSTREAM_KEY at the end of the $current_check."
+                  error_msg "Do not replace it!"
+                fi
+                if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
+                then
+                  # sign it and continue
+                  gpg -v --digest-algo SHA512 -o $QUILL_SPELL_DIR/$SPELL_NAME/$source.sig --detach-sign $SOURCE_CACHE/$source
+                  echo
+                  remove_old_sigs "$version"
+
+                  [[ ! $i ]] && i=1
+                  let i+=1
+                  continue
+                fi
               fi
 
+              # it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
               # SOURCE_GPG usually has unexpanded variables, while we have the expanded
-              if ! grep -q $current_check DETAILS.orig
-              then # looks like it is expanded
-                current_check=$(
-                eval ${if_var:-:}; . DETAILS.orig &> /dev/null;
-                for j in `get_source_nums s`
-                do
-                  j="${j%s}"
-                  SOURCE=$(eval echo \$SOURCE$j)
-                  substitute_with_variables current_check "$SOURCE" {SOURCE$j}
-                done
-                substitute_with_variables current_check "$SPELL_NAME" {SPELL} "$VERSION" {VERSION}
-                echo $current_check
-                )
-              fi
-              if ! grep -q $current_check DETAILS.orig
-              then # maybe the author doesn't like the ugly braces too
-                current_check="$(tr -d "{}" <<< $current_check)"
-              fi
-              if ! grep -q $current_check DETAILS.orig
-              then # give up
-                error_msg "Giving up, you'll have to update SOURCE${i}_(GPG|HASH) yourself."
-                [[ ! $i ]] && i=1
-                let i+=1
-                continue
-              fi
+              unexpand_source_gpg || {
+              [[ ! $i ]] && i=1
+              let i+=1
+              continue; }
+
 
               #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
 #echo "+$current_check++"
@@ -329,13 +322,7 @@ then
               sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
               # remove sigs, trying not to touch any that are still needed
-              if ! grep -q "VERSION=$version *$" DETAILS;
-              then
-                # compgen has a plain wierd output
-                files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
-                files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
-                [[ $files != " " ]] && rm -i $files
-              fi
+              remove_old_sigs "$version"
 
               [[ ! $i ]] && i=1
               let i+=1
