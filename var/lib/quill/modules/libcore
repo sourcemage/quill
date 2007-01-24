@@ -85,6 +85,14 @@ function quill_rc() {
     query_string GURU_EMAIL "${QUERY_COLOR}Please enter your email for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_EMAIL"
     query_string QUILL_SPELL_DIR "${QUERY_COLOR}Where do you want to store generated spells (absolute path)?${DEFAULT_COLOR}" "$QUILL_SPELL_DIR"
     query_string QUILL_GIT_DIR "${QUERY_COLOR}Where is the dir that contains your git grimoires if you have any (absolute path)?${DEFAULT_COLOR}" "$QUILL_GIT_DIR"
+    if query "Do you want to use sudo where possible?" ${QUILL_SUDO:-n}
+    then
+      # we need the bash since we call multiple commands at a time
+      # and sudo doesn't like just sudo -c "ls; ls; ls"
+      QUILL_SUDO="sudo bash"
+    else
+      QUILL_SUDO="su"
+    fi
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     cat << QUA > $QUILL_QUILLRC
   QUILL_CONFIG_VERSION="$quill_version"
@@ -92,6 +100,7 @@ function quill_rc() {
   GURU_EMAIL="$GURU_EMAIL"
   QUILL_SPELL_DIR="$QUILL_SPELL_DIR"
   QUILL_GIT_DIR="$QUILL_GIT_DIR"
+  QUILL_SUDO="$QUILL_SUDO"
 QUA
     mkdir -p "$QUILL_SPELL_DIR" "$QUILL_GIT_DIR"
     exit 0
@@ -221,12 +230,12 @@ function quill_final_put_in_grimoire() {
     then
       error_msg "Permission problems, trying as root ..."
       export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
-      su -c "$(declare -f quill_final_put_in_grimoire_sub); \
+      ${QUILL_SUDO:-su} -c "$(declare -f quill_final_put_in_grimoire_sub); \
         quill_final_put_in_grimoire_sub $3"
     fi
   else
     export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
-    su -c "$(declare -f quill_final_put_in_grimoire_sub); \
+    ${QUILL_SUDO:-su} -c "$(declare -f quill_final_put_in_grimoire_sub); \
       quill_final_put_in_grimoire_sub $3"
   fi
 
@@ -260,10 +269,12 @@ function quill_purge() {
 
 #---
 ## @Synopsis checks if spell source urls are valid
+## @Synopsis and perhaps changes them if they are trivially fixable
 #---
 function check_source_urls() {
-  local su i= oldsu old_source_urls="$source_urls"
+  local i= su old_su oldest_su source old_source
 
+  message "Checking source urls (this may take a while) ..."
   for su in $source_urls
   do
     check_source_url "$su" "$i"
@@ -272,12 +283,64 @@ function check_source_urls() {
       message "SOURCE${i}_URL[0] is ok!"
     else
       # first retry with a changed suffix
-      oldsu="$su"
+      old_su="$su"
       [[ ${su/.gz/.bz2} == $su ]] && su="${su/.bz2/.gz}" || su="${su/.gz/.bz2}"
       if check_source_url "$su" "$i"
       then
         message "SOURCE${i}_URL[0] is ok after changing the file extension!"
-        old_source_urls="${old_source_urls/$oldsu/$su}"
+        # tricky tricky - if we only change the url, it is likely
+        # that the accompanying SOURCE will be bad. So we need to change
+        # SOURCEn too. Or just that, if the url contains it as a variable
+
+        # try to unexpanded the url - maybe changing the source is enough
+        old_source=$(sed -n "s, $old_su,,p" <<< "$sources_and_urls")
+        source="$old_source"
+        if [[ ${source/.gz/.bz2} == $source ]]
+        then
+          source="${source/.bz2/.gz}"
+        else
+          source="${source/.gz/.bz2}"
+        fi
+
+        # we need another one since $old_source would match only $old_su
+        # and we also need the substituted $old_su
+        oldest_su="$old_su"
+        substitute_with_variables old_su "$old_source" {SOURCE$i}
+        if grep -Eq "\.(bz2|gz)$"  <<< "$old_su"
+        then
+          # the url most likely does not use SOURCE then
+          # however if it does, lets put the substitutions in anyway
+          # so we change the url in the file; reparsing is the next call
+          # also check if it contains the old expanded VERSION ($version)
+
+          # substitute the longer string first, more likely to give correct results
+          # think 1.2 and 1.2.1
+          if (( ${#SPELL_VERSION} > ${#version} ))
+          then
+            substitute_with_variables su "$old_source" {SOURCE$i} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION} "$version" {VERSION}
+          else
+            substitute_with_variables su "$old_source" {SOURCE$i} "$SPELL_NAME" {SPELL} "$version" {VERSION} "$SPELL_VERSION" {VERSION}
+          fi
+
+          # some urls may contain other expanded vars that we are not aware of
+          if grep -q "$oldest_su" DETAILS
+          then # all is fine
+            sed -i "s,$oldest_su,$su," DETAILS
+          else
+            error_msg "Couldn't find $oldest_su in DETAILS,"
+            error_msg "probably due to it containing nonstandard variables"
+            message "Replace it manually with $su"
+          fi
+          add_history_entry "DETAILS: Changed SOURCE${i}_URL[0] extension"
+        else
+          substitute_with_variables source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+          sed -i "s,$old_source,$source," DETAILS
+          # we don't know if the SOURCE is expanded or not, trying just both extremes
+          substitute_with_variables old_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+          sed -i "s,$old_source,$source," DETAILS
+          add_history_entry "DETAILS: Changed SOURCE${i} extension"
+        fi
+
       else
         # if they are still not ok ask for fixed ones
         error_msg  "SOURCE${i}_URL[0] is hopelessly broken! Fix it manually."
@@ -288,7 +351,6 @@ function check_source_urls() {
     [[ ! $i ]] && i=1
     let i+=1
   done
-  source_urls="$old_source_urls"
 
 }
 

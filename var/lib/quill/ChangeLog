@@ -1,3 +1,11 @@
+2007-01-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libhistory: added add_user_history_entries for adding arbitrary entries
+	* quill: factored out ask_and_copy_over, so it is optional and saner
+	  along with some reordering and new menu
+	* libupdate: added another sanity check, sudo support
+	* libcore: completed check_source_urls with some wierd code
+	  added sudo support for the few nonsorcery commands that can use it
+
 2007-01-22 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: use find -regex instead of find and grep
 	  fixed count_spaces for unusual files by making it do statistics

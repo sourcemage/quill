@@ -1,5 +1,6 @@
 #---
 ## @Synopsis Sets up some global variables that contain sources and urls
+## @Synopsis delimited by newlines
 #---
 function get_sources_and_urls()
 {
@@ -124,6 +125,12 @@ function copy_to_git()
 {
   copy_git_sub || return 1
 
+  if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
+  then
+    error_msg "There is nothing to copy back!"
+    return 1
+  fi
+
   quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
   unset GRIMOIRE2 SECTION2
 }
@@ -143,7 +150,7 @@ function copy_from_git()
   then
     cp -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
   else
-    su -c "cp -r '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
+    ${QUILL_SUDO:-su} -c "cp -r '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
   fi
   unset GRIMOIRE2 SECTION2
   cd $QUILL_SPELL_DIR/$SPELL_NAME
@@ -178,7 +185,7 @@ function unexpand_source_gpg()
 {
   local j
 
-  if grep -q $current_check DETAILS.orig
+  if grep -q "$current_check" DETAILS.orig
   then
     return 0
   else # looks like it is expanded
@@ -194,13 +201,13 @@ function unexpand_source_gpg()
     echo $current_check
     )
   fi
-  if grep -q $current_check DETAILS.orig
+  if grep -q "$current_check" DETAILS.orig
   then # maybe the author doesn't like the ugly braces too
     return 0
   else
-    current_check="$(tr -d "{}" <<< $current_check)"
+    current_check="$(tr -d "{}" <<< "$current_check")"
   fi
-  if grep -q $current_check DETAILS.orig
+  if grep -q "$current_check" DETAILS.orig
   then
     return 0
   else # give up
@@ -209,6 +216,38 @@ function unexpand_source_gpg()
   fi
 }
 
+#---
+## @Synopsis Ask to copy the spell to our working dir - QUILL_SPELL_DIR
+## @Synopsis If QUILL_SPELL_DIR is empty, just do it
+## @Synopsis It also moves there and does the DETAILS.orig copy
+##
+## @return 0 if everything is ok
+## @return 1 otherwise
+#---
+function ask_and_copy_over()
+{
+  local reply noop_answer="No" # noop_answer needs to be only one word!
+
+  [[ ! -d $QUILL_SPELL_DIR/$SPELL_NAME ]] && unset noop_answer
+
+  #copy spell over and move there
+  query_list "Do you want to copy the spell from someplace?" reply "The grimoire" "The grimoire" "QUILL_GIT_DIR" $noop_answer
+
+  [[ $reply == $noop_answer ]] && return 0
+  if [[ $reply == "The grimoire" ]]
+  then
+    codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
+    cd $QUILL_SPELL_DIR &&
+    rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
+    cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
+    message "Done."
+  else
+    copy_from_git &&
+    message "Done."
+  fi &&
+  cd $QUILL_SPELL_DIR/$SPELL_NAME &&
+  cp DETAILS DETAILS.orig || return 1
+}
 
 #---
 ##

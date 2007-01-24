@@ -56,6 +56,29 @@ function add_history_entries()
 }
 
 #---
+## @Synopsis Adds arbitrary HISTORY entries.
+#---
+function add_user_history_entries()
+{
+  local entry modified
+
+  message "Enter the text without the leading tab, spaces or stars. Example:"
+  message "DETAILS: changed SOURCE3_URL[4]"
+  message "When you're done adding new entries, just hit enter on the next prompt."
+  while true; do
+    query_string entry "What do you want to add? "
+    [[ -z $entry ]] && break
+    add_history_entry "$entry" && modified=1
+  done
+  echo
+  if [[ $modified == "1" ]]; then
+    query "Do you want to review the HISTORY changes?" n &&
+    quill_edit HISTORY
+    echo
+  fi
+}
+
+#---
 ##
 ## This software is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by

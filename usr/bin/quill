@@ -140,37 +140,26 @@ if [[ "$QUILL_UPDATE" == "on" ]]
 then
   SPELL_NAME=$QUILL_TARGET
   codex_does_spell_exist $SPELL_NAME || exit 6
+  ask_and_copy_over || exit 7
 
   while true; do
     actions=('Update the spell to a newer version' \
-             'Manage patches' \
-             'Add a SCM version' \
+             'Add arbitrary HISTORY entries' \
+             'Add a another version' \
+             'Copy it here from the grimoire or QUILL_GIT_DIR' \
              'Copy it under QUILL_GIT_DIR' \
-             'Copy it back from under QUILL_GIT_DIR' \
              'Copy it back to the grimoire' \
              'Try it out' \
-             'Quit' )
+             'Quit' ) #'Manage patches'
     echo
     query_list "What do you want to do?" ANSWER "Quit" "${actions[@]}"
 
     [[ $ANSWER == "Quit" ]] && exit 0
 
-    if [[ $ANSWER != ${actions[3]} && $ANSWER != ${actions[4]} && $ANSWER != ${actions[5]} && $ANSWER != ${actions[6]} ]]
+    if [[ $ANSWER == ${actions[0]} || $ANSWER == ${actions[1]} || $ANSWER == ${actions[2]} ]]
     then
-      #copy spell over and move there
       echo
-      query_msg "Do you want to copy the spell from the grimoire or QUILL_GIT_DIR?"
-      if query "Answer y for grimoire, n for QUILL_GIT_DIR:" y
-      then
-        codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-        cd $QUILL_SPELL_DIR
-        rm -fr $QUILL_SPELL_DIR/$SPELL_NAME
-        cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR
-      else
-        copy_from_git || continue
-      fi
-      cd $QUILL_SPELL_DIR/$SPELL_NAME
-      cp DETAILS DETAILS.orig
+      [[ -d $QUILL_SPELL_DIR/$SPELL_NAME ]] || ask_and_copy_over || continue
       echo
     fi
     case "$ANSWER" in
@@ -192,7 +181,7 @@ then
             [[ -z $SPELL_VERSION ]] && error_msg "Empty VERSION!" && continue 2
 
             #save the chosen version
-            sed -i "s/\<VERSION=['\"]*${version}['\"]*\s*$/VERSION=$SPELL_VERSION/" DETAILS
+            sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
 
             #check for multiversion spells
             if [[ ${#versions[@]} != 1 ]]
@@ -351,21 +340,20 @@ then
         echo
 
       ;;
-      "${actions[1]}") #"Manage patches"
-#update patchlevel?
-#update HISTORY
-#copy the spell back to the grimoire?
-        echo ++"$ANSWER"++ ;;
-      "${actions[2]}") #"Add a \$SCM version"
-#update patchlevel?
-#update HISTORY
-#copy the spell back to the grimoire?
-        echo ++"$ANSWER"++ ;;
-      "${actions[3]}") #"Copy it to $QUILL_GIT_DIR"
-        copy_to_git
+      "${actions[1]}") #"Add an arbitrary HISTORY entry"
+        add_user_history_entries
       ;;
-      "${actions[4]}") #"Copy it back from under QUILL_GIT_DIR"
-        copy_from_git
+      "${actions[2]}") #"Add another version"
+#SCM or branch?
+#update patchlevel?
+#update HISTORY
+#copy the spell back to the grimoire?
+        echo ++"$ANSWER"++ ;;
+      "${actions[3]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
+        ask_and_copy_over || continue
+      ;;
+      "${actions[4]}") #"Copy it under $QUILL_GIT_DIR"
+        copy_to_git || continue
       ;;
       "${actions[5]}") #"Copy it back to the grimoire"
         codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)

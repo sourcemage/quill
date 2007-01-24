@@ -113,7 +113,7 @@ function show_spell_source_file_info(){
 #---
 ## @Synopsis Substitute any number of expanded variables in given variable
 ## @Synopsis with corresponding variable names
-## @param target variable
+## @param target variable (must not be target or target_value)
 ## @param the string to search for (variable contents)
 ## @param the replacement for said string (variable name)
 ## @param the string to search for (variable contents)
