@@ -179,6 +179,7 @@ function quill_set_executable_bit() {
 ## @param flag toggling scribe reindex, set it to "no" to toggle
 #---
 function quill_final_put_in_grimoire() {
+  local reindex=$3
 
   if [[ -z $2 ]]; then
     query_list "Into which grimoire do you wish to put the spell:" QUILL_GRIM_NAME \
@@ -193,7 +194,9 @@ function quill_final_put_in_grimoire() {
 
     if [[ -e $QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME ]]; then
       message "${MESSAGE_COLOR}There is an exsisting spell for $SPELL_NAME in $QUILL_GRIM_NAME/$QUILL_SECT_NAME"
-      if ! query "Do you want to overwrite it?" y; then
+      if query "Do you want to overwrite it?" y; then
+        reindex=no
+      else
         quill_final_put_in_grimoire
         return
       fi
@@ -209,6 +212,7 @@ function quill_final_put_in_grimoire() {
 
     # we wipe it first, so we can handle any files that we deleted before
     rm -r "$QUILL_GRIM_NAME/$QUILL_SECT_NAME/$SPELL_NAME" || return 1
+    rm -f "$QUILL_SPELL_DIR/$SPELL_NAME/DETAILS.orig"
 
     cp -r $QUILL_SPELL_DIR/$SPELL_NAME $QUILL_GRIM_NAME/$QUILL_SECT_NAME/
     if [[ $? != 0 ]]; then
@@ -225,18 +229,18 @@ function quill_final_put_in_grimoire() {
   }
 
   if [[ -w $QUILL_GRIM_NAME && -w $QUILL_GRIM_NAME/$QUILL_SECT_NAME ]]; then
-    quill_final_put_in_grimoire_sub $3
+    quill_final_put_in_grimoire_sub $reindex
     if [[ $? == 1 ]]
     then
       error_msg "Permission problems, trying as root ..."
       export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
       ${QUILL_SUDO:-su} -c "$(declare -f quill_final_put_in_grimoire_sub); \
-        quill_final_put_in_grimoire_sub $3"
+        quill_final_put_in_grimoire_sub $reindex"
     fi
   else
     export QUILL_GRIM_NAME QUILL_SECT_NAME QUILL_SPELL_DIR SPELL_NAME
     ${QUILL_SUDO:-su} -c "$(declare -f quill_final_put_in_grimoire_sub); \
-      quill_final_put_in_grimoire_sub $3"
+      quill_final_put_in_grimoire_sub $reindex"
   fi
 
 }
@@ -433,6 +437,29 @@ function check_parameter() {
   error_msg "Missing parameter" &&
   quill_help 101 ||
   QUILL_TARGET="$1"
+}
+
+#---
+## @Synopsis verbosely checks if the argument is a dir and optionally exits
+##
+## @param path
+## @param (optional) be fatal
+##
+## @return 0 if it is a dir
+## @return 1 otherwise
+#---
+function dir_check() {
+  if [[ ! -d $1 ]]
+  then
+    error_msg "Not a directory: $1!"
+    if [[ -z $2 ]]
+    then
+      return 1
+    else
+      exit 17
+    fi
+  fi
+  return 0
 }
 
 #---

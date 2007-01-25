@@ -45,12 +45,14 @@ function quill_fmxml_core(){
   if grep -q "$not_found" "$FRESHMEAT_FILE"; then
     error_msg "$not_found"
     rm "$FRESHMEAT_FILE"
+    SPELL_NAME="$1"
     return 2
   fi
 
   # fill in variables from xml file
   if [[ $1 ]] ; then
     SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short $1|tr 'A-Z' 'a-z')
+    SPELL_NAME="${SPELL_NAME:-$1}"
     SPELL_DESC_NAME="${SPELL_NAME}"
     for each in url_bz2 url_tgz; do
       TMP=$(quill_fmxml_grab_from_xml $each $1)

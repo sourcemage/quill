@@ -141,16 +141,17 @@ then
   SPELL_NAME=$QUILL_TARGET
   codex_does_spell_exist $SPELL_NAME || exit 6
   ask_and_copy_over || exit 7
+  cd $QUILL_SPELL_DIR/$SPELL_NAME
 
   while true; do
     actions=('Update the spell to a newer version' \
              'Add arbitrary HISTORY entries' \
-             'Add a another version' \
+             'Increment/add PATCHLEVEL or SECURITY_PATCH' \
              'Copy it here from the grimoire or QUILL_GIT_DIR' \
              'Copy it under QUILL_GIT_DIR' \
              'Copy it back to the grimoire' \
              'Try it out' \
-             'Quit' ) #'Manage patches'
+             'Quit' ) #'Manage patches' 'Add a another version' 'Convert to upstream signing'
     echo
     query_list "What do you want to do?" ANSWER "Quit" "${actions[@]}"
 
@@ -160,6 +161,7 @@ then
     then
       echo
       [[ -d $QUILL_SPELL_DIR/$SPELL_NAME ]] || ask_and_copy_over || continue
+      [[ -e DETAILS.orig ]] || cp DETAILS DETAILS.orig
       echo
     fi
     case "$ANSWER" in
@@ -184,15 +186,7 @@ then
             sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
 
             #check for multiversion spells
-            if [[ ${#versions[@]} != 1 ]]
-            then #we have a problem
-              message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
-              message "and then you will tell me which variable I need to set, so I can get "
-              message "to the correct version ($version)."
-              sleep 3
-              cat DETAILS
-              query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
-            fi
+            multiversion_check
 
             # reparse the (usually new) source urls
             get_sources_and_urls
@@ -245,7 +239,7 @@ then
             do
               hash=$(quill_hash_get $SOURCE_CACHE/$source)
               # use the original DETAILS, as we already changed the VERSION
-              current_check=$(eval ${if_var:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE)
+              current_check=$(eval ${if_var:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
 
               if [[ -z $current_check ]]
               then
@@ -259,6 +253,18 @@ then
               #skip SOURCE_IGNORE
               if grep -Eq "volatile|signature|unversioned" <<< "$current_check"
               then
+                [[ ! $i ]] && i=1
+                let i+=1
+                continue
+              fi
+
+              # MD5? These contain no :
+              if ! grep -q ":" <<< "$current_check"
+              then
+                new_value=$(count_spaces SOURCE${i}_HASH)
+                sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
+                remove_old_sigs "$version"
+
                 [[ ! $i ]] && i=1
                 let i+=1
                 continue
@@ -306,7 +312,6 @@ then
 
 
               #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
-#echo "+$current_check++"
               new_value=$(count_spaces SOURCE${i}_HASH)
               sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
@@ -343,12 +348,30 @@ then
       "${actions[1]}") #"Add an arbitrary HISTORY entry"
         add_user_history_entries
       ;;
-      "${actions[2]}") #"Add another version"
+      "${actions[2]}") #"Increment/add PATCHLEVEL or SECURITY_PATCH"
+        #fetch current versions, ignoring SCM ones
+        versions=( $(sed -n 's/\s*\<VERSION=//p' DETAILS |
+                   grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort | uniq) )
+        [[ -z ${versions[@]} ]] && error_msg "No versions to update!" && continue
+
+        message "Current relevant version(s): ${versions[@]}"
+
+        for version in "${versions[@]}"
+        do
+          if query "Do you want to do it for $version?" y
+          then
+            SPELL_VERSION="$version"
+            update_patchlevel PATCHLEVEL
+            update_patchlevel SECURITY_PATCH
+            message "Done."
+          fi
+        done
+      ;;
+#      "${actions[2]}") #"Add another version"
 #SCM or branch?
 #update patchlevel?
 #update HISTORY
 #copy the spell back to the grimoire?
-        echo ++"$ANSWER"++ ;;
       "${actions[3]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue
       ;;
@@ -523,7 +546,28 @@ else
   fi
   if query "Do you want to put the spell into QUILL_GIT_DIR?" n
   then
-    copy_from_git
+    if [[ -z $QUILL_GIT_DIR ]]
+    then
+      error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
+      echo
+    else
+      find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P "
+      echo
+      query_string GRIMOIRE "Which of the above is the target git grimoire? "
+      dir_check "$QUILL_GIT_DIR/$GRIMOIRE" fatal
+      echo
+      # maybe we have QUILL_SECT_NAME from the previous query, so default to it
+      find "$QUILL_GIT_DIR/$GRIMOIRE" -maxdepth 1 -type d -printf "%P\n" | column
+      query_string SECTION "Which section do you want to put it in? " $QUILL_SECT_NAME
+      dir_check "$QUILL_GIT_DIR/$GRIMOIRE/$SECTION" fatal
+      if [[ -w $QUILL_GIT_DIR/$GRIMOIRE/$SECTION ]]
+      then
+        mkdir "$QUILL_GIT_DIR/$GRIMOIRE/$SECTION/$SPELL_NAME"
+      else
+        ${QUILL_SUDO:-su} -c "mkdir '$QUILL_GIT_DIR/$GRIMOIRE/$SECTION/$SPELL_NAME'"
+      fi
+      copy_to_git
+    fi
   fi
 fi
 message "That's all folks!"

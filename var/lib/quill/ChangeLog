@@ -1,3 +1,16 @@
+2007-01-24 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: added last menu entry for 0.2: patchlevel adding
+	  factored out multiversion_check
+	  fixed copying to git of new spells
+	  added MD5[] support, we have far too many of these left
+	* libcore: fix the appearance of DETAILS.orig in the copies
+	  added utility function dir_check
+	  don't reindex if overwriting in quill_final_put_in_grimoire
+	* libupdate: improved ask_and_copy_over and update_patchlevel
+	* libfreshmeatxml: fallback on argument for spell name
+	* libdetails: quote the website too, some contain # and wouldn't show whole
+	* version: 0.1.15, third, internal 0.2 release candidate
+
 2007-01-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: added add_user_history_entries for adding arbitrary entries
 	* quill: factored out ask_and_copy_over, so it is optional and saner
