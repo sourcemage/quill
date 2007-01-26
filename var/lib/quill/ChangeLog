@@ -1,3 +1,9 @@
+2007-01-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libupdate: added -quit to the find in copy_git_sub to speed it up
+	* libcore: fix version print in quill_help
+	  add codex_get_spell_paths fallback
+	* version: 0.2.1
+
 2007-01-24 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: added last menu entry for 0.2: patchlevel adding
 	  factored out multiversion_check

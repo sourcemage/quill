@@ -106,7 +106,7 @@ function copy_git_sub()
 
   # find where under $QUILL_GIT_DIR the spell actually is
   # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
-  SECTION2=$(find "$QUILL_GIT_DIR" -regex "${QUILL_GIT_DIR%/}/[^/]*/[^/]*/$SPELL_NAME$" -type d -printf "%h\n")
+  SECTION2=$(find "$QUILL_GIT_DIR" -regex "${QUILL_GIT_DIR%/}/[^/]*/[^/]*/$SPELL_NAME$" -type d -printf "%h\n" -quit)
   if [[ -z $SECTION2 ]]
   then
     error_msg "Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!"

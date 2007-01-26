@@ -481,7 +481,7 @@ function query_msg() {
 #---
 function quill_help() {
 
-  message "quill -$QUILL_VERSION
+  message "quill $QUILL_VERSION
 Copyright (C) 2006 Source Mage
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
@@ -513,6 +513,24 @@ EXAMPLES:
     quill -cu wormux
 "
   exit ${1:-0}
+}
+
+
+#---
+## @Synopsis function that displays help and exits
+#---
+function codex_get_spell_paths() {
+  local SPELL_DIRECTORY=$1
+  if declare -f codex_get_spell_paths &> /dev/null; then
+    codex_get_spell_paths $SPELL_DIRECTORY
+  else
+    function codex_get_spell_paths() {
+      SECTION_DIRECTORY=${SPELL_DIRECTORY%/*}
+      SECTION=${SECTION_DIRECTORY##*/}
+      GRIMOIRE=${SECTION_DIRECTORY%/*}
+      GRIMOIRE_NAME=$(basename $GRIMOIRE)
+    }
+  fi
 }
 
 #---
