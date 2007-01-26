@@ -7,9 +7,10 @@
 	  added utility function dir_check
 	  don't reindex if overwriting in quill_final_put_in_grimoire
 	* libupdate: improved ask_and_copy_over and update_patchlevel
+	  forgot to remove the exit in compute_spaces, added null check
 	* libfreshmeatxml: fallback on argument for spell name
 	* libdetails: quote the website too, some contain # and wouldn't show whole
-	* version: 0.1.15, third, internal 0.2 release candidate
+	* version: 0.2 final
 
 2007-01-23 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: added add_user_history_entries for adding arbitrary entries

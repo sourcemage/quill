@@ -84,7 +84,7 @@ function update_patchlevel_sub()
 function count_spaces()
 {
   local count spaces eq_col
-  eq_col=$(awk -F '=' '{ print length($1); exit}' DETAILS | sort | uniq -c | sort -n | sed -n '$ s,^\s*\S*\s,,p')
+  eq_col=$(awk -F '=' '{ if($1)print length($1) }' DETAILS | sort | uniq -c | sort -n | sed -n '$ s,^\s*\S*\s,,p')
   count=$(( $eq_col - ${#1} ))
   for (( i=0 ; i<$count; i++ )) ; do
     spaces="$spaces "
