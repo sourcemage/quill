@@ -322,7 +322,7 @@ then
 
               #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
               new_value=$(count_spaces SOURCE${i}_HASH)
-              sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
+              sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
               # remove sigs, trying not to touch any that are still needed
               remove_old_sigs "$version"

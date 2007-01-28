@@ -2,6 +2,7 @@
 	* libupdate: added -quit to the find in copy_git_sub to speed it up
 	* libcore: fix version print in quill_help
 	* quill: add codex_get_spell_paths fallback
+	  fixed the hash check to not be too strict anymore
 	* libcore, quill: copyright 2007
 	* version: 0.2.1
 
