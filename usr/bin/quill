@@ -342,6 +342,18 @@ then
           continue
         fi
 
+        # check if WEB_SITE is reachable
+        WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
+        if wget -S --spider "$WEB_SITE" 2>&1 | grep -Eq "ERROR 404|service not known"
+        then
+          error_msg "The website is not reachable: $WEB_SITE"
+          message "Fix it."
+          sleep 3
+          quill_edit DETAILS
+          add_history_entry "DETAILS: fixed WEB_SITE"
+          echo
+        fi
+
         rm DETAILS.orig
         if query "Do you want to review the update or add custom modifications?" y
         then
@@ -403,11 +415,24 @@ then
         quill_final_put_in_grimoire $GRIMOIRE $SECTION no
       ;;
       "${actions[6]}") #"Try it out"
-      if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
-        cast -r $SPELL_NAME
-      else
-        cast -c $SPELL_NAME
-      fi
+        codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+        if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
+        then
+          error_msg "Origin not found! Very severe!"
+          continue
+        fi
+
+        if diff -q $QUILL_SPELL_DIR/$SPELL_NAME $GRIMOIRE/$SECTION/$SPELL_NAME -x DETAILS.orig > /dev/null
+        then
+          # there is no difference
+          query "Are you sure you want to cast the unchanged spell from the grimoire?" y ||
+          continue
+        fi
+        if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
+          cast -r $SPELL_NAME
+        else
+          cast -c $SPELL_NAME
+        fi
       ;;
     esac
 

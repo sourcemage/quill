@@ -1,6 +1,6 @@
 post 0.2 things that would be cool to have done:
 new menu choices
-  * 'Manage patches' 
+  * 'Manage patches'
 	add/remove them and their references in PRE_BUILD
 	add/remove PRE_BUILD
 
@@ -11,13 +11,15 @@ new menu choices
   * 'Convert to upstream signing'
 	try automatically on updates (check for .sig)?
 
+  * 'list/remove files?'
+
 update mode:
   * create a main_update_loop and use it in the patching case too
   * clean the namespace by moving more stuff into functions, using locals and
 	documenting global vars used in all functions
 
 improvements in the standard mode:
-  * use some of the functions from update mode, 
+  * use some of the functions from update mode,
 	especially the verification stuff
   * handle bad entries and ^C better
   * use summon and more of the sorcery code?

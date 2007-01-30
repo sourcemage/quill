@@ -1,8 +1,14 @@
 2007-01-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: added -quit to the find in copy_git_sub to speed it up
+	  fixed searching for spells with + in their name
 	* libcore: fix version print in quill_help
+	  don't discriminate the beautiful syntax and substitute them too
+	  check_source_url now reckognizes dns failures too
+	  lowercase QUILL_TARGET (spell name) when parsing
 	* quill: add codex_get_spell_paths fallback
 	  fixed the hash check to not be too strict anymore
+	  also checks WEB_SITE now
+	  added notice about casting the old spell #13474
 	* libcore, quill: copyright 2007
 	* version: 0.2.1
 

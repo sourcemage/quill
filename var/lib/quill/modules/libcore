@@ -342,6 +342,9 @@ function check_source_urls() {
           # we don't know if the SOURCE is expanded or not, trying just both extremes
           substitute_with_variables old_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
           sed -i "s,$old_source,$source," DETAILS
+          # and with the beautiful syntax last
+          old_source="$(tr -d "{}" <<< "$old_source")"
+          sed -i "s,$old_source,$source," DETAILS
           add_history_entry "DETAILS: Changed SOURCE${i} extension"
         fi
 
@@ -377,7 +380,7 @@ function check_source_url() {
   elif grep -q http:// <<< "$su"
   then
     # the return value acrobatics make both blocks return the same
-    wget -S --spider "$su" 2>&1 | grep -q "ERROR 404"
+    wget -S --spider "$su" 2>&1 | grep -Eq "ERROR 404|service not known"
     if [[ $? == 0 ]]
     then
       rc=1
@@ -436,7 +439,7 @@ function check_parameter() {
   [[ -z $1 ]] &&
   error_msg "Missing parameter" &&
   quill_help 101 ||
-  QUILL_TARGET="$1"
+  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$1")
 }
 
 #---
