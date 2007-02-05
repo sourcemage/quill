@@ -1,3 +1,9 @@
+2007-02-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: added a bit of output to help to tell what
+	  quill acctually does :)
+	* version: added date to note that it's not a proper release in case some
+	  uses the git version
+
 2007-01-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: added -quit to the find in copy_git_sub to speed it up
 	  fixed searching for spells with + in their name

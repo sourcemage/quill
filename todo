@@ -23,7 +23,16 @@ improvements in the standard mode:
 	especially the verification stuff
   * handle bad entries and ^C better
   * use summon and more of the sorcery code?
+  * don't use summon. as it should be able to be run without root privs.
 
 fmxml:
   * sanitize, dump curl?
+    I belive there is a problem with the xml if not running curl
   * improve the speed, dump xml-grep?
+    Erm planning to implement own XML parser?
+
+documentation:
+  * write a manpage
+
+overall:
+  * Improve scripting support to make it possible to write alternate interfaces for it
