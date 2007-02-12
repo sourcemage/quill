@@ -34,8 +34,8 @@ function add_history_entry()
               /\* $file:/ a\\\t ${1#*:}
               }" HISTORY
     fi
-  else # first time
-    sed -i "1 s/^.*$/$title\n\t* $1\n\n&/" HISTORY
+  else # first time today
+    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" HISTORY
   fi
 }
 
@@ -68,7 +68,8 @@ function add_user_history_entries()
   while true; do
     query_string entry "What do you want to add? "
     [[ -z $entry ]] && break
-    add_history_entry "$entry" && modified=1
+    add_history_entry "$entry"
+    modified=1
   done
   echo
   if [[ $modified == "1" ]]; then
