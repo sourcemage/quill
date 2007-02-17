@@ -94,7 +94,7 @@ function quill_rc() {
       QUILL_SUDO="su"
     fi
     if query "Do you use guru GPG signatures?" n ; then
-      query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "" $(gpg -K | sed -n "/sec/ s,sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
+      query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "" $(gpg -K | sed -n "/^sec/ s,^sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
     fi
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     cat << QUA > $QUILL_QUILLRC
