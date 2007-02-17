@@ -302,7 +302,7 @@ then
                 if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n
                 then
                   # sign it and continue
-                  gpg -v --digest-algo SHA512 -o $QUILL_SPELL_DIR/$SPELL_NAME/$source.sig --detach-sign $SOURCE_CACHE/$source
+                  gpg --default-key $GURU_GPGKEY -v --digest-algo SHA512 -o $QUILL_SPELL_DIR/$SPELL_NAME/$source.sig --detach-sign $SOURCE_CACHE/$source
                   echo
                   remove_old_sigs "$version"
 
