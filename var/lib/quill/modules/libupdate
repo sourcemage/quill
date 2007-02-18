@@ -149,9 +149,9 @@ function copy_from_git()
 
   if [[ -w $QUILL_SPELL_DIR ]]
   then
-    cp -r "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
+    cp -pr "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
   else
-    ${QUILL_SUDO:-su} -c "cp -r '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
+    ${QUILL_SUDO:-su} -c "cp -pr '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
   fi
   unset GRIMOIRE2 SECTION2
   cd $QUILL_SPELL_DIR/$SPELL_NAME
@@ -241,7 +241,7 @@ function ask_and_copy_over()
     codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
     cd $QUILL_SPELL_DIR &&
     rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
-    cp -r $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
+    cp -pr $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
     message "Done."
   elif [[ $reply == "QUILL_GIT_DIR" ]]
   then
