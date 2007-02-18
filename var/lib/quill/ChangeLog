@@ -1,6 +1,10 @@
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore, libupdate: use cp -p to preserve timestamps #13537
 
+2007-02-17 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: added GURU_GPGKEY to quillrc, minor fix
+	* quill: respect quillrc
+
 2007-02-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: use an obscure sed field delimiter, always mark as changed
 	* version: 0.2.2-2007-02-12
