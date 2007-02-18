@@ -1,5 +1,7 @@
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore, libupdate: use cp -p to preserve timestamps #13537
+	* libcore: don't list bad secret keys when asking for GURU_GPGKEY
+	* version: ++
 
 2007-02-17 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libcore: added GURU_GPGKEY to quillrc, minor fix
