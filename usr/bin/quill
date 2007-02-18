@@ -108,6 +108,7 @@ PROMPT_DELAY="31557807"
 BUILD_API=2
 load_build_api
 mkdir -p $QUILL_TMP_DIR
+SPELL_UPDATED=n
 
 # devel sorcery function
 if ! declare -f codex_get_spell_paths &> /dev/null; then
@@ -193,6 +194,7 @@ then
 
             #save the chosen version
             sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
+            SPELL_UPDATED=y
 
             #check for multiversion spells
             multiversion_check
@@ -385,6 +387,7 @@ then
             update_patchlevel PATCHLEVEL
             update_patchlevel SECURITY_PATCH
             message "Done."
+            SPELL_UPDATED=y
           fi
         done
       ;;
@@ -422,12 +425,24 @@ then
           continue
         fi
 
-        if diff -q $QUILL_SPELL_DIR/$SPELL_NAME $GRIMOIRE/$SECTION/$SPELL_NAME -x DETAILS.orig > /dev/null
+        # three possible states:
+        # 1. the files are the same, no update was made
+        # 2. the files are the same, an update was made and copied over
+        # 3. the files differ
+        # in the case of 1 and 3 we want to confirm
+        if [[ $SPELL_UPDATED == n ]]
         then
-          # there is no difference
+          # 1. there is no difference; there is no change
           query "Are you sure you want to cast the unchanged spell from the grimoire?" y ||
           continue
         fi
+        if ! diff -q $QUILL_SPELL_DIR/$SPELL_NAME $GRIMOIRE/$SECTION/$SPELL_NAME -x DETAILS.orig > /dev/null
+        then
+          # 3. the spell was changed, but not copied over yet
+          query "Are you sure you want to cast the unchanged spell from the grimoire?" y ||
+          continue
+        fi
+
         if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
           cast -r $SPELL_NAME
         else

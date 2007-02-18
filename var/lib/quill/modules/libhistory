@@ -76,6 +76,7 @@ function add_user_history_entries()
     query "Do you want to review the HISTORY changes?" n &&
     quill_edit HISTORY
     echo
+    SPELL_UPDATED=y
   fi
 }
 
