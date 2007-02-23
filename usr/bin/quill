@@ -59,6 +59,10 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_CPAN_MODE="on"
                   shift ;;
+       --rubyraa)
+                  check_parameter $2
+                  QUILL_RAA_MODE="on"
+                  shift ;;
      --update|-u)
                   check_parameter $2
                   QUILL_UPDATE="on"
@@ -141,6 +145,14 @@ fi
 if [[ "$QUILL_CPAN_MODE" == "on" ]]
 then
   quill_cpan_core $QUILL_TARGET
+
+  # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
+  parse_spell_source_file_info
+fi
+
+if [[ "$QUILL_RAA_MODE" == "on" ]]
+then
+  quill_raa_core $QUILL_TARGET
 
   # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
   parse_spell_source_file_info

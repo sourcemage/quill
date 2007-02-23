@@ -500,6 +500,7 @@ A spell creator and updater.
 OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
   --perlcpan, -c <SPELL>	get spell data from Perl-CPAN if possible
+  --rubyraa <SPELL>		get spell data from Ruby Application Archive if possible
   --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)

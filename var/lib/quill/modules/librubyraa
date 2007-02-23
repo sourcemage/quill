@@ -1,0 +1,49 @@
+#
+## Ruby RAA module
+#
+
+function quill_raa_get_info(){
+  local info
+  local raa_project_file
+  info="${1}"
+  raa_project_file="${2}"
+  echo "$(grep "${info}:" $raa_project_file | sed -e "s/ *${info}: *\(.*\)/\1/")"
+}
+
+function quill_raa_core(){
+  local project
+  local desc
+  local line
+  local raa_project_file
+  project="$(echo $1 | tr 'A-Z' 'a-z')"
+  raa_project_file=${QUILL_TMP_DIR}/${project}.raa
+  lynx -width=8000 \
+       -nolist \
+       -dump \
+       http://raa.ruby-lang.org/project/$project/ > \
+       $raa_project_file
+  SPELL_SHORT_DESCRIPTION="$(quill_raa_get_info "Short description" "$raa_project_file" )"
+  SPELL_LICENSE="$(quill_raa_get_info "License" "$raa_project_file" )"
+  SPELL_URL="$(quill_raa_get_info "Homepage" "$raa_project_file")"
+  SPELL_SRC_URL="$(quill_raa_get_info "Download" "$raa_project_file")"
+  SPELL_NAME="$project"
+  ( cat $raa_project_file | grep -A99999 "Description:" ) | \
+  while read line
+  do
+    if ! grep -q "Edit this project" <<< $line
+    then
+      desc="$desc $line"
+    else
+      echo ${desc/Description:} > ${QUILL_TMP_DIR}/${SPELL_NAME}
+      return 1
+    fi
+  done
+  SPELL_DESC_NAME="$project"
+  DEPENDSISON="DEPENDS, "
+  SPELL_DEPENDENCIES="ruby"
+  touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
+  echo "true" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
+  BUILDISON="BUILD, "
+  INSTALLISON="INSTALL, "
+
+}

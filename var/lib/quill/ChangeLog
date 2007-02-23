@@ -1,3 +1,9 @@
+2007-02-24 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: added ruby-raa mode
+	* libcore: added ruby-raa mode
+	* librubyraa: added for ruby-raa mode
+	* version: 0.2.2-2007-02-24
+
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill, libcore, libhistory, libupdate: fix #13536 by using a dirty flag
 	* libupdate: further optimise the find in copy_git_sub by not checking .git
