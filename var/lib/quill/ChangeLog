@@ -10,7 +10,8 @@
 	  and replaced with the raw url from the page which should be parsable
 	  with the already existing url fixer(if not that needs an update),
 	  made it less verbose
-	* libperlcpan: improved the downloading code, less verbose
+	* libperlcpan: improved the downloading code, less verbose, error checking
+	  for non-existant CPAN modules
 
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill, libcore, libhistory, libupdate: fix #13536 by using a dirty flag
