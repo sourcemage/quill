@@ -1,7 +1,8 @@
 2007-02-24 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: added ruby-raa mode
 	* libcore: added ruby-raa mode
-	* librubyraa: added for ruby-raa mode
+	* librubyraa: added for ruby-raa mode, error checking added in case
+	  no project exist, improved it a lot with Jaka's help
 	* version: 0.2.2-2007-02-24
 
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>

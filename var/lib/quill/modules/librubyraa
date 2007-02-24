@@ -7,7 +7,7 @@ function quill_raa_get_info(){
   local raa_project_file
   info="${1}"
   raa_project_file="${2}"
-  echo "$(grep "${info}:" $raa_project_file | sed -e "s/ *${info}: *\(.*\)/\1/")"
+  grep "${info}:" $raa_project_file | sed -e "s/ *${info}: *\(.*\)/\1/"
 }
 
 function quill_raa_core(){
@@ -17,33 +17,31 @@ function quill_raa_core(){
   local raa_project_file
   project="$(echo $1 | tr 'A-Z' 'a-z')"
   raa_project_file=${QUILL_TMP_DIR}/${project}.raa
-  lynx -width=8000 \
-       -nolist \
-       -dump \
-       http://raa.ruby-lang.org/project/$project/ > \
-       $raa_project_file
+  message "Attempting to retrive project page..."
+  wget -q -O $raa_project_file.tmp \
+       http://raa.ruby-lang.org/project/$project/ || \
+       error_msg "Error: unable to fetch project page"
+  sed -e "s:<a href=\"\(.*\)\".*:\1:g" \
+      -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" \
+      $raa_project_file.tmp | \
+      sed -e ":pot /:\s*$/{ N; s/\n//g; t pot}; /:$/{ b pot}" \
+      -e "/^$/d" > $raa_project_file
+  if $(head -n3 $raa_project_file | grep -q "RAA - Search") ; then
+    error_msg "Error: project not found"
+    return 1
+  fi
   SPELL_SHORT_DESCRIPTION="$(quill_raa_get_info "Short description" "$raa_project_file" )"
   SPELL_LICENSE="$(quill_raa_get_info "License" "$raa_project_file" )"
   SPELL_URL="$(quill_raa_get_info "Homepage" "$raa_project_file")"
   SPELL_SRC_URL="$(quill_raa_get_info "Download" "$raa_project_file")"
   SPELL_NAME="$project"
-  ( cat $raa_project_file | grep -A99999 "Description:" ) | \
-  while read line
-  do
-    if ! grep -q "Edit this project" <<< $line
-    then
-      desc="$desc $line"
-    else
-      echo ${desc/Description:} > ${QUILL_TMP_DIR}/${SPELL_NAME}
-      return 1
-    fi
-  done
-  SPELL_DESC_NAME="$project"
+  sed -n '/Description:/,/Edit this project/ p' \
+      $raa_project_file > ${QUILL_TMP_DIR}/${SPELL_NAME}
+  sed -i \
+      -e '1s/.*Description: *\(.*\)/\1/' \
+      -e "/.*Edit this project.*/d" \
+      ${QUILL_TMP_DIR}/${SPELL_NAME}
   DEPENDSISON="DEPENDS, "
   SPELL_DEPENDENCIES="ruby"
-  touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
-  echo "true" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
-  BUILDISON="BUILD, "
-  INSTALLISON="INSTALL, "
 
 }
