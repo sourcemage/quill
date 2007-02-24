@@ -20,7 +20,8 @@ function quill_raa_core(){
   message "Attempting to retrive project page..."
   wget -q -O $raa_project_file.tmp \
        http://raa.ruby-lang.org/project/$project/ || \
-       error_msg "Error: unable to fetch project page"
+       error_msg "Error: unable to fetch project page" && \
+       return 1
   sed -e "s:<a href=\"\(.*\)\".*:\1:g" \
       -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" \
       $raa_project_file.tmp | \

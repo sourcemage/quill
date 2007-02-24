@@ -2,8 +2,15 @@
 	* quill: added ruby-raa mode
 	* libcore: added ruby-raa mode
 	* librubyraa: added for ruby-raa mode, error checking added in case
-	  no project exist, improved it a lot with Jaka's help
+	  no project exist, improved it a lot with Jaka's help,
+	  less verbose
 	* version: 0.2.2-2007-02-24
+	* libfreshmeatxml: removed dependency on curl, improved it and cleaned up
+	  a bit, removed a the hunt src url function as it didn't work really good
+	  and replaced with the raw url from the page which should be parsable
+	  with the already existing url fixer(if not that needs an update),
+	  made it less verbose
+	* libperlcpan: improved the downloading code, less verbose
 
 2007-02-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill, libcore, libhistory, libupdate: fix #13536 by using a dirty flag

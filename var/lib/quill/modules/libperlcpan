@@ -8,8 +8,16 @@ function quill_get_cpan_meta()
      [ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]
   then
     cd $QUILL_TMP_DIR
-    wget -O 02packages.details.txt.gz ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz
-    wget -O 03modlist.data.gz ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz
+    message "Attempting to retrive 02packages.details.txt.gz..."
+    wget -q \
+         -O 02packages.details.txt.gz \
+         ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz ||
+         (error_msg "Error: unable to fetch 02packages.details.txt.gz" && return 1)
+    message "Attempting to retrive 03modlist.data.gz..."
+    wget -q \
+         -O 03modlist.data.gz \
+         ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz ||
+         (error_msg "Error: unable to fetch 03modlist.data.gz" && return 1)
   fi
   eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
   eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"

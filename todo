@@ -26,8 +26,6 @@ improvements in the standard mode:
   * don't use summon. as it should be able to be run without root privs.
 
 fmxml:
-  * sanitize, dump curl?
-    I belive there is a problem with the xml if not running curl
   * improve the speed, dump xml-grep?
     Erm planning to implement own XML parser?
 
