@@ -165,7 +165,7 @@ fi
 function hunt_src_dir(){
   local compressor
   message "Checking for the source directory..."
-  compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE}
+  compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})
   case "$compresor" in
      bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | \
                                                grep / | \
