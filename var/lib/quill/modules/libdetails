@@ -158,16 +158,23 @@ fi
 
 #---
 ## @Synopsis Assign to SPELL_SRC_DIR the source dir inside a tarball,
-## @return 0 if a tarball
-## @return 1 if not a tarball.
+## @return 0 if found supported fromat and suceeded
+## @return 1 if failed
+## @return 2 if unsupported format
 #---
 function hunt_src_dir(){
-  message "Checking what is in the tarball ..."
-  SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | grep / | sed -e "s=/.*$==g;q")
-  if [[ $? != 0 ]]; then
-    message "Not a tarball."
-    unset SPELL_SRC_DIR
-    return 1
+  local compressor
+  message "Checking for the source directory..."
+  compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE}
+  case "$compresor" in
+     bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | \
+                                               grep / | \
+                                               sed -e "s=/.*$==g;q") || \
+                                               (error_msg "Error: getting path from tarball" && \
+                                               return 1) ;;
+                            *) SPELL_SRC_DIR=${SPELL}-${VERSION} &&
+                               message "Unsupported format" &&
+                               return 2 ;;
   fi
   message "Done.\n"
 }
