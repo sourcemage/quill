@@ -175,7 +175,7 @@ function hunt_src_dir(){
                             *) SPELL_SRC_DIR=${SPELL}-${VERSION} &&
                                message "Unsupported format" &&
                                return 2 ;;
-  fi
+  esac
   message "Done.\n"
 }
 
