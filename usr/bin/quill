@@ -7,8 +7,6 @@
 ## @ToDo Add option to use upstream gpg signature as included or
 ## @ToDo downloadable .sig file
 ## @ToDo Put a multiversion option
-## @ToDo single line or multiline depending on the length of line if
-## @ToDo <80 single else multi
 ## @ToDo Interface to add CONFIGURE options
 ## @ToDo Make quill the be-all for spells
 ##
@@ -44,6 +42,8 @@ QUILL_QUILLRC=${QUILL_HOME_DIR}/quillrc
 QUILL_OLD_QUILLRC=~/.quillrc
 QUILL_SPELL_DIR=~/.sourcemage/spells
 QUILL_TMP_DIR=~/.sourcemage/tmp
+QUILL_CONFIG_VERSION=1
+QUILL_OLD_CONFIG_VERSION=$QUILL_CONFIG_VERSION
 
 #---
 ## Not really a function it's supposed to parse the command line parameters
@@ -53,15 +53,15 @@ while [[ -n $1 ]]; do
     case  $1  in
       --fmxml|-f)
                   check_parameter $2
-                  QUILL_FMXML_MODE="on"
+                  QUILL_FETCH_MODE="fmxml"
                   shift ;;
    --perlcpan|-c)
                   check_parameter $2
-                  QUILL_CPAN_MODE="on"
+                  QUILL_FETCH_MODE="cpan"
                   shift ;;
-       --rubyraa)
+    --rubyraa|-y)
                   check_parameter $2
-                  QUILL_RAA_MODE="on"
+                  QUILL_FETCH_MODE="raa"
                   shift ;;
      --update|-u)
                   check_parameter $2
@@ -70,12 +70,17 @@ while [[ -n $1 ]]; do
          -uf|-fu)
                   check_parameter $2
                   QUILL_UPDATE="on"
-                  QUILL_FMXML_MODE="on"
+                  QUILL_FETCH_MODE="fmxml"
                   shift ;;
          -uc|-cu)
                   check_parameter $2
                   QUILL_UPDATE="on"
-                  QUILL_CPAN_MODE="on"
+                  QUILL_FETCH_MODE="cpan"
+                  shift ;;
+         -yu|-uy)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="raa"
                   shift ;;
       --purge|-p) QUILL_MODE="purge"; quill_purge $2 ;;
  --apprentice|-a) QUILL_MODE="apprentice" ;;
@@ -90,7 +95,6 @@ while [[ -n $1 ]]; do
   fi
   shift
 done
-export QUILL_MODE QUILL_FMXML_MODE QUILL_CPAN_MODE QUILL_TARGET
 
 unset -f message
 . /etc/sorcery/config
@@ -101,6 +105,11 @@ do
 done
 
 quill_rc
+if [[ ${QUILL_CONFIG_VERSION/0.2.2/1} != $QUILL_OLD_CONFIG_VERSION ]]; then
+  QUILL_MODE="reconfigure"
+  error_msg "Your quill settings are too old, forcing a reconfiguration!"
+  quill_rc
+fi
 
 # we should do some quillrc sanity checking someday
 [[ ! -d $QUILL_SPELL_DIR ]] &&
@@ -132,27 +141,10 @@ fi
 ## Questions and stuff
 
 quill_welcome
-if [[ "$QUILL_FMXML_MODE" == "on" ]]
+if [[ ! -z $QUILL_FETCH_MODE ]]
 then
-  # fetches SPELL_NAME, SPELL_DESC_NAME, SPELL_SRC_URL, SPELL_URL,
-  # SPELL_LICENSE and both descriptions
-  quill_fmxml_core $QUILL_TARGET
-
-  # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
-  parse_spell_source_file_info
-fi
-
-if [[ "$QUILL_CPAN_MODE" == "on" ]]
-then
-  quill_cpan_core $QUILL_TARGET
-
-  # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
-  parse_spell_source_file_info
-fi
-
-if [[ "$QUILL_RAA_MODE" == "on" ]]
-then
-  quill_raa_core $QUILL_TARGET
+  # fetch various spell variables
+  quill_${QUILL_FETCH_MODE}_core $QUILL_TARGET
 
   # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
   parse_spell_source_file_info

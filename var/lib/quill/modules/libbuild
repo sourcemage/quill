@@ -6,7 +6,7 @@
 BUILDISON=""
 
 function query_spell_build() {
-  if [[ "$QUILL_CPAN_MODE" != "on" ]]; then
+  if [[ "$QUILL_FETCH_MODE" != "cpan" ]]; then
      if query "Will you be adding a custom BUILD file:" "n"
      then
        BUILDISON="BUILD, "
@@ -15,7 +15,7 @@ function query_spell_build() {
 }
 
 function add_build() {
-  if [[ "$QUILL_CPAN_MODE" == "on" ]]; then
+  if [[ "$QUILL_FETCH_MODE" == "cpan" ]]; then
     cp ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
   else
     if query "Do you want the default_build function dumped into the BUILD file" "n"

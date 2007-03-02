@@ -6,7 +6,11 @@ function quill_fmxml_grab_from_xml() {
   xml_grep --text_only "${1}" "${2}"
 }
 
-function quill_fmxml_core(){
+function quill_fmxml_core() {
+  # so it is set even if we end prematurely, useful when adding spells
+  # gets properly overwritten later on
+  SPELL_NAME="$1"
+
   # if the argument looks like a url then use that, otherwise
   # assume the argument is the name of the spell and construct a
   # url for where we think freshmeat.net stores their xml data
@@ -20,20 +24,20 @@ function quill_fmxml_core(){
   # check if we already have the xml file, if we dont, download it
   FRESHMEAT_FILE="${QUILL_TMP_DIR}/${1}.xml"
   FRESHMEAT_PROJECT_FILE="${QUILL_TMP_DIR}/${1}.fm"
-  if [[ ! -e ${FRESHMEAT_FILE} ]]; then
-    message "Attempting to retrive project XML page..."
-    wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" || \
-         (error_msg "Error: unable to fetch project XML page" && return 1)
+  if [[ ! -e ${FRESHMEAT_PROJECT_FILE} ]]; then
+    message -n "Attempting to retrive project page ... "
+    wget -q -Uquill -O ${FRESHMEAT_PROJECT_FILE} "${FRESHMEAT_PROJECT_URL}" ||
+      { error_msg "Error: unable to fetch project page" && return 1; }
+    tr "\r" " " < ${FRESHMEAT_PROJECT_FILE} > ${FRESHMEAT_PROJECT_FILE}.tmp
+    mv ${FRESHMEAT_PROJECT_FILE}.tmp ${FRESHMEAT_PROJECT_FILE}
+    message "Done"
   fi
 
-  if [[ ! -e ${FRESHMEAT_PROJECT_FILE} ]]; then
-    message "Attempting to retrive project page..."
-    wget -q -Uquill -O ${FRESHMEAT_PROJECT_FILE} "${FRESHMEAT_PROJECT_URL}" || \
-         (error_msg "Error: unable to fetch project page" && return 1)
-    # for some reason the dos2unix.sed from the sedders bag didn't work here :(
-    # but this does
-    cat ${FRESHMEAT_PROJECT_FILE} | tr "\r" " " > ${FRESHMEAT_PROJECT_FILE}.tmp
-    mv ${FRESHMEAT_PROJECT_FILE}.tmp ${FRESHMEAT_PROJECT_FILE}
+  if [[ ! -e ${FRESHMEAT_FILE} ]]; then
+    message -n "Attempting to retrive project XML page ... "
+    wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
+      { error_msg "Error: unable to fetch project XML page" && return 1; }
+    message "Done"
   fi
 
   # check that the project was found - exsists

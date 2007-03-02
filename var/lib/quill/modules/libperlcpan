@@ -25,6 +25,10 @@ function quill_get_cpan_meta()
 
 function quill_cpan_core()
 {
+  # so it is set even if we end prematurely, useful when adding spells
+  # gets properly overwritten later on
+  SPELL_NAME="$1"
+
   quill_get_cpan_meta $1
   if zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
      zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz

@@ -1,3 +1,18 @@
+2007-03-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: simplified the various fetching modules code, now adding a new one
+	    requires only more parameter parsing and quill_help
+	  added short flag for --rubyraa and the combos with -u
+	  added config versioning support, on important config changes increment
+	    QUILL_CONFIG_VERSION and the user will be forced to reconfigure
+	* libbuild: accompanying changes
+	* libcore: save the config version in quillrc, not the quill version
+	  updated quill_help
+	  fixed quill_purge to delete everything - including secret files
+	* libfreshmeatxml: reinstated the erroneously removed name preservation
+	  simplified some blocks, reversed the order of project file fetching
+	* libperlcpan, librubyraa: added the same name preservation snippet
+	* version: 0.2.3
+
 2007-03-01 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libdetails: ooppsss fi -> esac
 

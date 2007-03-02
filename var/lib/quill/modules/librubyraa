@@ -15,7 +15,11 @@ function quill_raa_core(){
   local desc
   local line
   local raa_project_file
-  project="$(echo $1 | tr 'A-Z' 'a-z')"
+
+  # so it is set even if we end prematurely, useful when adding spells
+  # gets properly overwritten later on
+  SPELL_NAME="$1"
+  project="$(tr 'A-Z' 'a-z' <<< $1 )"
   raa_project_file=${QUILL_TMP_DIR}/${project}.raa
   message "Attempting to retrive project page..."
   wget -q -O $raa_project_file.tmp \
