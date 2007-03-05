@@ -181,7 +181,7 @@ function hunt_src_dir(){
   message "Checking for the source directory..."
   compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})
   case "$compressor" in
-     bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar vtf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | \
+     bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | \
                                                grep / | \
                                                sed -e "s=/.*$==g;q") || \
                                                (error_msg "Error: getting path from tarball" && \
