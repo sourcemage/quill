@@ -3,9 +3,13 @@
 #---
 function quill_get_cpan_meta()
 {
-  if [[ $FORCE_CPAN_DOWNLOAD == on ]] ||
-     [ ! -f $QUILL_TMP_DIR/02packages.details.txt.gz ] ||
-     [ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]
+  # unless someone knows a better way to check files creation time
+  # this shoud work quite well
+  # basicaly update if the files are over a day old
+  if [[ ! "$(find ${QUILL_TMP_DIR}/02packages.details.txt.gz -ctime 0)" == "${QUILL_TMP_DIR}/02packages.details.txt.gz" ]] ||
+     [[ ! "$(find ${QUILL_TMP_DIR}/03modlist.data.gz -ctime 0)" == "${QUILL_TMP_DIR}/03modlist.data.gz" ]] ||
+     [[ ! -f $QUILL_TMP_DIR/02packages.details.txt.gz ]] ||
+     [[ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]]
   then
     cd $QUILL_TMP_DIR
     message "Attempting to retrive 02packages.details.txt.gz..."
@@ -30,8 +34,8 @@ function quill_cpan_core()
   SPELL_NAME="$1"
 
   quill_get_cpan_meta $1
-  if zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
-     zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
+  if ! zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
+     ! zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
   then
     SPELL_NAME="$(echo ${1} | sed -e 's/::/-/g')"
     SPELL_SRC_URL="http://www.cpan.org/authors/id/${QUILL_CPAN_INFO[2]}"
