@@ -22,7 +22,7 @@ function query_spell_source_url(){
   SPELL_SRC_URL=$(sed -e "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," \
                       -e "s,http://downloads.sourceforge.net/\(.*\)?.*,$SOURCEFORGE_URL/\1," \
                       -e "s,http://downloads.sourceforge.net/\(.*\),$SOURCEFORGE_URL/\1," \
-                      -e "s,http://sourceforge.net/project/showfiles.php.*,,"
+                      -e "s,http://sourceforge.net/project/showfiles.php.*,," \
                       -e "s,/\(.*\)?.*,\1," \
                       <<< $SPELL_SRC_URL)
 if ! [[ $SPELL_SRC_URL ]] ||
@@ -32,7 +32,7 @@ if ! [[ $SPELL_SRC_URL ]] ||
   SPELL_SRC_URL=$(sed -e "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," \
                       -e "s,http://downloads.sourceforge.net/\(.*\)?.*,$SOURCEFORGE_URL/\1," \
                       -e "s,http://downloads.sourceforge.net/\(.*\),$SOURCEFORGE_URL/\1," \
-                      -e "s,http://sourceforge.net/project/showfiles.php.*,,"
+                      -e "s,http://sourceforge.net/project/showfiles.php.*,," \
                       -e "s,/\(.*\)?.*,\1," \
                       <<< $SPELL_SRC_URL)
 fi

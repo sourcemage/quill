@@ -1,6 +1,6 @@
 2007-03-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libdetails: minor fixes to the src dir hunt code and
-	  to the sf misc code
+	  to the sf misc code, forgot a \
 	* libperlcpan: check if the current files are out of date by
 	  more than a day then reload if necessary
 
