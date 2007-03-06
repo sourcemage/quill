@@ -43,7 +43,7 @@ QUILL_OLD_QUILLRC=~/.quillrc
 QUILL_SPELL_DIR=~/.sourcemage/spells
 QUILL_TMP_DIR=~/.sourcemage/tmp
 QUILL_CONFIG_VERSION=1
-QUILL_OLD_CONFIG_VERSION=$QUILL_CONFIG_VERSION
+QUILL_OUR_CONFIG_VERSION=$QUILL_CONFIG_VERSION
 
 #---
 ## Not really a function it's supposed to parse the command line parameters
@@ -105,7 +105,7 @@ do
 done
 
 quill_rc
-if [[ ${QUILL_CONFIG_VERSION/0.2.2/1} != $QUILL_OLD_CONFIG_VERSION ]]; then
+if [[ ${QUILL_CONFIG_VERSION/0.2.2/1} != $QUILL_OUR_CONFIG_VERSION ]]; then
   QUILL_MODE="reconfigure"
   error_msg "Your quill settings are too old, forcing a reconfiguration!"
   quill_rc
@@ -509,10 +509,7 @@ else
   # add && where appropriate in DEPENDS
   if [[ ${SPELL_OPTIONAL_DEPENDENCIES} != "" ]] || [[ ${SPELL_DEPENDENCIES} != "" ]]
   then
-    sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' DEPENDS | tac |
-      awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' |
-      tac > temporary-DEPENDS
-    mv temporary-DEPENDS DEPENDS
+    andand_lines DEPENDS
   fi
 
   if [[ "${SPELL_CONFLICTS}" != "" ]]
@@ -525,7 +522,7 @@ else
     add_provides
   fi
 
-  # redo it for fmxml - so it works if the xml didn't contain a valid source url
+  # redo it for QUILL_FETCH_MODE, perhaps it didn't fetch a valid source url
   # first time for other modes
   parse_spell_source_file_info
   show_spell_source_file_info
@@ -554,12 +551,31 @@ else
 
   if [[ "${BUILDISON}" == "BUILD, " ]]
   then
-    add_build
+    [[ -e $QUILL_TMP_DIR/${SPELL_SRC_FILE:-uag1au234gaugua} ]] ||
+      { error_msg "Bad or missing source: $SPELL_SRC_FILE"; exit 2; }
+
+    #message "Quill can try to autodetect the build system the package is using."
+    #message "However for this the source tarball needs to be extracted (can take a while)."
+    #if query "Do you want quill to try to autodetect the build system?" n
+    #then
+    #  BS=$(detect_build_system)
+    #  implement_build_system $BS
+    #else
+      add_build
+    #fi
   fi
 
   if [[ "${INSTALLISON}" == "INSTALL, " ]]
   then
-    add_install
+    if [[ -z $BS ]]; then
+      add_install
+    else
+      implement_install_system $BS
+    fi
+  fi
+
+  if [[ ! -z $BS ]]; then
+    add_bs_depends $BS
   fi
 
   #-if [[ "${POSTINSTALLISON}" == "POST_INSTALL, " ]]

@@ -59,6 +59,7 @@ function quill_hash_get() {
 #---
 
 function quill_rc() {
+  local saved
   if [[ -f ${QUILL_OLD_QUILLRC} ]]
   then
     query_msg "With accordance to Source Mage standards moving"
@@ -78,27 +79,34 @@ function quill_rc() {
   then
     mkdir -p $QUILL_HOME_DIR
     touch $QUILL_QUILLRC
-    local quill_config_version=$QUILL_CONFIG_VERSION # can get overridden by the sourcing
     . $QUILL_QUILLRC # get the contents if there are any (for defaults)
     message "${MESSAGE_COLOR}This will (re)create ${QUILL_QUILLRC} for you${DEFAULT_COLOR}"
     query_string GURU_NAME "${QUERY_COLOR}Please enter your name for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_NAME"
     query_string GURU_EMAIL "${QUERY_COLOR}Please enter your email for the HISTORY entries.${DEFAULT_COLOR}" "$GURU_EMAIL"
     query_string QUILL_SPELL_DIR "${QUERY_COLOR}Where do you want to store generated spells (absolute path)?${DEFAULT_COLOR}" "$QUILL_SPELL_DIR"
     query_string QUILL_GIT_DIR "${QUERY_COLOR}Where is the dir that contains your git grimoires if you have any (absolute path)?${DEFAULT_COLOR}" "$QUILL_GIT_DIR"
-    if query "Do you want to use sudo where possible?" ${QUILL_SUDO:-n}
-    then
+
+    if [[ -z $QUILL_SUDO ]]; then
+      saved=n
+    else
+      [[ -z ${QUILL_SUDO/sudo bash/} ]] && saved=y || saved=n
+    fi
+    if query "Do you want to use sudo where possible?" $saved; then
       # we need the bash since we call multiple commands at a time
       # and sudo doesn't like just sudo -c "ls; ls; ls"
       QUILL_SUDO="sudo bash"
     else
       QUILL_SUDO="su"
     fi
-    if query "Do you use guru GPG signatures?" n ; then
-      query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "" $(gpg -K | sed -n "/^sec[^#]/ s,^sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
+
+    [[ -z $GURU_GPGKEY ]] && saved=n || saved=y
+    if query "Do you use guru GPG signatures?" $saved ; then
+      query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "$GURU_GPGKEY" $(gpg -K | sed -n "/^sec[^#]/ s,^sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
     fi
+
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     cat << QUA > $QUILL_QUILLRC
-  QUILL_CONFIG_VERSION="$quill_config_version"
+  QUILL_CONFIG_VERSION="$QUILL_OUR_CONFIG_VERSION"
   GURU_NAME="$GURU_NAME"
   GURU_EMAIL="$GURU_EMAIL"
   QUILL_SPELL_DIR="$QUILL_SPELL_DIR"
@@ -467,6 +475,18 @@ function dir_check() {
     fi
   fi
   return 0
+}
+
+#---
+## @Synopsis adds && to all full lines not ending by and escape \ or last line
+#---
+function andand_lines() {
+  local file="$1"
+  sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' "$file" |
+    tac |
+    awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' |
+    tac > "temporary-$file"
+  mv "temporary-$file" "$file"
 }
 
 #---

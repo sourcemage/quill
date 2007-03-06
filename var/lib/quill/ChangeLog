@@ -1,3 +1,12 @@
+2007-03-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: fixed saved sudo and gpg default query answer
+	  fixed versioning to not loop anymore
+	  factored andand_lines out of quill
+	* libdetails: beautified hunt_src_dir, add_details dpesn't unexpand globals
+	* libbuild: started work on detect_build_system and implement_build_system
+	* quill: fake call detect_build_system; TODO: INSTALL, DEPENDS
+	* version: 0.2.4-rc1
+
 2007-03-05 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libdetails: minor fixes to the src dir hunt code and
 	  to the sf misc code, forgot a \, hopefully it will work now

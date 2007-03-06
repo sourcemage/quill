@@ -1,6 +1,5 @@
 #---
 ## @Synopsis BUILD module for quill
-## @Note DONE
 #---
 
 BUILDISON=""
@@ -27,6 +26,100 @@ function add_build() {
   fi
   $EDITOR BUILD
 }
+
+#---
+## @Synopsis ask and try to detect the build system by checking for marker
+## @Synopsis files in the tarball
+#---
+function detect_build_system() {
+  local bs SPELL SOURCE_CACHE
+
+  # we override some sorcery variables to make uncompress_unpack work
+  # uncompress so more file formats are supported than what tar -t can handle
+  #   although currently hunt_src_url doesn't support anything else
+  SPELL=$SPELL_NAME
+  SOURCE_CACHE="$QUILL_TMP_DIR"
+  uncompress_unpack "$SPELL_SRC_FILE"
+  cd "$SPELL_SRC_DIR"
+
+  #check for markers
+  if [[ -e setup.py ]]; then
+    bs=python
+  elif [[ -e Rakefile ]]; then
+    bs=rake
+  elif [[ -e Makefile.PL ]]; then
+    bs=PerL
+  elif [[ -e Makefile.pl ]]; then
+    bs=perl
+  elif [[ -e .wscript ]]; then
+    bs=waf
+  elif [[ -e SConstruct ]]; then
+    bs=scons
+  elif [[ -e Makefile ]]; then
+    if [[ -e configure ]]; then
+      bs=make,configure
+    elif [[ -e autogen.sh ]]; then
+      bs=make,autogen,configure
+    else
+      bs=make
+    fi
+  elif [[ -e Jamfile ]]; then
+    if [[ -e configure ]]; then
+      bs=jam,configure
+    elif [[ -e autogen.sh ]]; then
+      bs=jam,autogen,configure
+    else
+      bs=jam
+    fi
+  else
+    error_msg "Couldn't determine the build system, please file a bug."
+    cd ..
+    rm -r "$SPELL_SRC_FILE"
+    return 1
+  fi
+
+  cd ..
+  rm -r "$SPELL_SRC_FILE"
+
+  message "Detected build system: $bs"
+  echo $bs
+}
+
+#---
+## @Synopsis creates a BUILD file according to the build system used
+## @Synopsis unless it is make,configure (default_build)
+#---
+function implement_build_system() {
+  local bs=$1
+  [[ $bs == make,configure ]] && return 0
+
+  if grep -q autogen <<< $bs; then
+    echo "./autogen.sh &&" >> BUILD
+  fi
+  if grep -q configure <<< $bs; then
+    cat <<"FEO" >> BUILD
+  ./configure --prefix=$INSTALL_ROOT/usr  \
+              --sysconfdir=$INSTALL_ROOT/etc  \
+              --localstatedir=$INSTALL_ROOT/var  \
+              --mandir=$INSTALL_ROOT/usr/share/man   \
+              --infodir=$INSTALL_ROOT/usr/share/info  \
+              $OPTS &&
+  FEO
+  fi
+
+  case $bs in
+    rake) echo "rake" >> BUILD ;;
+    perl) echo "perl Makefile.pl" >> BUILD ;;
+    PerL) echo "perl Makefile.PL" >> BUILD ;;
+  python) echo "python setup.py" >> BUILD ;;
+     waf) echo "waf_build" >> BUILD ;;
+   scons) echo "scons PREFIX=$INSTALL_ROOT/usr" >> BUILD ;;
+     jam) echo "jam" >> BUILD ;;
+    make) echo "make" >> BUILD ;;
+  esac
+
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

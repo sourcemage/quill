@@ -23,6 +23,12 @@ then
   INSTALLISON="INSTALL, "
 fi
 }
+
+function implement_install_system()
+{
+  return
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

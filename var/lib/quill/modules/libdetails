@@ -180,16 +180,17 @@ function hunt_src_dir(){
   local compressor
   message "Checking for the source directory..."
   compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})
+
   case "$compressor" in
-     bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | \
-                                               grep / | \
-                                               sed -e "s=/.*$==g;q") || \
-                                               (error_msg "Error: getting path from tarball" && \
-                                               return 1) ;;
-                            *) SPELL_SRC_DIR=${SPELL}-${VERSION} &&
-                               message "Unsupported format..." &&
-                               return 2 ;;
+    bzip2|gzip|compress*|tar) true ;;
+                           *) SPELL_SRC_DIR=${SPELL}-${VERSION}
+                              message "Unsupported format..."
+                              return 2 ;;
   esac
+  SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" |
+                    sed -n "1 s=/.*$==p") ||
+  { error_msg "Error: getting path from tarball" && return 1; }
+
   message "Done.\n"
 }
 
@@ -198,22 +199,25 @@ function hunt_src_dir(){
 #---
 function add_details(){
   message "Generating the DETAILS file ..."
+  local spell_src_url="$SPELL_SRC_URL"
+  local spell_src_dir="$SPELL_SRC_DIR"
+  local spell_src_file="$SPELL_SRC_FILE"
 
   QUILL_SPELL_HASH="$(quill_hash_get $QUILL_TMP_DIR/$SPELL_SRC_FILE)"
 
-  substitute_with_mirror_variables SPELL_SRC_URL
-  substitute_with_variables SPELL_SRC_URL "$SPELL_SRC_FILE" {SOURCE} \
+  substitute_with_mirror_variables spell_src_url
+  substitute_with_variables spell_src_url "$spell_src_file" {SOURCE} \
     "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-  substitute_with_variables SPELL_SRC_DIR "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-  substitute_with_variables SPELL_SRC_FILE "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+  substitute_with_variables spell_src_dir "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+  substitute_with_variables spell_src_file "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
 echo \
 "           SPELL=${SPELL_NAME}
          VERSION=${SPELL_VERSION}
-          SOURCE=\"${SPELL_SRC_FILE}\"
-   SOURCE_URL[0]=${SPELL_SRC_URL}
+          SOURCE=\"$spell_src_file\"
+   SOURCE_URL[0]=$spell_src_url
      SOURCE_HASH=sha512:${QUILL_SPELL_HASH}
-SOURCE_DIRECTORY=\"\${BUILD_DIRECTORY}/$SPELL_SRC_DIR\"
+SOURCE_DIRECTORY=\"\${BUILD_DIRECTORY}/$spell_src_dir\"
         WEB_SITE=\"${SPELL_URL}\"
       LICENSE[0]=${SPELL_LICENSE}
          ENTERED=${HISTORY_DATE//-/}
