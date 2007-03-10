@@ -94,17 +94,17 @@ function implement_build_system() {
   [[ $bs == make,configure ]] && return 0
 
   if grep -q autogen <<< $bs; then
-    echo "./autogen.sh &&" >> BUILD
+    echo "cd blabla ./autogen.sh &&" >> PRE_BUILD
   fi
   if grep -q configure <<< $bs; then
     cat <<"FEO" >> BUILD
-  ./configure --prefix=$INSTALL_ROOT/usr  \
-              --sysconfdir=$INSTALL_ROOT/etc  \
-              --localstatedir=$INSTALL_ROOT/var  \
-              --mandir=$INSTALL_ROOT/usr/share/man   \
-              --infodir=$INSTALL_ROOT/usr/share/info  \
-              $OPTS &&
-  FEO
+./configure --prefix=$INSTALL_ROOT/usr  \
+            --sysconfdir=$INSTALL_ROOT/etc  \
+            --localstatedir=$INSTALL_ROOT/var  \
+            --mandir=$INSTALL_ROOT/usr/share/man   \
+            --infodir=$INSTALL_ROOT/usr/share/info  \
+            $OPTS &&
+FEO
   fi
 
   case $bs in
