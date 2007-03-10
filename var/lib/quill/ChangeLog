@@ -1,6 +1,15 @@
 2007-03-10 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libbuild: fix syntax error
 
+2007-03-07 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: added a clear_html_specials function
+	* libdetails: run clear_html_specials function on finished DETAILS
+	  don't want any of them in SHORT or LONG, added s-pecial handling for
+	  berlios as well
+	* html_specials.list: moved from libcore into own file
+	* quill: new VAR QUILL_MODULES path to modules(might want to
+	  track_rootify it)
+
 2007-03-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed saved sudo and gpg default query answer
 	  fixed versioning to not loop anymore

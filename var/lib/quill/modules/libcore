@@ -489,6 +489,16 @@ function andand_lines() {
   mv "temporary-$file" "$file"
 }
 
+
+#---
+## @Synopsis cleans out various special chars from html
+#---
+function clear_html_specials(){
+  local file="$1"
+  sed -i -f ${QUILL_MODULES}/html_specials.list $file
+}
+
+
 #---
 ## @Synopsis prints a colored error message
 #---
