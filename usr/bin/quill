@@ -205,13 +205,13 @@ then
             #check for multiversion spells
             multiversion_check
 
-            # reparse the (usually new) source urls
+            # parse the (usually new) source urls
             get_sources_and_urls
 
-            # check that (usually new) source urls are ok
-            check_source_urls
-
-            # reparse the possibly new source urls and company
+            while ! check_source_urls; do
+              get_sources_and_urls
+            done
+            # do it again, needed if the source suffix was changed
             get_sources_and_urls
             echo
 

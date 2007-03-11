@@ -286,9 +286,12 @@ function quill_purge() {
 #---
 ## @Synopsis checks if spell source urls are valid
 ## @Synopsis and perhaps changes them if they are trivially fixable
+##
+## @return 0 if all source urls are either valid or just not trivially checkable
+## @return 1 otherwise
 #---
 function check_source_urls() {
-  local i= su old_su oldest_su source old_source
+  local i= su old_su oldest_su source old_source rc
 
   message "Checking source urls (this may take a while) ..."
   for su in $source_urls
@@ -297,6 +300,7 @@ function check_source_urls() {
     if [[ $? == 0 ]]
     then
       message "SOURCE${i}_URL[0] is ok!"
+      rc=0
     else
       # first retry with a changed suffix
       old_su="$su"
@@ -359,18 +363,19 @@ function check_source_urls() {
           sed -i "s,$old_source,$source," DETAILS
           add_history_entry "DETAILS: Changed SOURCE${i} extension"
         fi
-
+        rc=0
       else
         # if they are still not ok ask for fixed ones
         error_msg  "SOURCE${i}_URL[0] is hopelessly broken! Fix it manually."
         sleep 2
         quill_edit DETAILS
+        rc=1
       fi
     fi
     [[ ! $i ]] && i=1
     let i+=1
   done
-
+  return $rc
 }
 
 #---
