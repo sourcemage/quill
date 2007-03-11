@@ -1,6 +1,7 @@
 2007-03-11 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: loop until the source urls are fixed
 	* libcore: made check_source_urls have a consistent return value
+	* libcore, quill: added 301 - permanently moved handling to url checkers
 
 2007-03-10 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libbuild: fix syntax error

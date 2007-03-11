@@ -352,7 +352,7 @@ then
 
         # check if WEB_SITE is reachable
         WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
-        if wget -S --spider "$WEB_SITE" 2>&1 | grep -Eq "ERROR 404|service not known"
+        if wget -S --spider "$WEB_SITE" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
         then
           error_msg "The website is not reachable: $WEB_SITE"
           message "Fix it."
