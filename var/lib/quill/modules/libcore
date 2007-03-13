@@ -396,20 +396,33 @@ function check_source_url() {
     rc=$?
   elif grep -q http:// <<< "$su"
   then
-    # the return value acrobatics make both blocks return the same
-    wget -S --spider "$su" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
-    if [[ $? == 0 ]]
-    then
-      rc=1
-    else
-      rc=0
-    fi
+    check_url "$su"
+    rc=$?
   else
     message "SOURCE${i}_URL[0] is not a http or ftp link, assuming it works."
     rc=0
   fi
 
   return $rc
+}
+
+#---
+## @Synopsis checks if the url is reachable
+##
+## @param url
+##
+## @return 0 if it is ok
+## @return 1 otherwise
+#---
+function check_url() {
+  wget -S --spider "$1" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
+  # reverse the return value, so the function returns 0 on succes
+  if [[ $? == 1 ]]
+  then
+    return 0
+  else
+    return 1
+  fi
 }
 
 #---
@@ -502,7 +515,6 @@ function clear_html_specials(){
   local file="$1"
   sed -i -f ${QUILL_MODULES}/html_specials.list $file
 }
-
 
 #---
 ## @Synopsis prints a colored error message

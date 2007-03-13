@@ -68,7 +68,7 @@ function add_user_history_entries()
   while true; do
     query_string entry "What do you want to add? "
     [[ -z $entry ]] && break
-    add_history_entry "$entry"
+    add_history_entry "${entry//&/\&}"
     modified=1
   done
   echo

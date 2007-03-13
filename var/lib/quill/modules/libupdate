@@ -266,6 +266,8 @@ function ask_and_copy_over()
 #---
 ## @Synopsis Checks if the spell is multiversioned and sets the delimiter
 ## @Synopsis variable (if_var) if it is
+##
+## @Globals "versions" "version"
 #---
 function multiversion_check()
 {
@@ -278,6 +280,195 @@ function multiversion_check()
     cat DETAILS
     query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
   fi
+}
+
+#---
+## @Synopsis Increment/add PATCHLEVEL or SECURITY_PATCH for any valid version
+##
+## @Globals SPELL_VERSION SPELL_UPDATED "version"
+#---
+function user_increment_patchlevel() {
+  if query "Do you want to do it for $version?" y; then
+    SPELL_VERSION="$version"
+    update_patchlevel PATCHLEVEL
+    update_patchlevel SECURITY_PATCH
+    message "Done."
+    SPELL_UPDATED=y
+  fi
+}
+
+#---
+## @Synopsis The core function that ties all the version update stuff
+##
+## @Globals SPELL_VERSION SPELL_UPDATED GURU_GPGKEY QUILL_SPELL_DIR "version"
+#---
+function version_bump() {
+  local update_counter="${#versions[@]}" if_var
+  local to_summon sources_and_urls sources source_urls source
+  local hash current_check i new_value
+  if query "Do you want to update $version?" y; then
+    query_spell_version
+    [[ -z $SPELL_VERSION ]] && error_msg "Empty VERSION!" && continue 2
+
+    #save the chosen version
+    sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
+    SPELL_UPDATED=y
+
+    #check for multiversion spells
+    multiversion_check
+
+    # parse the (usually new) source urls
+    get_sources_and_urls
+
+    while ! check_source_urls; do
+      get_sources_and_urls
+    done
+    # do it again, needed if the source suffix was changed
+    get_sources_and_urls
+    echo
+
+    message "Summoning ..."
+    #download; we are not a grimoire so some hacking is needed
+    # also workaround sorcery bug #13412
+    to_summon="$sources_and_urls"
+    for source in $sources; do
+      [[ -e $SOURCE_CACHE/$source ]] &&
+      to_summon="$(sed "/^$source /d" <<< "$to_summon")"
+    done
+    if [[ -z $to_summon ]]; then
+      message "Nothing new to summon, all sources found."
+    else
+      if ! summon -r <<< "$to_summon"; then
+        error_msg "Summoning failed, aborting update!"
+        query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
+        continue 2
+      fi
+    fi
+    echo
+
+    #update HISTORY - already here, so that the patchlevels come later
+    add_history_entries "DETAILS: updated ${if_var:-spell} to $SPELL_VERSION"
+    echo
+
+    # ask for SECURITY_PATCHing
+    update_patchlevel SECURITY_PATCH
+
+    # restore patchlevel
+    update_patchlevel PATCHLEVEL skip remove
+
+    # remove UPDATED if any
+    sed -i "/^\s*UPDATED=/d" DETAILS
+
+    #get hashes and save them, removing any previous hash/gpg
+    i=
+    for source in $sources; do
+      hash=$(quill_hash_get $SOURCE_CACHE/$source)
+      # use the original DETAILS, as we already changed the VERSION
+      current_check=$(eval ${if_var:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
+
+      if [[ -z $current_check ]]; then
+        error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
+        message "Add the appropriate one to the spell!"
+        [[ ! $i ]] && i=1
+        let i+=1
+        continue
+      fi
+
+      #skip SOURCE_IGNORE
+      if grep -Eq "volatile|signature|unversioned" <<< "$current_check"; then
+        [[ ! $i ]] && i=1
+        let i+=1
+        continue
+      fi
+
+      # MD5? These contain no :
+      if ! grep -q ":" <<< "$current_check"; then
+        new_value=$(count_spaces SOURCE${i}_HASH)
+        sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
+        remove_old_sigs "$version"
+
+        [[ ! $i ]] && i=1
+        let i+=1
+        continue
+      fi
+
+      #SOURCE_GPG?
+      if grep -Eq "(^(sha(512|256|1)|md5):.*|UPSTREAM_KEY)" <<< "$current_check"; then
+        # UPSTREAM_HASH is rare and probably not fetched - ignoring
+        if grep -q "UPSTREAM_KEY" <<< "$current_check"; then
+          [[ ! $i ]] && i=1
+          let i+=1
+          continue
+        fi
+        # otherwise just do nothing, SOURCE_HASH handling comes next
+      else
+        #it is a non-upstream gpg
+        echo "SOURCE${i}_GPG=$current_check"
+        if ! grep -q "gurus.gpg" <<< "$current_check"; then
+          error_msg "This looks like an upstream keyring and should be marked as such."
+          error_msg "Probably with :UPSTREAM_KEY at the end of the $current_check."
+          error_msg "Do not replace it!"
+        fi
+        if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n; then
+          # sign it and continue
+          gpg --default-key $GURU_GPGKEY -v --digest-algo SHA512 -o $QUILL_SPELL_DIR/$SPELL_NAME/$source.sig --detach-sign $SOURCE_CACHE/$source
+          echo
+          remove_old_sigs "$version"
+
+          [[ ! $i ]] && i=1
+          let i+=1
+          continue
+        fi
+      fi
+
+      # it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
+      # SOURCE_GPG usually has unexpanded variables, while we have the expanded
+      unexpand_source_gpg || {
+      [[ ! $i ]] && i=1
+      let i+=1
+      continue; }
+
+
+      #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
+      new_value=$(count_spaces SOURCE${i}_HASH)
+      sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
+
+      # remove sigs, trying not to touch any that are still needed
+      remove_old_sigs "$version"
+
+      [[ ! $i ]] && i=1
+      let i+=1
+    done
+
+    echo
+  else
+    let update_counter-=1
+  fi
+  [[ $update_counter == 0 ]] && continue 2 # there were no updates
+
+}
+
+
+#---
+## @Synopsis Loops over relevant spell versions and runs the passed command
+## @Synopsis over each version
+##
+## @Globals none
+#---
+function main_update_loop() {
+  local version versions=()
+
+  #fetch current versions, ignoring SCM ones
+  versions=( $(sed -n 's/\s*\<VERSION=//p' DETAILS |
+              grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort | uniq) )
+  [[ -z ${versions[@]} ]] && error_msg "No versions to update!" && continue
+
+  message "Current relevant version(s): ${versions[@]}"
+
+  for version in "${versions[@]}"; do
+    $1
+  done
+
 }
 
 #---

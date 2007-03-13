@@ -6,7 +6,7 @@ new menu choices
 
   * 'Add another version'
 	branches
-	SCM: wierd versions; also needs the autoupdate stuff
+	SCM: wierd versions; also needs the autoupdate stuff; only for -w
 
   * 'Convert to upstream signing'
 	try automatically on updates (check for .sig)?
@@ -14,7 +14,6 @@ new menu choices
   * 'list/remove files?'
 
 update mode:
-  * create a main_update_loop and use it in the patching case too
   * clean the namespace by moving more stuff into functions, using locals and
 	documenting global vars used in all functions
 
@@ -22,12 +21,11 @@ improvements in the standard mode:
   * use some of the functions from update mode,
 	especially the verification stuff
   * handle bad entries and ^C better
-  * use summon and more of the sorcery code?
-  * don't use summon. as it should be able to be run without root privs.
 
 fmxml:
-  * improve the speed, dump xml-grep?
-    Erm planning to implement own XML parser?
+  * improve the speed
+  * dump xml-grep (awk, sed)?
+  * redo html parsing
 
 documentation:
   * write a manpage

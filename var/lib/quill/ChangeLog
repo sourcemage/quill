@@ -1,3 +1,8 @@
+2007-03-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libhistory: escape & so sed doesn't print the previous header again
+	* quill: moved a big chunk of update mode to libupdate
+	* libupdate: added main_update_loop and check_url
+
 2007-03-11 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: loop until the source urls are fixed
 	* libcore: made check_source_urls have a consistent return value
