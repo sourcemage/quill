@@ -39,8 +39,8 @@ function quill_cpan_core()
   SPELL_NAME="$1"
 
   quill_get_manifests
-  if ! zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
-     ! zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
+  if zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
+     zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
   then
     quill_get_cpan_meta $1
     SPELL_NAME="$(echo ${1} | sed -e 's/::/-/g')"
