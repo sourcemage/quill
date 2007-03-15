@@ -1,3 +1,8 @@
+2007-03-15 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: don't mess with the capitalisation so early
+	* libperlcpan: don't grab the metadata until sure we have
+	  something to work with
+
 2007-03-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: escape & so sed doesn't print the previous header again
 	* quill: moved a big chunk of update mode to libupdate

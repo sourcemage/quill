@@ -464,12 +464,14 @@ Arjan 'abouter' Bouter
 #---
 ## @Synopsis checks if the parameter is missing
 ## @Synopsis if not, saves it in QUILL_TARGET
+## Don't touch capitalisation... each module should
+## handle that on it's own
 #---
 function check_parameter() {
   [[ -z $1 ]] &&
   error_msg "Missing parameter" &&
   quill_help 101 ||
-  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$1")
+  QUILL_TARGET="$1"
 }
 
 #---

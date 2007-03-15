@@ -1,7 +1,7 @@
 #---
 ## @Synopsis Perl-cpan module to generate spells from perl-cpan metadata
 #---
-function quill_get_cpan_meta()
+function quill_get_manifests()
 {
   # unless someone knows a better way to check files creation time
   # this shoud work quite well
@@ -23,8 +23,13 @@ function quill_get_cpan_meta()
          ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz ||
          (error_msg "Error: unable to fetch 03modlist.data.gz" && return 1)
   fi
-  eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz) )"
+}
+
+function quill_get_cpan_meta(){
+  eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz | head -n1) )"
+#  zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz | head -n1
   eval QUILL_CPAN_METADATA="( $(zgrep -w -B1 -A9 -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g' ) )"
+#  zgrep -w -B1 -A9 -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g'
 }
 
 function quill_cpan_core()
@@ -33,10 +38,11 @@ function quill_cpan_core()
   # gets properly overwritten later on
   SPELL_NAME="$1"
 
-  quill_get_cpan_meta $1
+  quill_get_manifests
   if ! zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
      ! zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
   then
+    quill_get_cpan_meta $1
     SPELL_NAME="$(echo ${1} | sed -e 's/::/-/g')"
     SPELL_SRC_URL="http://www.cpan.org/authors/id/${QUILL_CPAN_INFO[2]}"
     SPELL_VERSION="${QUILL_CPAN_INFO[1]}"
