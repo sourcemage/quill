@@ -271,13 +271,17 @@ function ask_and_copy_over()
 #---
 function multiversion_check()
 {
-  if [[ ${#versions[@]} != 1 ]]
+  local suggestions
+  # we uniqed the versions, as we can't handle dupes, so we need a double check
+  if [[ ${#versions[@]} != 1 || $(grep -c "\<VERSION=" DETAILS) != 1 ]]
   then #we have a problem
     message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
     message "and then you will tell me which variable I need to set, so I can get "
     message "to the correct version ($version)."
     sleep 3
     cat DETAILS
+    suggestions=$(sed -n 's,[{}],,g; s,^.*if.*$\([A-Za-z_]*\).*$,\1,p' DETAILS)
+    [[ ! -z $suggestions ]] && query_msg "Perhaps it is one of these:" $suggestions
     query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
   fi
 }
