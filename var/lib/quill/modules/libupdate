@@ -272,8 +272,7 @@ function ask_and_copy_over()
 function multiversion_check()
 {
   local suggestions
-  # we uniqed the versions, as we can't handle dupes, so we need a double check
-  if [[ ${#versions[@]} != 1 || $(grep -c "\<VERSION=" DETAILS) != 1 ]]
+  if [[ ${#versions[@]} != 1 ]]
   then #we have a problem
     message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
     message "and then you will tell me which variable I need to set, so I can get "
