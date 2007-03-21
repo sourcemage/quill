@@ -1,3 +1,9 @@
+2007-03-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: made the grimoire/section checks a while loop
+	  refactored it all out into a copy_new_to_git function
+	* libcopy: added to house all the copying-related functions
+	* libcore: moved ask_and_copy_over to libcopy
+
 2007-03-17 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: added variable detection to multiversion_check
 

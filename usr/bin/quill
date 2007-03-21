@@ -434,28 +434,7 @@ else
   fi
   if query "Do you want to put the spell into QUILL_GIT_DIR?" n
   then
-    if [[ -z $QUILL_GIT_DIR ]]
-    then
-      error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
-      echo
-    else
-      find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P "
-      echo
-      query_string GRIMOIRE "Which of the above is the target git grimoire? "
-      dir_check "$QUILL_GIT_DIR/$GRIMOIRE" fatal
-      echo
-      # maybe we have QUILL_SECT_NAME from the previous query, so default to it
-      find "$QUILL_GIT_DIR/$GRIMOIRE" -maxdepth 1 -type d -printf "%P\n" | column
-      query_string SECTION "Which section do you want to put it in? " $QUILL_SECT_NAME
-      dir_check "$QUILL_GIT_DIR/$GRIMOIRE/$SECTION" fatal
-      if [[ -w $QUILL_GIT_DIR/$GRIMOIRE/$SECTION ]]
-      then
-        mkdir "$QUILL_GIT_DIR/$GRIMOIRE/$SECTION/$SPELL_NAME"
-      else
-        ${QUILL_SUDO:-su} -c "mkdir '$QUILL_GIT_DIR/$GRIMOIRE/$SECTION/$SPELL_NAME'"
-      fi
-      copy_to_git
-    fi
+    copy_new_to_git
   fi
 fi
 message "That's all folks!"

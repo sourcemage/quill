@@ -1,0 +1,244 @@
+#---
+## @Synopsis Copies the new spell somewhere under $QUILL_GIT_DIR
+##
+## @Globals QUILL_GIT_DIR SPELL_NAME QUILL_SUDO
+#---
+function copy_new_to_git()
+{
+  local grimoire=n0n-eXsistENt section=n0n-eXsistENt
+  if [[ -z $QUILL_GIT_DIR ]]
+  then
+    error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
+    echo
+  else
+    find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P "
+    echo
+    while ! dir_check "$QUILL_GIT_DIR/$grimoire"; do
+      query_string grimoire "Which of the above is the target git grimoire? "
+    done
+    echo
+    find "$QUILL_GIT_DIR/$grimoire" -maxdepth 1 -type d -printf "%P\n" | column
+    while ! dir_check "$QUILL_GIT_DIR/$grimoire/$section"; do
+      query_string section "Which section do you want to put it in? "
+    done
+    if [[ -w $QUILL_GIT_DIR/$grimoire/$section ]]
+    then
+      mkdir "$QUILL_GIT_DIR/$grimoire/$section/$SPELL_NAME"
+    else
+      $QUILL_SUDO -c "mkdir '$QUILL_GIT_DIR/$grimoire/$section/$SPELL_NAME'"
+    fi
+    copy_to_git
+  fi
+}
+
+#---
+## @Synopsis Finds the spell under $QUILL_GIT_DIR
+##
+## @Globals QUILL_GIT_DIR SPELL_NAME
+#---
+function copy_git_sub()
+{
+  if [[ -z $QUILL_GIT_DIR ]]
+  then
+    error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
+    echo
+    return 1
+  fi
+
+  # find where under $QUILL_GIT_DIR the spell actually is
+  # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
+  # + is the only regex char that is problematic here AND is used in names
+  SECTION2=$(find "$QUILL_GIT_DIR" -regex "${QUILL_GIT_DIR%/}/[^.][^/]*/[^/]*/${SPELL_NAME//+/\+}$" -type d -printf "%h\n" -quit)
+  if [[ -z $SECTION2 ]]
+  then
+    error_msg "Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!"
+    echo
+    return 1
+  fi
+  GRIMOIRE2="${SECTION2%/*}" # full path
+  # we need just the name
+  SECTION2="${SECTION2##*/}"
+}
+
+#---
+## @Synopsis Copies the spell to $QUILL_GIT_DIR
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME
+#---
+function copy_to_git()
+{
+  copy_git_sub || return 1
+
+  if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
+  then
+    error_msg "There is nothing to copy back!"
+    return 1
+  fi
+
+  quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
+  unset GRIMOIRE2 SECTION2
+}
+
+#---
+## @Synopsis Copies the spell from $QUILL_GIT_DIR to $QUILL_SPELL_DIR
+##
+## @Globals QUILL_GIT_DIR SPELL_NAME QUILL_SPELL_DIR SPELL_UPDATED
+#---
+function copy_from_git()
+{
+  copy_git_sub || return 1
+
+  # we wipe it first, so we can handle any files that were deleted
+  cd $QUILL_SPELL_DIR
+  rm -rf "$QUILL_SPELL_DIR/$SPELL_NAME"
+
+  if [[ -w $QUILL_SPELL_DIR ]]
+  then
+    cp -pr "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
+  else
+    $QUILL_SUDO -c "cp -pr '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
+  fi
+
+  # update SPELL_UPDATED
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+  diff -q $QUILL_SPELL_DIR/$SPELL_NAME "$GRIMOIRE/$SECTION/$SPELL_NAME" -x DETAILS.orig > /dev/null || SPELL_UPDATED=y
+
+  unset GRIMOIRE2 SECTION2 GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+  cd "$QUILL_SPELL_DIR/$SPELL_NAME"
+}
+
+#---
+## @Synopsis Ask to copy the spell to our working dir - QUILL_SPELL_DIR
+## @Synopsis If QUILL_SPELL_DIR is empty, just do it
+## @Synopsis It also moves there and does the DETAILS.orig copy
+##
+## @return 0 if everything is ok
+## @return 1 otherwise
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME SPELL_UPDATED
+#---
+function ask_and_copy_over()
+{
+  local reply noop_answer="No" # noop_answer needs to be only one word!
+
+  [[ ! -d $QUILL_SPELL_DIR/$SPELL_NAME ]] && unset noop_answer
+
+  #copy spell over and move there
+  query_list "Do you want to copy the spell from someplace?" reply "The grimoire" "The grimoire" "QUILL_GIT_DIR" $noop_answer
+
+  [[ $reply == $noop_answer ]] && return 0
+  if [[ $reply == "The grimoire" ]]
+  then
+    codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
+    cd $QUILL_SPELL_DIR &&
+    rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
+    cp -pr $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
+    message "Done." &&
+    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+    SPELL_UPDATED=n
+  elif [[ $reply == "QUILL_GIT_DIR" ]]
+  then
+    copy_from_git &&
+    message "Done."
+  else
+    error_msg "Bad choice"
+    ask_and_copy_over
+    return
+  fi &&
+  cd $QUILL_SPELL_DIR/$SPELL_NAME &&
+  cp DETAILS DETAILS.orig || return 1
+}
+
+#---
+## @Synopsis function to put the spell into the grimoire. The first two args
+##           toggle interactivity and the third the reindexing of the grimoire
+##
+## @param internal flag toggling interactivity - grimoire (canonical)
+## @param internal flag toggling interactivity - section name
+## @param flag toggling scribe reindex, set it to "no" to toggle
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME QUILL_SUDO
+#---
+function quill_final_put_in_grimoire() {
+  local reindex=$3 quill_grim_name quill_sect_name
+
+  if [[ -z $2 ]]; then
+    query_list "Into which grimoire do you wish to put the spell:" quill_grim_name \
+      "" $(codex_get_all_grimoires | get_basenames)
+    echo
+    quill_grim_name=$(codex_canonicalize_grimoire_name $quill_grim_name)
+
+    # can't use query_list, as the section count can be bigger than the available index
+    message "Available sections in grimoire $quill_grim_name:"
+    codex_get_section_names $quill_grim_name | column
+    query_string quill_sect_name "Into which section do you wish to put the spell: "
+
+    if [[ -e $quill_grim_name/$quill_sect_name/$SPELL_NAME ]]; then
+      message "${MESSAGE_COLOR}There is an exsisting spell for $SPELL_NAME in $quill_grim_name/$quill_sect_name"
+      if query "Do you want to overwrite it?" y; then
+        reindex=no
+      else
+        quill_final_put_in_grimoire
+        return
+      fi
+    fi
+  else
+    quill_grim_name="$1"
+    quill_sect_name="$2"
+  fi
+  message "Copying spell into $quill_grim_name/$quill_sect_name/$SPELL_NAME ..."
+
+  quill_final_put_in_grimoire_sub(){
+    mkdir -p $quill_grim_name/$quill_sect_name/$SPELL_NAME || return 1
+
+    # we wipe it first, so we can handle any files that we deleted before
+    rm -r "$quill_grim_name/$quill_sect_name/$SPELL_NAME" || return 1
+    rm -f "$QUILL_SPELL_DIR/$SPELL_NAME/DETAILS.orig"
+
+    cp -pr $QUILL_SPELL_DIR/$SPELL_NAME $quill_grim_name/$quill_sect_name/
+    if [[ $? != 0 ]]; then
+      error_msg "Copying failed!"
+      return 1
+    else
+      echo "Copying succeded."
+      if [[ $1 != no ]]; then
+        echo
+        echo "Running scribe reindex on $quill_grim_name ..."
+        scribe reindex $(basename $quill_grim_name)
+      fi
+    fi
+  }
+
+  if [[ -w $quill_grim_name && -w $quill_grim_name/$quill_sect_name ]]; then
+    quill_final_put_in_grimoire_sub $reindex
+    if [[ $? == 1 ]]; then
+      error_msg "Permission problems, trying as root ..."
+      export quill_grim_name quill_sect_name QUILL_SPELL_DIR SPELL_NAME
+      $QUILL_SUDO -c "$(declare -f quill_final_put_in_grimoire_sub); \
+        quill_final_put_in_grimoire_sub $reindex"
+    fi
+  else
+    export quill_grim_name quill_sect_name QUILL_SPELL_DIR SPELL_NAME
+    $QUILL_SUDO -c "$(declare -f quill_final_put_in_grimoire_sub); \
+      quill_final_put_in_grimoire_sub $reindex"
+  fi
+
+}
+
+#---
+##
+## This software is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+#---

@@ -1,6 +1,7 @@
 #---
 ## @Synopsis Sets up some global variables that contain sources and urls
 ## @Synopsis delimited by newlines
+## @Globals if_var
 #---
 function get_sources_and_urls()
 {
@@ -12,6 +13,7 @@ function get_sources_and_urls()
 #---
 ## @Synopsis Sets a variable from details, first setting the flag if_var
 ## @param variable to set
+## @Globals if_var
 #---
 function conditional_set_var()
 {
@@ -26,6 +28,7 @@ function conditional_set_var()
 ## @param (optional) skip the query? skip to skip
 ## @param (optional) remove, increment, add? remove to remove
 ## @param (optional) default answer for the query, default is n
+## @Globals none
 #---
 function update_patchlevel()
 {
@@ -46,6 +49,7 @@ function update_patchlevel()
   fi
 }
 
+## @Globals SPELL_VERSION
 function update_patchlevel_sub()
 {
   local current_value=$2 action=$3 new_value count
@@ -80,6 +84,7 @@ function update_patchlevel_sub()
 ## @Synopsis it finds the most used = position
 ##
 ## @return string with adequate number of spaces
+## @Globals none
 #---
 function count_spaces()
 {
@@ -93,83 +98,14 @@ function count_spaces()
 }
 
 #---
-## @Synopsis Finds the spell under $QUILL_GIT_DIR
-#---
-function copy_git_sub()
-{
-  if [[ -z $QUILL_GIT_DIR ]]
-  then
-    error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
-    echo
-    return 1
-  fi
-
-  # find where under $QUILL_GIT_DIR the spell actually is
-  # perhaps the section path is /home/navaden/sorcery/git/gnome1-libs
-  # + is the only regex char that is problematic here AND is used in names
-  SECTION2=$(find "$QUILL_GIT_DIR" -regex "${QUILL_GIT_DIR%/}/[^.][^/]*/[^/]*/${SPELL_NAME//+/\+}$" -type d -printf "%h\n" -quit)
-  if [[ -z $SECTION2 ]]
-  then
-    error_msg "Couldn't find the spell, \$QUILL_GIT_DIR is probably bad!"
-    echo
-    return 1
-  fi
-  GRIMOIRE2="${SECTION2%/*}" # full path
-  # we need just the name
-  SECTION2="${SECTION2##*/}"
-}
-
-#---
-## @Synopsis Copies the spell to $QUILL_GIT_DIR
-#---
-function copy_to_git()
-{
-  copy_git_sub || return 1
-
-  if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
-  then
-    error_msg "There is nothing to copy back!"
-    return 1
-  fi
-
-  quill_final_put_in_grimoire "$GRIMOIRE2" "$SECTION2" no
-  unset GRIMOIRE2 SECTION2
-}
-
-#---
-## @Synopsis Copies the spell from $QUILL_GIT_DIR to $QUILL_SPELL_DIR
-#---
-function copy_from_git()
-{
-  copy_git_sub || return 1
-
-  # we wipe it first, so we can handle any files that were deleted
-  cd $QUILL_SPELL_DIR
-  rm -rf "$QUILL_SPELL_DIR/$SPELL_NAME"
-
-  if [[ -w $QUILL_SPELL_DIR ]]
-  then
-    cp -pr "$GRIMOIRE2/$SECTION2/$SPELL_NAME" "$QUILL_SPELL_DIR"
-  else
-    ${QUILL_SUDO:-su} -c "cp -pr '$GRIMOIRE2/$SECTION2/$SPELL_NAME' '$QUILL_SPELL_DIR'"
-  fi
-
-  # update SPELL_UPDATED
-  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-  diff -q $QUILL_SPELL_DIR/$SPELL_NAME "$GRIMOIRE/$SECTION/$SPELL_NAME" -x DETAILS.orig > /dev/null || SPELL_UPDATED=y
-
-  unset GRIMOIRE2 SECTION2
-  cd $QUILL_SPELL_DIR/$SPELL_NAME
-}
-
-#---
 ## @Synopsis Removes unneeded sigs
 ##
 ## @param old version
+## @Globals none
 #---
 function remove_old_sigs()
 {
-  local version="$1"
+  local version="$1" files
   if ! grep -q "VERSION=$version *$" DETAILS;
   then
     # compgen has a plain wierd output
@@ -222,46 +158,6 @@ function unexpand_source_gpg()
     return 1
   fi
 }
-
-#---
-## @Synopsis Ask to copy the spell to our working dir - QUILL_SPELL_DIR
-## @Synopsis If QUILL_SPELL_DIR is empty, just do it
-## @Synopsis It also moves there and does the DETAILS.orig copy
-##
-## @return 0 if everything is ok
-## @return 1 otherwise
-#---
-function ask_and_copy_over()
-{
-  local reply noop_answer="No" # noop_answer needs to be only one word!
-
-  [[ ! -d $QUILL_SPELL_DIR/$SPELL_NAME ]] && unset noop_answer
-
-  #copy spell over and move there
-  query_list "Do you want to copy the spell from someplace?" reply "The grimoire" "The grimoire" "QUILL_GIT_DIR" $noop_answer
-
-  [[ $reply == $noop_answer ]] && return 0
-  if [[ $reply == "The grimoire" ]]
-  then
-    codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
-    cd $QUILL_SPELL_DIR &&
-    rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
-    cp -pr $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
-    message "Done." &&
-    SPELL_UPDATED=n
-  elif [[ $reply == "QUILL_GIT_DIR" ]]
-  then
-    copy_from_git &&
-    message "Done."
-  else
-    error_msg "Bad choice"
-    ask_and_copy_over
-    return
-  fi &&
-  cd $QUILL_SPELL_DIR/$SPELL_NAME &&
-  cp DETAILS DETAILS.orig || return 1
-}
-
 
 #---
 ## @Synopsis Checks if the spell is multiversioned and sets the delimiter
