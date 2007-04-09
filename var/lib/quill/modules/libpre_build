@@ -2,8 +2,8 @@
 ## @Synopsis libpre_build
 #---
 
-PREBUILDISON=""
-
+##
+## @Globals PREBUILDISON
 function query_spell_pre_build()
 {
   if query "Will you be adding a custom PRE_BUILD file:" "n"
@@ -12,6 +12,8 @@ function query_spell_pre_build()
   fi
 }
 
+##
+## @Globals EDITOR
 function add_pre_build()
 {
   touch PRE_BUILD

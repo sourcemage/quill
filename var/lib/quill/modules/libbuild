@@ -2,8 +2,8 @@
 ## @Synopsis BUILD module for quill
 #---
 
-BUILDISON=""
-
+##
+## @Globals QUILL_FETCH_MODE BUILDISON
 function query_spell_build() {
   if [[ "$QUILL_FETCH_MODE" != "cpan" ]]; then
      if query "Will you be adding a custom BUILD file:" "n"
@@ -13,6 +13,8 @@ function query_spell_build() {
   fi
 }
 
+##
+## @Globals QUILL_FETCH_MODE QUILL_TMP_DIR QUILL_SPELL_DIR SPELL_NAME EDITOR
 function add_build() {
   if [[ "$QUILL_FETCH_MODE" == "cpan" ]]; then
     cp ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
@@ -30,6 +32,8 @@ function add_build() {
 #---
 ## @Synopsis ask and try to detect the build system by checking for marker
 ## @Synopsis files in the tarball
+##
+## @Globals QUILL_TMP_DIR SPELL_NAME SPELL_SRC_FILE SPELL_SRC_DIR
 #---
 function detect_build_system() {
   local bs SPELL SOURCE_CACHE
@@ -88,6 +92,8 @@ function detect_build_system() {
 #---
 ## @Synopsis creates a BUILD file according to the build system used
 ## @Synopsis unless it is make,configure (default_build)
+##
+## @Globals none
 #---
 function implement_build_system() {
   local bs=$1
@@ -113,7 +119,7 @@ FEO
     PerL) echo "perl Makefile.PL" >> BUILD ;;
   python) echo "python setup.py" >> BUILD ;;
      waf) echo "waf_build" >> BUILD ;;
-   scons) echo "scons PREFIX=$INSTALL_ROOT/usr" >> BUILD ;;
+   scons) echo 'scons PREFIX=$INSTALL_ROOT/usr' >> BUILD ;;
      jam) echo "jam" >> BUILD ;;
     make) echo "make" >> BUILD ;;
   esac

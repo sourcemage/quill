@@ -2,6 +2,8 @@
 ## Ruby RAA module
 #
 
+##
+## @Globals none
 function quill_raa_get_info(){
   local info
   local raa_project_file
@@ -10,6 +12,9 @@ function quill_raa_get_info(){
   grep "${info}:" $raa_project_file | sed -e "s/ *${info}: *\(.*\)/\1/"
 }
 
+##
+## @Globals SPELL_NAME SPELL_SHORT_DESCRIPTION SPELL_LICENSE SPELL_URL
+## @Globals SPELL_SRC_URL SPELL_DEPENDENCIES DEPENDSISON QUILL_TMP_DIR
 function quill_raa_core(){
   local project
   local desc

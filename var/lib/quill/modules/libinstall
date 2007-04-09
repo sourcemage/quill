@@ -2,8 +2,8 @@
 ## @Synopsis libinstall
 #---
 
-INSTALLISON=""
-
+##
+## @Globals EDITOR
 function add_install()
 {
   touch INSTALL
@@ -16,6 +16,8 @@ function add_install()
   $EDITOR INSTALL
 }
 
+##
+## @Globals INSTALLISON
 function query_spell_install()
 {
 if query "Will you be adding a custom INSTALL file:" "n"
@@ -24,6 +26,8 @@ then
 fi
 }
 
+##
+## @Globals
 function implement_install_system()
 {
   return

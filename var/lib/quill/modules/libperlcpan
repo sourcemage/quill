@@ -1,6 +1,9 @@
 #---
 ## @Synopsis Perl-cpan module to generate spells from perl-cpan metadata
 #---
+
+##
+## @Globals QUILL_TMP_DIR
 function quill_get_manifests()
 {
   # unless someone knows a better way to check files creation time
@@ -25,6 +28,8 @@ function quill_get_manifests()
   fi
 }
 
+##
+## @Globals QUILL_CPAN_INFO QUILL_CPAN_METADATA
 function quill_get_cpan_meta(){
   eval QUILL_CPAN_INFO="( $(zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz | head -n1) )"
 #  zgrep -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz | head -n1
@@ -32,6 +37,10 @@ function quill_get_cpan_meta(){
 #  zgrep -w -B1 -A9 -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz | tr -d "[]" | sed 's:,$::g'
 }
 
+##
+## @Globals QUILL_TMP_DIR SPELL_NAME SPELL_SRC_URL SPELL_VERSION SPELL_LICENSE
+## @Globals SPELL_SHORT_DESCRIPTION SPELL_URL SPELL_DEPENDENCIES BUILDISON
+## @Globals DEPENDSISON QUILL_CPAN_INFO QUILL_CPAN_METADATA
 function quill_cpan_core()
 {
   # so it is set even if we end prematurely, useful when adding spells

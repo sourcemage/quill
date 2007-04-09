@@ -4,6 +4,8 @@
 ## $2 - the VARIABLE to which to store the answer
 ## $3 - the default answer
 ## $4...$n - the options for the list
+##
+## @Globals none
 #---
 function query_list()
 {
@@ -15,6 +17,8 @@ function query_list()
 
 #---
 ## @Synopsis generate basic spell dir
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME DEPENDSISON CONFLICTSON
 #---
 function create_spell_base(){
   mkdir -p ${QUILL_SPELL_DIR}/${SPELL_NAME}
@@ -27,8 +31,10 @@ function create_spell_base(){
 
 #---
 ## @Synopsis download spell's source file
+##
+## @Globals QUILL_TMP_DIR QUILL_SPELL_DIR SPELL_SRC_FILE SPELL_SRC_URL
+## @Globals SPELL_NAME
 #---
-
 function get_spell_source(){
   mkdir -p ${QUILL_TMP_DIR}
   cd ${QUILL_TMP_DIR}
@@ -47,8 +53,8 @@ function get_spell_source(){
 #---
 ## @Synopsis Print the sha512 hash, a simplified gpg_hashsum
 ##
+## @Globals none
 #---
-
 function quill_hash_get() {
   gpg --print-md sha512 "$@" | tr -d '\n ' | tr 'A-F' 'a-f' | cut -d: -f2
 }
@@ -56,8 +62,11 @@ function quill_hash_get() {
 #---
 ## @Synopsis Get's gurus info and stuff and puts it into
 ## @Synopsis $QUILL_QUILLRC or reads it from there
+##
+## @Globals QUILL_OLD_QUILLRC QUILL_QUILLRC QUILL_MODE QUILL_HOME_DIR
+## @Globals GURU_NAME GURU_EMAIL GURU_GPGKEY QUILL_SPELL_DIR QUILL_GIT_DIR
+## @Globals QUILL_OUR_CONFIG_VERSION QUILL_SUDO
 #---
-
 function quill_rc() {
   local saved
   if [[ -f ${QUILL_OLD_QUILLRC} ]]
@@ -123,6 +132,8 @@ QUA
 
 #---
 ## @Synopsis The welcome message for quill
+##
+## @Globals QUILL_SPELL_DIR
 function quill_welcome() {
   message "Welcome to SourceMage GNU/Linux quill - a spell creator and updater script."
   message "-----------------------------------------------------------------------------"
@@ -138,6 +149,8 @@ function quill_welcome() {
 
 #---
 ## @Synopsis used to edit spell files
+##
+## @Globals EDITOR QUILL_SPELL_DIR SPELL_NAME
 #---
 function quill_edit() {
   local spell_file type
@@ -157,35 +170,45 @@ function quill_edit() {
 
 #---
 ## @Synopsis generate a tarball of the spell
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME
 #---
 function quill_final_tarball() {
-  message "Now creating a bziped2 tarball of the spell files"
+  message "Now creating a bziped2 tarball of the spell files ..."
   cd ${QUILL_SPELL_DIR}
   tar -jcvf ${SPELL_NAME}.tar.bz2 ${SPELL_NAME}
   if [[ $? != 0 ]]; then
-     error_msg "Failed to create spell tarball"
+     error_msg "Failed to create spell tarball."
   else
-     message "Spell tarball created successfully"
+     message "Spell tarball created successfully."
   fi
 }
 
 #---
 ## @Synopsis function to chmod +x all the relevant spell files
+##
+## @Globals QUILL_SPELL_DIR SPELL_NAME
 #---
 function quill_set_executable_bit() {
-  for SPELL_FILE in ${QUILL_SPELL_DIR}/${SPELL_NAME}/*
+  local spell_file
+
+  for spell_file in $QUILL_SPELL_DIR/$SPELL_NAME/*
   do
-    if [[ "$SPELL_FILE" != "${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY" ]]
+    if [[ "$spell_file" != "$QUILL_SPELL_DIR/$SPELL_NAME/HISTORY" ]]
     then
-      chmod +x $SPELL_FILE
+      chmod +x $spell_file
     fi
   done
 }
 
 #---
 ## @Synopsis cleans out $QUILL_TMP_DIR and/or $QUILL_SPELL_DIR
+##
+## @Globals QUILL_TMP_DIR QUILL_SPELL_DIR
 #---
 function quill_purge() {
+  local rc
+
   quill_rc
   message -n "Purging ... "
   if [[ $1 == "tmp" ]]
@@ -212,8 +235,10 @@ function quill_purge() {
 ## @Synopsis checks if spell source urls are valid
 ## @Synopsis and perhaps changes them if they are trivially fixable
 ##
-## @return 0 if all source urls are either valid or just not trivially checkable
+## @return 0 if all source urls are either valid or not trivially checkable
 ## @return 1 otherwise
+##
+## @Globals SPELL_VERSION SPELL_NAME "source_urls" "sources_and_urls" "version"
 #---
 function check_source_urls() {
   local i= su old_su oldest_su source old_source rc
@@ -311,6 +336,8 @@ function check_source_urls() {
 ##
 ## @return 0 if source url either is valid or just not trivially checkable
 ## @return 1 otherwise (http or ftp source url failure)
+##
+## @Globals none
 #---
 function check_source_url() {
   local rc su="$1" i="$2"
@@ -338,6 +365,8 @@ function check_source_url() {
 ##
 ## @return 0 if it is ok
 ## @return 1 otherwise
+##
+## @Globals none
 #---
 function check_url() {
   wget -S --spider "$1" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
@@ -353,6 +382,8 @@ function check_url() {
 #---
 ## @Synopsis dumps the default spell file function, taking into
 ## account that devel has a new spell file inheritance scheme
+##
+## @Globals none
 #---
 function dump_default_function() {
   if ! declare -f real_default_sorcery_$1; then
@@ -363,6 +394,8 @@ function dump_default_function() {
 
 #---
 ## @Synopsis function that displays the version and exits
+##
+## @Globals QUILL_VERSION
 #---
 function quill_version() {
 
@@ -391,6 +424,8 @@ Arjan 'abouter' Bouter
 ## @Synopsis if not, saves it in QUILL_TARGET
 ## Don't touch capitalisation... each module should
 ## handle that on it's own
+##
+## @Globals QUILL_TARGET
 #---
 function check_parameter() {
   [[ -z $1 ]] &&
@@ -407,6 +442,8 @@ function check_parameter() {
 ##
 ## @return 0 if it is a dir
 ## @return 1 otherwise
+##
+## @Globals none
 #---
 function dir_check() {
   if [[ ! -d $1 ]]
@@ -424,6 +461,8 @@ function dir_check() {
 
 #---
 ## @Synopsis adds && to all full lines not ending by and escape \ or last line
+##
+## @Globals none
 #---
 function andand_lines() {
   local file="$1"
@@ -437,6 +476,8 @@ function andand_lines() {
 
 #---
 ## @Synopsis cleans out various special chars from html
+##
+## @Globals QUILL_MODULES
 #---
 function clear_html_specials(){
   local file="$1"
@@ -445,6 +486,8 @@ function clear_html_specials(){
 
 #---
 ## @Synopsis prints a colored error message
+##
+## @Globals none
 #---
 function error_msg() {
   message "$PROBLEM_COLOR$@$DEFAULT_COLOR"
@@ -452,6 +495,8 @@ function error_msg() {
 
 #---
 ## @Synopsis prints a colored query message
+##
+## @Globals none
 #---
 function query_msg() {
   message "$QUERY_COLOR$@$DEFAULT_COLOR"
@@ -459,6 +504,8 @@ function query_msg() {
 
 #---
 ## @Synopsis function that displays help and exits
+##
+## @Globals QUILL_VERSION
 #---
 function quill_help() {
 

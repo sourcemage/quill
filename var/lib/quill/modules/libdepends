@@ -2,6 +2,8 @@
 ## @Synopsis libdepends
 #---
 
+##
+## @Globals SPELL_DEPENDENCIES
 function query_spell_dependencies() {
   if ! [[ $SPELL_DEPENDENCIES ]] ||
      ! query "Are \"${SPELL_DEPENDENCIES}\" the proper dependencies for this spell" y
@@ -9,19 +11,22 @@ function query_spell_dependencies() {
     query_msg "Please enter the dependencies(non optional) \
 of the spell if any:"
     read "SPELL_DEPENDENCIES"
-    SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES")
-    SPELL_DEPENDENCIES=$(sort <<< "$SPELL_DEPENDENCIES")
-    SPELL_DEPENDENCIES=$(uniq <<< "$SPELL_DEPENDENCIES")
+    SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES" | sort | uniq)
 fi
 }
 
+##
+## @Globals SPELL_OPTIONAL_DEPENDENCIES
 function query_spell_optional_dependencies() {
-  query_msg "Please enter the optional dependencies of the \
-spell if any:"
+  query_msg "Please enter the optional dependencies of the spell if any:"
   read -a "SPELL_OPTIONAL_DEPENDENCIES"
 }
 
+##
+## @Globals DEPENDSISON SPELL_DEPENDENCIES
 function add_dependencies() {
+  local i
+
   touch DEPENDS
   DEPENDSISON="DEPENDS, "
   for i in ${SPELL_DEPENDENCIES}
@@ -30,30 +35,36 @@ function add_dependencies() {
   done
 }
 
+##
+## @Globals DEPENDSISON SPELL_OPTIONAL_DEPENDENCIES
 function add_optional_dependencies() {
+  local dep dep_count
+  local SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
+  local SPELL_OPTIONAL_DEPENDENCIES_DISABLED[0]=""
+  local SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[0]=""
+
+  dep_count=${#SPELL_OPTIONAL_DEPENDENCIES[*]}
   touch DEPENDS
   DEPENDSISON="DEPENDS, "
-  SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
-  SPELL_OPTIONAL_DEPENDENCIES_DISABLED[0]=""
-  SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[0]=""
-  NM=${#SPELL_OPTIONAL_DEPENDENCIES[*]}
-  for  ((MN=0; MN < $NM; MN++))
+  for  ((dep=0; dep < $dep_count; dep++))
   do
-    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure enable option"
-    read SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]
-    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a ./configure disable option"
-    read SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]
-    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$MN]} needs a description"
-    read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$dep]} needs a ./configure enable option"
+    read SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$dep]
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$dep]} needs a ./configure disable option"
+    read SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$dep]
+    query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$dep]} needs a description"
+    read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$dep]
 
-    message "optional_depends ${SPELL_OPTIONAL_DEPENDENCIES[$MN]} \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$MN]}\" \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$MN]}\" \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$MN]}\"" >> DEPENDS
+    message "optional_depends ${SPELL_OPTIONAL_DEPENDENCIES[$dep]} \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$dep]}\" \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$dep]}\" \\" >> DEPENDS
+    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$dep]}\"" >> DEPENDS
   done
 # "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\""
 }
 
+##
+## @Globals
 function add_bs_depends() {
   return
 }

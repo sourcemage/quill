@@ -9,13 +9,12 @@ new menu choices
 	SCM: wierd versions; also needs the autoupdate stuff; only for -w
 
   * 'Convert to upstream signing'
-	try automatically on updates (check for .sig)?
+	try automatically on updates (check for .sig. .asc)?
 
   * 'list/remove files?'
 
 update mode:
-  * clean the namespace by moving more stuff into functions, using locals and
-	documenting global vars used in all functions
+  * clean the namespace by moving more stuff into functions
 
 improvements in the standard mode:
   * use some of the functions from update mode,

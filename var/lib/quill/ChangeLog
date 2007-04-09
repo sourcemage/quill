@@ -1,3 +1,12 @@
+2007-04-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libupdate: renamed if_var to the more clear version_switch
+	* libdetails: fixed hunt_src_dir error case
+	* all: added @Globals, made some variables local, renamed some for clarity
+	* quill: simplified  the andand_lines DEPENDS test
+	* libbuild: fix bad quoting for scons
+	* libdepends: simplified query_spell_dependencies
+	* version: 0.2.4-rc12
+
 2007-03-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: made the grimoire/section checks a while loop
 	  refactored it all out into a copy_new_to_git function
@@ -38,7 +47,7 @@
 	* libcore: fixed saved sudo and gpg default query answer
 	  fixed versioning to not loop anymore
 	  factored andand_lines out of quill
-	* libdetails: beautified hunt_src_dir, add_details dpesn't unexpand globals
+	* libdetails: beautified hunt_src_dir, add_details doesn't unexpand globals
 	* libbuild: started work on detect_build_system and implement_build_system
 	* quill: fake call detect_build_system; TODO: INSTALL, DEPENDS
 	* version: 0.2.4-rc1

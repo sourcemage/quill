@@ -2,6 +2,10 @@
 ## @Synopsis libhistory
 #---
 
+##
+## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL PROVIDESISON DEPENDSISON
+## @Globals CONFIGUREISON PREPAREISON CONFLICTSISON PREBUILDISON BUILDISON
+## @Globals INSTALLISON POSTINSTALLISON TRIGGERSISON FINALISON BUILD_DTFILE
 function add_history()
 {
 message "Generating HISTORY file ..."
@@ -17,6 +21,8 @@ message "Done."
 #---
 ## @Synopsis Adds a new HISTORY entry. Uses idempotent date title handling.
 ## @param entry without the leading tab, bullet and space
+##
+## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL
 #---
 function add_history_entry()
 {
@@ -42,6 +48,8 @@ function add_history_entry()
 #---
 ## @Synopsis Adds new HISTORY entries.
 ## @param entry without the leading tab, bullet and space
+##
+## @Globals none
 #---
 function add_history_entries()
 {
@@ -57,6 +65,8 @@ function add_history_entries()
 
 #---
 ## @Synopsis Adds arbitrary HISTORY entries.
+##
+## @Globals SPELL_UPDATED
 #---
 function add_user_history_entries()
 {

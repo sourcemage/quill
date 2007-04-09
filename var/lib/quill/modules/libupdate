@@ -1,23 +1,25 @@
 #---
 ## @Synopsis Sets up some global variables that contain sources and urls
 ## @Synopsis delimited by newlines
-## @Globals if_var
+##
+## @Globals "version_switch"
 #---
 function get_sources_and_urls()
 {
-  sources_and_urls=$(eval ${if_var:-:}; . DETAILS &> /dev/null; get_spell_files_and_urls)
+  sources_and_urls=$(eval ${version_switch:-:}; . DETAILS &> /dev/null; get_spell_files_and_urls)
   sources=$(cut -d" " -f1 <<< "$sources_and_urls")
   source_urls=$(cut -d" " -f2 <<< "$sources_and_urls")
 }
 
 #---
-## @Synopsis Sets a variable from details, first setting the flag if_var
+## @Synopsis Sets a variable from details, first setting the flag version_switch
 ## @param variable to set
-## @Globals if_var
+##
+## @Globals "version_switch"
 #---
 function conditional_set_var()
 {
-  eval ${if_var:-:}; . DETAILS &> /dev/null; eval echo -n \$$1
+  eval ${version_switch:-:}; . DETAILS &> /dev/null; eval echo -n \$$1
 }
 
 #---
@@ -28,6 +30,7 @@ function conditional_set_var()
 ## @param (optional) skip the query? skip to skip
 ## @param (optional) remove, increment, add? remove to remove
 ## @param (optional) default answer for the query, default is n
+##
 ## @Globals none
 #---
 function update_patchlevel()
@@ -121,6 +124,8 @@ function remove_old_sigs()
 #---
 ## @Synopsis Unexpands SOURCE_GPG if necessary to be later able to match it
 ##
+## @Globals "current_check" "version_switch"
+##
 ## @return 0 if current_check was found
 ## @return 1 otherwise
 #---
@@ -133,7 +138,7 @@ function unexpand_source_gpg()
     return 0
   else # looks like it is expanded
     current_check=$(
-    eval ${if_var:-:}; . DETAILS.orig &> /dev/null;
+    eval ${version_switch:-:}; . DETAILS.orig &> /dev/null;
     for j in `get_source_nums s`
     do
       j="${j%s}"
@@ -161,7 +166,7 @@ function unexpand_source_gpg()
 
 #---
 ## @Synopsis Checks if the spell is multiversioned and sets the delimiter
-## @Synopsis variable (if_var) if it is
+## @Synopsis variable (version_switch) if it is
 ##
 ## @Globals "versions" "version"
 #---
@@ -177,7 +182,7 @@ function multiversion_check()
     cat DETAILS
     suggestions=$(sed -n 's,[{}],,g; s,^.*if.*$\([A-Za-z_]*\).*$,\1,p' DETAILS)
     [[ ! -z $suggestions ]] && query_msg "Perhaps it is one of these:" $suggestions
-    query_string if_var "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
+    query_string version_switch "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
   fi
 }
 
@@ -202,7 +207,7 @@ function user_increment_patchlevel() {
 ## @Globals SPELL_VERSION SPELL_UPDATED GURU_GPGKEY QUILL_SPELL_DIR "version"
 #---
 function version_bump() {
-  local update_counter="${#versions[@]}" if_var
+  local update_counter="${#versions[@]}" version_switch
   local to_summon sources_and_urls sources source_urls source
   local hash current_check i new_value
   if query "Do you want to update $version?" y; then
@@ -246,7 +251,7 @@ function version_bump() {
     echo
 
     #update HISTORY - already here, so that the patchlevels come later
-    add_history_entries "DETAILS: updated ${if_var:-spell} to $SPELL_VERSION"
+    add_history_entries "DETAILS: updated ${version_switch:-spell} to $SPELL_VERSION"
     echo
 
     # ask for SECURITY_PATCHing
@@ -263,7 +268,7 @@ function version_bump() {
     for source in $sources; do
       hash=$(quill_hash_get $SOURCE_CACHE/$source)
       # use the original DETAILS, as we already changed the VERSION
-      current_check=$(eval ${if_var:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
+      current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
 
       if [[ -z $current_check ]]; then
         error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"

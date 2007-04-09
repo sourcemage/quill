@@ -34,7 +34,7 @@ function copy_new_to_git()
 #---
 ## @Synopsis Finds the spell under $QUILL_GIT_DIR
 ##
-## @Globals QUILL_GIT_DIR SPELL_NAME
+## @Globals QUILL_GIT_DIR SPELL_NAME GRIMOIRE2 SECTION2
 #---
 function copy_git_sub()
 {
@@ -82,7 +82,7 @@ function copy_to_git()
 #---
 ## @Synopsis Copies the spell from $QUILL_GIT_DIR to $QUILL_SPELL_DIR
 ##
-## @Globals QUILL_GIT_DIR SPELL_NAME QUILL_SPELL_DIR SPELL_UPDATED
+## @Globals SPELL_NAME QUILL_SPELL_DIR SPELL_UPDATED
 #---
 function copy_from_git()
 {

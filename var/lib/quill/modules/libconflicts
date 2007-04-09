@@ -3,13 +3,15 @@
 ## @Note DONE
 #---
 
-CONFLICTSISON=""
-
+##
+## @Globals SPELL_CONFLICTS
 function query_spell_conflicts() {
   query_msg "Please enter all conflicting spell names if any:"
   read "SPELL_CONFLICTS"
 }
 
+##
+## @Globals CONFLICTSISON SPELL_CONFLICTS
 function add_conflicts() {
   touch CONFLICTS
   CONFLICTSISON="CONFLICTS, "

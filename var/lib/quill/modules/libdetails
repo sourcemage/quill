@@ -1,10 +1,11 @@
 #---
 ## @Synopsis libdetails
+## for all the fields that could be filled in, check if they were filled in
+## and if so, give the user an opportunity to change the value
 #---
 
-# for all the fields that could be filled in, check if they were filled in
-# and if so, give the user an opportunity to change the value
-
+##
+## @Globals SPELL_NAME
 function query_spell_name(){
   #downcase before query
   SPELL_NAME=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$SPELL_NAME")
@@ -17,6 +18,8 @@ function query_spell_name(){
   fi
 }
 
+##
+## @Globals SPELL_SRC_URL
 function query_spell_source_url(){
   # misc sf fix
   # try to handle as many sf url formats as possible
@@ -44,7 +47,9 @@ if ! [[ $SPELL_SRC_URL ]] ||
 fi
 }
 
-# used in update mode only
+## used in update mode only, elsewhere the version is parsed from the filename
+##
+## @Globals SPELL_VERSION
 function query_spell_version(){
   if ! [[ $SPELL_VERSION ]] ||
     ! query "Is $SPELL_VERSION the proper spell version?" y; then
@@ -53,6 +58,8 @@ function query_spell_version(){
   fi
 }
 
+##
+## @Globals SPELL_SIGNATURE DOWNLOAD_SIGNATURE
 function query_spell_signature(){
 if [[ $SPELL_SIGNATURE ]] &&
    ! query "Is $SPELL_SIGNATURE the proper signature key url?" y; then
@@ -73,6 +80,8 @@ if [[ $SPELL_SIGNATURE ]] &&
 fi
 }
 
+##
+## @Globals SPELL_LICENSE
 function query_spell_license(){
 if ! [[ $SPELL_LICENSE ]] ||
    ! query "Is $SPELL_LICENSE the proper license?" y; then
@@ -81,6 +90,8 @@ if ! [[ $SPELL_LICENSE ]] ||
 fi
 }
 
+##
+## @Globals SPELL_URL
 function query_spell_url(){
 if ! [[ $SPELL_URL ]] ||
    ! query "Is $SPELL_URL the proper website?" y; then
@@ -89,6 +100,8 @@ if ! [[ $SPELL_URL ]] ||
 fi
 }
 
+##
+## @Globals SPELL_SHORT_DESCRIPTION
 function query_spell_short_description(){
 if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}\n$SPELL_SHORT_DESCRIPTION"
@@ -98,6 +111,8 @@ if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
 fi
 }
 
+##
+## @Globals EDITOR SPELL_NAME SPELL_DESC_NAME QUILL_TMP_DIR
 function query_spell_description(){
 local description=${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
 if ! test -f $description ||
@@ -114,6 +129,8 @@ fi
 #--
 ## @Synopsis Assign to SPELL_SRC_FILE the filename and to VERSION the
 ## @Synopsis version number parsed from source url.
+##
+## @Globals SPELL_SRC_FILE SPELL_SANITIZED_FILE_NAME SPELL_VERSION
 #---
 function parse_spell_source_file_info(){
   SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
@@ -123,6 +140,8 @@ function parse_spell_source_file_info(){
 
 #---
 ## @Synopsis Print on screen info gathered from source url.
+##
+## @Globals SPELL_SANITIZED_FILE_NAME SPELL_VERSION SPELL_SRC_URL
 #---
 function show_spell_source_file_info(){
   message "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
@@ -139,6 +158,8 @@ function show_spell_source_file_info(){
 ## @param the string to search for (variable contents)
 ## @param the replacement for said string (variable name)
 ## @param ...
+##
+## @Globals none
 #---
 function substitute_with_variables() {
 if [[ -n $1 ]]; then
@@ -159,6 +180,8 @@ fi
 ## @Synopsis SUBSTITUTIONS. Urls and variables are parsed from contents
 ## @Synopsis of /etc/sorcery/mirrors/. Example:
 ## @Synopsis substitute_with_mirror_variables SPELL_SRC_URL
+##
+## @Globals none
 #---
 function substitute_with_mirror_variables(){
 if [[ -n $1 ]]; then
@@ -181,6 +204,8 @@ fi
 ## @return 0 if found supported fromat and suceeded
 ## @return 1 if failed
 ## @return 2 if unsupported format
+##
+## @Globals QUILL_TMP_DIR SPELL_SRC_FILE SPELL_NAME SPELL_VERSION SPELL_SRC_DIR
 #---
 function hunt_src_dir(){
   local compressor
@@ -189,7 +214,7 @@ function hunt_src_dir(){
 
   case "$compressor" in
     bzip2|gzip|compress*|tar) true ;;
-                           *) SPELL_SRC_DIR=${SPELL}-${VERSION}
+                           *) SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
                               message "Unsupported format..."
                               return 2 ;;
   esac
@@ -202,6 +227,10 @@ function hunt_src_dir(){
 
 #---
 ## @Synopsis generate DETAILS file
+##
+## @Globals SPELL_SRC_URL SPELL_NAME SPELL_VERSION SPELL_SRC_DIR SPELL_SRC_FILE
+## @Globals QUILL_TMP_DIR QUILL_SPELL_HASH SPELL_URL SPELL_LICENSE HISTORY_DATE
+## @Globals SPELL_SHORT_DESCRIPTION SPELL_DESC_NAME
 #---
 function add_details(){
   message "Generating the DETAILS file ..."
