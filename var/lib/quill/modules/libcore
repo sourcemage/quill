@@ -485,6 +485,26 @@ function clear_html_specials(){
 }
 
 #---
+## @Synopsis checks if spell files are executable and possibly fixes them
+## @Synopsis it ignores known files that don't need it
+##
+## @Globals
+#---
+function check_executable_bits(){
+  local file
+
+  find $QUILL_SPELL_DIR/$SPELL_NAME -type f \
+    -wholename '*/[A-Z][A-Z]*[A-Z]' ! -perm /111 |
+  grep -vE "HISTORY|TESTS|WIP|MAINTAINER|README|LICENSE|PROVIDES|REPAIR|EXPORTS" |
+  while read file; do
+    message "${file##*/} does not have the executable bit set!"
+    if query "Do you want to add it?" y; then
+      chmod +x "$file"
+    fi
+  done
+}
+
+#---
 ## @Synopsis prints a colored error message
 ##
 ## @Globals none

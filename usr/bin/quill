@@ -197,6 +197,9 @@ then
           echo
         fi
 
+        # check that all files are executable
+        check_executable_bits
+
         rm DETAILS.orig
         if query "Do you want to review the update or add custom modifications?" y
         then

@@ -1,4 +1,8 @@
 2007-04-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore, quill: added check_executable_bits
+	* version: 0.2.4-rc13
+
+2007-04-09 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate: renamed if_var to the more clear version_switch
 	* libdetails: fixed hunt_src_dir error case
 	* all: added @Globals, made some variables local, renamed some for clarity
