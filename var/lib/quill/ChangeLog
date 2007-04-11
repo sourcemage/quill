@@ -1,4 +1,9 @@
 2007-04-11 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: made the url checkers timeout after 30s
+	* libcore, quill: added check_description_wrap
+	* version: 0.2.4-rc14
+
+2007-04-11 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: forgot a HISTORY entry when manually updating the source urls
 	* libhistory: made adding entries idempotent, more exotic field delimiter
 	* version: 0.2.4-rc14

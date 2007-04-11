@@ -345,7 +345,7 @@ function check_source_url() {
 
   if grep -q ftp:// <<< "$su"
   then
-    wget -O - -S "${su%/*}/" 2>&1 | grep -q "${su##*/}"
+    wget -O - -S "${su%/*}/" -T 30 2>&1 | grep -q "${su##*/}"
     rc=$?
   elif grep -q http:// <<< "$su"
   then
@@ -370,7 +370,7 @@ function check_source_url() {
 ## @Globals none
 #---
 function check_url() {
-  wget -S --spider "$1" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
+  wget -S --spider -T 30 "$1" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
   # reverse the return value, so the function returns 0 on succes
   if [[ $? == 1 ]]
   then
@@ -489,7 +489,7 @@ function clear_html_specials(){
 ## @Synopsis checks if spell files are executable and possibly fixes them
 ## @Synopsis it ignores known files that don't need it
 ##
-## @Globals
+## @Globals QUILL_SPELL_DIR SPELL_NAME
 #---
 function check_executable_bits(){
   local file
@@ -503,6 +503,29 @@ function check_executable_bits(){
       chmod +x "$file"
     fi
   done
+}
+
+#---
+## @Synopsis ensures the long description is wrapped properly
+##
+## @Globals none
+#---
+function check_description_wrap(){
+
+  sed -n '/cat *<< *EOF/,/EOF/p' DETAILS > long.description
+  awk '{ if(length($0)>a) a=length($0)} \
+       END{if(a>80)exit 1; else exit 0}' \
+      long.description && return 0
+
+  sed -i '/cat *<< *EOF/,/EOF/d' DETAILS
+  sed -i '1d; $d' long.description
+  fmt -w 80 long.description > long.description.2
+  mv long.description.2 long.description
+  echo 'cat << EOF' >> DETAILS
+  cat long.description >> DETAILS
+  echo 'EOF' >> DETAILS
+  add_history_entry "DETAILS: fixed long description wrap"
+
 }
 
 #---

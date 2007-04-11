@@ -4,12 +4,6 @@
 ## @Copyright Copyright 2006-2007 SourceMage GNU/Linux
 ## @License GPL v2 or higher
 ##
-## @ToDo Add option to use upstream gpg signature as included or
-## @ToDo downloadable .sig file
-## @ToDo Put a multiversion option
-## @ToDo Interface to add CONFIGURE options
-## @ToDo Make quill the be-all for spells
-##
 ## Asks the user in simple questions about generating a spell.
 ## @Globals QUILL_VERSION QUILL_MODE HISTORY_DATE QUILL_HOME_DIR QUILL_QUILLRC
 ## @Globals QUILL_OLD_QUILLRC QUILL_SPELL_DIR QUILL_TMP_DIR QUILL_LIB_DIR
@@ -199,6 +193,8 @@ then
 
         # check that all files are executable
         check_executable_bits
+
+        check_description_wrap
 
         rm DETAILS.orig
         if query "Do you want to review the update or add custom modifications?" y
