@@ -319,6 +319,7 @@ function check_source_urls() {
         error_msg  "SOURCE${i}_URL[0] is hopelessly broken! Fix it manually."
         sleep 2
         quill_edit DETAILS
+        add_history_entry "DETAILS: Fixed SOURCE${i}_URL[0]"
         rc=1
       fi
     fi

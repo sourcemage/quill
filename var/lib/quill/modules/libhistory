@@ -32,13 +32,17 @@ function add_history_entry()
   then
     # check if we already have an entry for the same file
     file="${1%%:*}"
-    if [[ -z $(sed -n "1,/^\s*$/ s,\* $file:,&,p" HISTORY) ]]
-    then
+    if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p" HISTORY) ]]
+    then # we don't
       sed -i "/$title/ a\\\t* $1" HISTORY
     else
-      sed -i "1,/^\s*$/ {
-              /\* $file:/ a\\\t ${1#*:}
-              }" HISTORY
+      # we do, but first check that the new addition is unique
+      if ! sed -n "1,/^\s*$/p" HISTORY | grep -qF "* $1"
+      then
+        sed -i "1,/^\s*$/ {
+                /\* $file:/ a\\\t ${1#*:}
+               }" HISTORY
+      fi
     fi
   else # first time today
     sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" HISTORY
