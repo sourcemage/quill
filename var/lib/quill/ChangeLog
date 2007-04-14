@@ -1,3 +1,11 @@
+2007-04-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libperlcpan, libfreshmeatxml, librubyraa: fix "retrieve" typos
+	* version: 0.2.4-rc15
+
+2007-04-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: forgot to delete the temporary long.description
+	  improved andand_lines to be idempotent
+
 2007-04-11 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: made the url checkers timeout after 30s
 	* libcore, quill: added check_description_wrap

@@ -26,7 +26,7 @@ function quill_raa_core(){
   SPELL_NAME="$1"
   project="$(tr 'A-Z' 'a-z' <<< $1 )"
   raa_project_file=${QUILL_TMP_DIR}/${project}.raa
-  message "Attempting to retrive project page..."
+  message "Attempting to retrieve project page..."
   wget -q -O $raa_project_file.tmp \
        http://raa.ruby-lang.org/project/$project/ || \
        error_msg "Error: unable to fetch project page" && \

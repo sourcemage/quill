@@ -15,12 +15,12 @@ function quill_get_manifests()
      [[ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]]
   then
     cd $QUILL_TMP_DIR
-    message "Attempting to retrive 02packages.details.txt.gz..."
+    message "Attempting to retrieve 02packages.details.txt.gz..."
     wget -q \
          -O 02packages.details.txt.gz \
          ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz ||
          (error_msg "Error: unable to fetch 02packages.details.txt.gz" && return 1)
-    message "Attempting to retrive 03modlist.data.gz..."
+    message "Attempting to retrieve 03modlist.data.gz..."
     wget -q \
          -O 03modlist.data.gz \
          ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz ||

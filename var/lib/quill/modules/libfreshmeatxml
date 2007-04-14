@@ -31,7 +31,7 @@ function quill_fmxml_core() {
   FRESHMEAT_FILE="${QUILL_TMP_DIR}/${1}.xml"
   FRESHMEAT_PROJECT_FILE="${QUILL_TMP_DIR}/${1}.fm"
   if [[ ! -e ${FRESHMEAT_PROJECT_FILE} ]]; then
-    message -n "Attempting to retrive project page ... "
+    message -n "Attempting to retrieve project page ... "
     wget -q -Uquill -O ${FRESHMEAT_PROJECT_FILE} "${FRESHMEAT_PROJECT_URL}" ||
       { error_msg "Error: unable to fetch project page" && return 1; }
     tr "\r" " " < ${FRESHMEAT_PROJECT_FILE} > ${FRESHMEAT_PROJECT_FILE}.tmp
@@ -40,7 +40,7 @@ function quill_fmxml_core() {
   fi
 
   if [[ ! -e ${FRESHMEAT_FILE} ]]; then
-    message -n "Attempting to retrive project XML page ... "
+    message -n "Attempting to retrieve project XML page ... "
     wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
       { error_msg "Error: unable to fetch project XML page" && return 1; }
     message "Done"

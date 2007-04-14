@@ -461,13 +461,14 @@ function dir_check() {
 }
 
 #---
-## @Synopsis adds && to all full lines not ending by and escape \ or last line
+## @Synopsis adds && to all full lines not already ending with &&, \
+## @Synopsis or being the last line
 ##
 ## @Globals none
 #---
 function andand_lines() {
   local file="$1"
-  sed -e 's/^ *$//' -e 's/[^\\]$/& \&\&/' "$file" |
+  sed -e 's/^ *$//' -e 's/[^\\&]\s*$/& \&\&/' "$file" |
     tac |
     awk '{ if (removed!=1){ if (sub("&&$","") > 0){ removed=1 }}; print }' |
     tac > "temporary-$file"
@@ -515,16 +516,16 @@ function check_description_wrap(){
   sed -n '/cat *<< *EOF/,/EOF/p' DETAILS > long.description
   awk '{ if(length($0)>a) a=length($0)} \
        END{if(a>80)exit 1; else exit 0}' \
-      long.description && return 0
+      long.description && rm long.description && return 0
 
   sed -i '/cat *<< *EOF/,/EOF/d' DETAILS
-  sed -i '1d; $d' long.description
-  fmt -w 80 long.description > long.description.2
+  sed '1d; $d' long.description | fmt -w 80 > long.description.2
   mv long.description.2 long.description
   echo 'cat << EOF' >> DETAILS
   cat long.description >> DETAILS
   echo 'EOF' >> DETAILS
   add_history_entry "DETAILS: fixed long description wrap"
+  rm long.description
 
 }
 
