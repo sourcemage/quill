@@ -246,8 +246,7 @@ function check_source_urls() {
   message "Checking source urls (this may take a while) ..."
   for su in $source_urls
   do
-    check_source_url "$su" "$i"
-    if [[ $? == 0 ]]
+    if url_verify "$su" > /dev/null
     then
       message "SOURCE${i}_URL[0] is ok!"
       rc=0
@@ -255,7 +254,7 @@ function check_source_urls() {
       # first retry with a changed suffix
       old_su="$su"
       [[ ${su/.gz/.bz2} == $su ]] && su="${su/.bz2/.gz}" || su="${su/.gz/.bz2}"
-      if check_source_url "$su" "$i"
+      if url_verify "$su" > /dev/null
       then
         message "SOURCE${i}_URL[0] is ok after changing the file extension!"
         # tricky tricky - if we only change the url, it is likely
@@ -327,57 +326,6 @@ function check_source_urls() {
     let i+=1
   done
   return $rc
-}
-
-#---
-## @Synopsis checks if passed source url is valid
-##
-## @param source url
-## @param current source iterator
-##
-## @return 0 if source url either is valid or just not trivially checkable
-## @return 1 otherwise (http or ftp source url failure)
-##
-## @Globals none
-#---
-function check_source_url() {
-  local rc su="$1" i="$2"
-
-  if grep -q ftp:// <<< "$su"
-  then
-    wget -O - -S "${su%/*}/" -T 30 2>&1 | grep -q "${su##*/}"
-    rc=$?
-  elif grep -q http:// <<< "$su"
-  then
-    check_url "$su"
-    rc=$?
-  else
-    message "SOURCE${i}_URL[0] is not a http or ftp link, assuming it works."
-    rc=0
-  fi
-
-  return $rc
-}
-
-#---
-## @Synopsis checks if the url is reachable
-##
-## @param url
-##
-## @return 0 if it is ok
-## @return 1 otherwise
-##
-## @Globals none
-#---
-function check_url() {
-  wget -S --spider -T 30 "$1" 2>&1 | grep -Eq "ERROR 404|service not known|301 Moved"
-  # reverse the return value, so the function returns 0 on succes
-  if [[ $? == 1 ]]
-  then
-    return 0
-  else
-    return 1
-  fi
 }
 
 #---

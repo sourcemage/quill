@@ -182,7 +182,7 @@ then
 
         # check if WEB_SITE is reachable
         WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
-        if ! check_url "$WEB_SITE"; then
+        if ! url_verify "$WEB_SITE" > /dev/null; then
           error_msg "The website is not reachable: $WEB_SITE"
           message "Fix it."
           sleep 3

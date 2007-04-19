@@ -18,7 +18,6 @@ new menu choices
 
 update mode:
   * clean the namespace by moving more stuff into functions
-  * research possible use of the sorcery url verification code
   * plug other linters at the end of the update and move them all in liblint
 
 improvements in the standard mode:

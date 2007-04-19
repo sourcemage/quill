@@ -1,3 +1,8 @@
+2007-04-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: removed check_url and check_source_url for the better url_verify
+	* libcore, quill: converted above calls to url_verify
+	* version: 0.2.4-rc16
+
 2007-04-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libperlcpan, libfreshmeatxml, librubyraa: fix "retrieve" typos
 	* version: 0.2.4-rc15
