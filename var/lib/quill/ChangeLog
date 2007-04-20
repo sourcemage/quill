@@ -1,3 +1,10 @@
+2007-04-20 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcopy: don't make assumptions about dir count in copy_new_to_git
+	  fix validation looping not to print an error the first time
+	* quill: loop until a valid url is provided
+	* libcore: echo another newline in get_spell_source
+	* version: 0.2.4-rc17
+
 2007-04-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: removed check_url and check_source_url for the better url_verify
 	* libcore, quill: converted above calls to url_verify

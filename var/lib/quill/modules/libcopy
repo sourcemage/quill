@@ -5,19 +5,21 @@
 #---
 function copy_new_to_git()
 {
-  local grimoire=n0n-eXsistENt section=n0n-eXsistENt
+  local grimoire section
   if [[ -z $QUILL_GIT_DIR ]]
   then
     error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
     echo
+    return 1
   else
-    find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P "
-    echo
+    find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P\n" | column
+    query_string grimoire "Which of the above is the target git grimoire? "
     while ! dir_check "$QUILL_GIT_DIR/$grimoire"; do
       query_string grimoire "Which of the above is the target git grimoire? "
     done
     echo
     find "$QUILL_GIT_DIR/$grimoire" -maxdepth 1 -type d -printf "%P\n" | column
+    query_string section "Which section do you want to put it in? "
     while ! dir_check "$QUILL_GIT_DIR/$grimoire/$section"; do
       query_string section "Which section do you want to put it in? "
     done

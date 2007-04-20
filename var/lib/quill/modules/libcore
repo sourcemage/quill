@@ -47,6 +47,7 @@ function get_spell_source(){
   else
     wget -c "${SPELL_SRC_URL}"
   fi
+  echo
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
 }
 
