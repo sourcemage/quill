@@ -1,3 +1,6 @@
+2007-04-23 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libcore: created the spell dir if it's not there in quill_rc
+
 2007-04-20 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcopy: don't make assumptions about dir count in copy_new_to_git
 	  fix validation looping not to print an error the first time
