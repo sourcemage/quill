@@ -12,7 +12,7 @@
 ## @Globals SPELL_UPDATED SPELL_NAME actions ANSWER WEB_SITE GRIMOIRE SECTION
 ## @Globals SPELL_DEPENDENCIES SPELL_OPTIONAL_DEPENDENCIES SPELL_CONFLICTS
 ## @Globals SPELL_PROVIDES PREPAREISON PREBUILDISON BUILDISON SPELL_SRC_FILE
-## @Globals INSTALLISON BS BUILD_DTFILE SPELL_SRC_URL
+## @Globals INSTALLISON BS BUILD_DTFILE SPELL_SRC_URL QUILL_ORIG_TARGET
 ##
 ## @Thanks BearPerson, dufflebunk, afrayedknot
 ## @Thanks To all testers
@@ -140,8 +140,8 @@ fi
 quill_welcome
 if [[ ! -z $QUILL_FETCH_MODE ]]
 then
-  # fetch various spell variables
-  quill_${QUILL_FETCH_MODE}_core $QUILL_TARGET
+  # fetch various spell variables; some fetchers need the capsy names
+  quill_${QUILL_FETCH_MODE}_core $QUILL_TARGET $QUILL_ORIG_TARGET
 
   # creates SPELL_VERSION and SPELL_SRC_FILE (to be SOURCE)
   parse_spell_source_file_info

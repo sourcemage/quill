@@ -9,22 +9,25 @@ function quill_get_manifests()
   # unless someone knows a better way to check files creation time
   # this shoud work quite well
   # basicaly update if the files are over a day old
-  if [[ ! "$(find ${QUILL_TMP_DIR}/02packages.details.txt.gz -ctime 0)" == "${QUILL_TMP_DIR}/02packages.details.txt.gz" ]] ||
-     [[ ! "$(find ${QUILL_TMP_DIR}/03modlist.data.gz -ctime 0)" == "${QUILL_TMP_DIR}/03modlist.data.gz" ]] ||
-     [[ ! -f $QUILL_TMP_DIR/02packages.details.txt.gz ]] ||
-     [[ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]]
+  if [[ ! -f $QUILL_TMP_DIR/02packages.details.txt.gz ]] ||
+     [[ ! -f $QUILL_TMP_DIR/03modlist.data.gz ]] ||
+     [[ ! "$(find ${QUILL_TMP_DIR}/02packages.details.txt.gz -ctime 0)" == "${QUILL_TMP_DIR}/02packages.details.txt.gz" ]] ||
+     [[ ! "$(find ${QUILL_TMP_DIR}/03modlist.data.gz -ctime 0)" == "${QUILL_TMP_DIR}/03modlist.data.gz" ]]
   then
     cd $QUILL_TMP_DIR
-    message "Attempting to retrieve 02packages.details.txt.gz..."
+    message -n "Retrieving 02packages.details.txt.gz ... "
     wget -q \
          -O 02packages.details.txt.gz \
          ftp://ftp.perl.org/pub/CPAN/modules/02packages.details.txt.gz ||
          (error_msg "Error: unable to fetch 02packages.details.txt.gz" && return 1)
-    message "Attempting to retrieve 03modlist.data.gz..."
+    message "done."
+
+    message -n "Retrieving 03modlist.data.gz ... "
     wget -q \
          -O 03modlist.data.gz \
          ftp://ftp.perl.org/pub/CPAN/modules/03modlist.data.gz ||
          (error_msg "Error: unable to fetch 03modlist.data.gz" && return 1)
+    message "done."
   fi
 }
 
@@ -45,14 +48,14 @@ function quill_cpan_core()
 {
   # so it is set even if we end prematurely, useful when adding spells
   # gets properly overwritten later on
-  SPELL_NAME="$1"
+  SPELL_NAME="$2"
 
-  quill_get_manifests
-  if zgrep -q -w -E "^${1}" $QUILL_TMP_DIR/02packages.details.txt.gz ||
-     zgrep -q -w -E "^'${1}'" $QUILL_TMP_DIR/03modlist.data.gz
+  quill_get_manifests || return 1
+  if zgrep -q -w -E "^$SPELL_NAME" $QUILL_TMP_DIR/02packages.details.txt.gz ||
+     zgrep -q -w -E "^'$SPELL_NAME'" $QUILL_TMP_DIR/03modlist.data.gz
   then
-    quill_get_cpan_meta $1
-    SPELL_NAME="$(echo ${1} | sed -e 's/::/-/g')"
+    quill_get_cpan_meta $SPELL_NAME
+    SPELL_NAME="$(sed -e 's/::/-/g' <<< "$SPELL_NAME")"
     SPELL_SRC_URL="http://www.cpan.org/authors/id/${QUILL_CPAN_INFO[2]}"
     SPELL_VERSION="${QUILL_CPAN_INFO[1]}"
     SPELL_SHORT_DESCRIPTION="${QUILL_CPAN_METADATA[6]}"
@@ -60,7 +63,7 @@ function quill_cpan_core()
     SPELL_URL="http://search.cpan.org/~${QUILL_CPAN_METADATA[7]}/${SPELL_NAME}/"
     local description
     description="${QUILL_CPAN_METADATA[6]}"
-    SPELL_NAME="$(echo $SPELL_NAME | tr "A-Z" "a-z")"
+    SPELL_NAME="${1//::/-}" # the lower case target wasn't manipulated yet
     echo $description > ${QUILL_TMP_DIR}/${SPELL_NAME}
     BUILDISON="BUILD, "
     touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
