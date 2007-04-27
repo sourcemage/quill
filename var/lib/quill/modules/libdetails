@@ -135,7 +135,7 @@ fi
 function parse_spell_source_file_info(){
   SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
   SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
-  SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.t")
+  SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.[t|z|r]")
 }
 
 #---
@@ -209,20 +209,33 @@ fi
 #---
 function hunt_src_dir(){
   local compressor
-  message "Checking for the source directory..."
-  compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})
-
-  case "$compressor" in
-    bzip2|gzip|compress*|tar) true ;;
-                           *) SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
-                              message "Unsupported format..."
-                              return 2 ;;
-  esac
-  SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" |
-                    sed -n "1 s=/.*$==p") ||
-  { error_msg "Error: getting path from tarball" && return 1; }
-
-  message "Done.\n"
+  if [[ ! -e ${QUILL_TMP_DIR}/${SPELL_SRC_FILE} ]] ; then
+    SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
+    error_msg "Error: no tarball, setting default SPELL-VERSION construct"
+    return 1
+  else
+    message "Checking for the source directory..."
+    compressor=$(guess_compressor ${QUILL_TMP_DIR}/${SPELL_SRC_FILE})
+    case "$compressor" in
+      bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -n "1 s=/.*$==p") ||
+                                { error_msg "Error: getting path from tarball" && return 1; } ;;
+                           Zip) SPELL_SRC_DIR=$(zipinfo -1 "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -n "1 s=/.*$==p") ||
+                                { error_msg "Error: getting path from zipfile" && return 1; } 
+                                if [[ $SPELL_SRC_DIR == "" ]] ; then
+                                  SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
+                                  PREBUILDISON="PRE_BUILD, "
+                                  rm -f ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
+                                  touch ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
+                                  echo "mk_source_dir \$SOURCE_DIRECTORY  &&" >> ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
+                                  echo "cd \$SOURCE_DIRECTORY  &&" >> ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
+                                  echo "unpack_file ''" >> ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
+                                fi ;;
+                             *) SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
+                                message "Unsupported format..."
+                                return 2 ;;
+    esac
+    message "Done.\n"
+  fi
 }
 
 #---

@@ -16,12 +16,17 @@ function query_spell_pre_build()
 ## @Globals EDITOR
 function add_pre_build()
 {
-  touch PRE_BUILD
-  if query "Do you want the default_pre_build function dumped into the PRE_BUILD file" "n"
-  then
-     dump_default_function pre_build | sed "s:&&:\&\&\n:g" > PRE_BUILD
+  if [[ -e ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD ]] ; then
+    cp ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD    \
+       ${QUILL_SPELL_DIR}/${SPELL_NAME}/PRE_BUILD
   else
-    echo "default_pre_build &&" > PRE_BUILD
+    touch PRE_BUILD
+    if query "Do you want the default_pre_build function dumped into the PRE_BUILD file" "n"
+    then
+      dump_default_function pre_build | sed "s:&&:\&\&\n:g" > PRE_BUILD
+    else
+      echo "default_pre_build &&" > PRE_BUILD
+    fi
   fi
   $EDITOR PRE_BUILD
 }

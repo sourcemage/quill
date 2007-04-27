@@ -1,3 +1,13 @@
+2007-04-27 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: don't flunk if missing source file
+	* libcore: non-verbose creation of dir
+	* libdetails: support for grabing version from zips, rpms
+	  grab source dir from zip file
+	  check if we have the source tarball else skip it
+	* libpre_build: if PRE_BUILD exists copy it over
+	* install.sh: be verbose when installing
+	* version: 0.2.5-rc1
+
 2007-04-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fix name normalisation, original is stored in QUILL_ORIG_TARGET
 	* quill: use the non-normalised target for cpan

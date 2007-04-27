@@ -395,18 +395,18 @@ else
 
   if [[ "${BUILDISON}" == "BUILD, " ]]
   then
-    [[ -e $QUILL_TMP_DIR/${SPELL_SRC_FILE:-uag1au234gaugua} ]] ||
-      { error_msg "Bad or missing source: $SPELL_SRC_FILE"; exit 2; }
-
+    if [[ -e $QUILL_TMP_DIR/${SPELL_SRC_FILE:-uag1au234gaugua} ]]
+    then
+      add_build
     #message "Quill can try to autodetect the build system the package is using."
     #message "However for this the source tarball needs to be extracted (can take a while)."
     #if query "Do you want quill to try to autodetect the build system?" n
     #then
     #  BS=$(detect_build_system)
     #  implement_build_system $BS
-    #else
+    else
       add_build
-    #fi
+    fi
   fi
 
   if [[ "${INSTALLISON}" == "INSTALL, " ]]

@@ -128,7 +128,7 @@ QUA
     exit 0
   else
      . $QUILL_QUILLRC
-     mkdir -vp $QUILL_SPELL_DIR
+     mkdir -p $QUILL_SPELL_DIR
   fi
 }
 
