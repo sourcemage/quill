@@ -131,6 +131,27 @@ if ! declare -f codex_get_spell_paths &> /dev/null; then
   }
 fi
 
+# workaround sorcery bug #13001
+unset -f url_ftp_verify &&
+function url_ftp_verify() {
+  local  URL=$1
+
+  if  [  -n  "$URL"  ];  then
+    local  FILENAME=`basename $URL`
+    local  DIRECTORY=`dirname $URL`
+    local  OUTPUT=`wget --passive-ftp -t 1 -T 30 -O - --spider --no-remove-listing "$DIRECTORY/" 2>&1`
+
+    if  echo  $OUTPUT  |  grep  -q  "$FILENAME";  then
+      rm  -f  .listing
+    else
+      echo  $OUTPUT  |  sed  's/LIST.*//g'
+      [  -f  .listing  ]  &&  cat  .listing
+      rm -f  .listing
+      false
+    fi
+  fi
+}
+
 ## Down to here... from here it's question and answer time
 #---
 
