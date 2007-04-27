@@ -1,3 +1,7 @@
+2007-04-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: redefine url_ftp_verify for #13001
+	* version: 0.2.6-rc2
+
 2007-04-27 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: don't flunk if missing source file
 	* libcore: non-verbose creation of dir
