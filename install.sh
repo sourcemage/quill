@@ -14,7 +14,7 @@ if [[ "$1" == "install" ]]; then
   mkdir -vp $INSTALL_ROOT/usr/bin
   mkdir -vp $INSTALL_ROOT/usr/share/doc/quill
   mkdir -vp $INSTALL_ROOT/var/lib/quill/modules
-  cp -r usr var $INSTALL_ROOT/
+  cp -vr usr var $INSTALL_ROOT/
 fi
 
 if [[ "$1" == "uninstall" ]]; then
