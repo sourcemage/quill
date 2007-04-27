@@ -6,6 +6,7 @@
 	  check if we have the source tarball else skip it
 	* libpre_build: if PRE_BUILD exists copy it over
 	* install.sh: be verbose when installing
+	* version: 0.2.5-rc1
 
 2007-04-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fix name normalisation, original is stored in QUILL_ORIG_TARGET
