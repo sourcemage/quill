@@ -116,7 +116,8 @@ function remove_old_sigs()
     # the glob could expand to more than one file, so test -e could break
     files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
     files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
-    [[ $files != " " ]] && rm -i $files
+    files="$files $(compgen -G "*$version*.sign" | tr '\n' ' ')"
+    [[ $files != "  " ]] && rm -i $files
   fi
 
 }
@@ -202,9 +203,94 @@ function user_increment_patchlevel() {
 }
 
 #---
+## @Synopsis Tries to change the source verification in favour of upstream gpg
+##
+## @Globals "version" "versions"
+#---
+function convert_to_upstream_gpg() {
+  local update_counter="${#versions[@]}" source su i new_value
+  if query "Do you want to do it for $version?" y; then
+    multiversion_check
+
+    new_value=$(count_spaces SOURCE${i}_GPG)
+    get_sources_and_urls
+    i=
+    while read source su; do
+      # use the original DETAILS, as we already changed the VERSION
+      current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
+
+      if [[ -z $current_check ]]; then
+        error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
+        message "Add the appropriate one to the spell!"
+        [[ ! $i ]] && i=1
+        let i+=1
+        continue
+      fi
+
+      # skip already upstream signed sources and SOURCE_IGNORE
+      if grep -Eq "UPSTREAM_KEY|volatile|signature|unversioned" <<< "$current_check"; then
+        [[ ! $i ]] && i=1
+        let i+=1
+        continue
+      fi
+
+message "Trying to guess the signature url ..."
+
+# MD5
+if ! grep -q ":" <<< "$current_check"; then
+  sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_GPG=/" DETAILS
+fi
+
+# SOURCE_HASH
+if grep -Eq "^(sha(512|256|1)|md5):.*" <<< "$current_check"; then
+  # UPSTREAM_HASH is rare and probably not fetched - ignoring
+  sed -i
+  "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_GPG=/" DETAILS
+else
+  # probably a non-upstream SOURCE_GPG
+  if ! grep -q "gurus.gpg" <<< "$current_check"; then
+    echo "SOURCE${i}_GPG=$current_check"
+    error_msg "This looks like an upstream keyring and should be marked as such."
+    error_msg "Probably with :UPSTREAM_KEY at the end of the $current_check."
+    [[ ! $i ]] && i=1
+    let i+=1
+    continue
+  fi
+
+  sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_GPG=/" DETAILS
+fi
+
+for su in "$source_urls"; do
+  if { url_verify "$su".sig || url_verify "$su".asc || url_verify "$su".sign } &> /dev/null; then
+mark su sig as ok
+  fi
+done
+
+    message "Done."
+    query_spell_signature
+
+sed in new source[i+1] and source_urls[i+1] right after su[i]
+change verification to source_gpg
+
+
+
+      [[ ! $i ]] && i=1
+      let i+=1
+    done <<< "$sources_and_urls"
+
+
+  else
+    let update_counter-=1
+  fi
+  [[ $update_counter == 0 ]] && continue 2 # there were no updates
+
+}
+
+#---
 ## @Synopsis The core function that ties all the version update stuff
 ##
 ## @Globals SPELL_VERSION SPELL_UPDATED GURU_GPGKEY QUILL_SPELL_DIR "version"
+## @Globals "versions"
 #---
 function version_bump() {
   local update_counter="${#versions[@]}" version_switch

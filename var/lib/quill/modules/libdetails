@@ -59,25 +59,17 @@ function query_spell_version(){
 }
 
 ##
-## @Globals SPELL_SIGNATURE DOWNLOAD_SIGNATURE
+## @Globals SPELL_SIGNATURE
 function query_spell_signature(){
-if [[ $SPELL_SIGNATURE ]] &&
-   ! query "Is $SPELL_SIGNATURE the proper signature key url?" y; then
-  query_msg "Please enter the url of the signature key:"
-  read "SPELL_SIGNATURE"
-fi
-if ! [[ $SPELL_SIGNATURE ]]; then
-  if query "Do you want to use an upstream signature key?" n; then
-    query_msg "Please enter the url of the signature key:"
+  if [[ $SPELL_SIGNATURE ]] &&
+    ! query "Is $SPELL_SIGNATURE the proper signature url?" y; then
+    query_msg "Please enter the url of the signature:"
     read "SPELL_SIGNATURE"
   fi
-fi
-if [[ $SPELL_SIGNATURE ]] &&
-   ! [[ $DOWNLOAD_SIGNATURE ]]; then
-  if query "Use downloadable upstream signature key?" y; then
-    DOWNLOAD_SIGNATURE="y"
+  if ! [[ $SPELL_SIGNATURE ]]; then
+    query_msg "Please enter the url of the signature:"
+    read "SPELL_SIGNATURE"
   fi
-fi
 }
 
 ##
@@ -220,7 +212,7 @@ function hunt_src_dir(){
       bzip2|gzip|compress*|tar) SPELL_SRC_DIR=$(tar tf "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -n "1 s=/.*$==p") ||
                                 { error_msg "Error: getting path from tarball" && return 1; } ;;
                            Zip) SPELL_SRC_DIR=$(zipinfo -1 "${QUILL_TMP_DIR}/${SPELL_SRC_FILE}" | sed -n "1 s=/.*$==p") ||
-                                { error_msg "Error: getting path from zipfile" && return 1; } 
+                                { error_msg "Error: getting path from zipfile" && return 1; }
                                 if [[ $SPELL_SRC_DIR == "" ]] ; then
                                   SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
                                   PREBUILDISON="PRE_BUILD, "

@@ -5,14 +5,17 @@
 #---
 function copy_new_to_git()
 {
-  local grimoire section
+  local grimoire section dir
   if [[ -z $QUILL_GIT_DIR ]]
   then
     error_msg "\$QUILL_GIT_DIR is empty, run quill -r to set it!"
     echo
     return 1
   else
-    find "$QUILL_GIT_DIR" -maxdepth 1 -type d -printf "%P\n" | column
+    find "$QUILL_GIT_DIR" -maxdepth 1 -type d |
+    while read dir; do
+      [[ -d $dir/.git ]] && basename $dir
+    done | column
     query_string grimoire "Which of the above is the target git grimoire? "
     while ! dir_check "$QUILL_GIT_DIR/$grimoire"; do
       query_string grimoire "Which of the above is the target git grimoire? "
