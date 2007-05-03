@@ -66,10 +66,24 @@ function query_spell_signature(){
     query_msg "Please enter the url of the signature:"
     read "SPELL_SIGNATURE"
   fi
-  if ! [[ $SPELL_SIGNATURE ]]; then
+  while ! [[ $SPELL_SIGNATURE ]]; do
     query_msg "Please enter the url of the signature:"
     read "SPELL_SIGNATURE"
+  done
+}
+
+##
+## @Globals SPELL_KEYRING
+function query_spell_keyring(){
+  if [[ $SPELL_KEYRING ]] &&
+    ! query "Is $SPELL_KEYRING the proper keyring url?" y; then
+    query_msg "Please enter the url of the keyring:"
+    read "SPELL_KEYRING"
   fi
+  while ! [[ $SPELL_KEYRING ]]; do
+    query_msg "Please enter the url of the keyring:"
+    read "SPELL_KEYRING"
+  done
 }
 
 ##

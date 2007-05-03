@@ -179,7 +179,12 @@ then
     actions=('Update the spell to a newer version' \
              'Add arbitrary HISTORY entries' \
              'Increment/add PATCHLEVEL or SECURITY_PATCH' \
-'Switch to upstream gpg verification' \
+             'Switch to upstream gpg verification' \
+             '--NOOP--' \
+             '--NOOP--' \
+             '--NOOP--' \
+             '--NOOP--' \
+             '--NOOP--' \
              'Copy it here from the grimoire or QUILL_GIT_DIR' \
              'Copy it under QUILL_GIT_DIR' \
              'Copy it back to the grimoire' \
@@ -244,13 +249,13 @@ then
       "${actions[3]}") #'Switch to upstream gpg verification'
         main_update_loop convert_to_upstream_gpg
       ;;
-      "${actions[4]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
+      "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue
       ;;
-      "${actions[5]}") #"Copy it under $QUILL_GIT_DIR"
+      "${actions[10]}") #"Copy it under $QUILL_GIT_DIR"
         copy_to_git || continue
       ;;
-      "${actions[6]}") #"Copy it back to the grimoire"
+      "${actions[11]}") #"Copy it back to the grimoire"
         codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
         if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
         then
@@ -265,7 +270,7 @@ then
 
         quill_final_put_in_grimoire $GRIMOIRE $SECTION no
       ;;
-      "${actions[7]}") #"Try it out"
+      "${actions[12]}") #"Try it out"
         codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
         if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
         then

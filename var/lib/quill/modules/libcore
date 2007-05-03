@@ -324,8 +324,7 @@ function check_source_urls() {
         rc=1
       fi
     fi
-    [[ ! $i ]] && i=1
-    let i+=1
+    inc_src_num i
   done
   return $rc
 }
@@ -476,6 +475,73 @@ function check_description_wrap(){
   add_history_entry "DETAILS: fixed long description wrap"
   rm long.description
 
+}
+
+#---
+## @Synopsis checks if anything needs summoning and does so
+##
+## @param none
+##
+## @Globals "sources" "sources_and_urls"
+#---
+function summon_sources() {
+    local to_summon source
+
+    message "Summoning ..."
+    #download; we are not a grimoire so some hacking is needed
+    # also workaround sorcery bug #13412
+    to_summon="$sources_and_urls"
+    for source in $sources; do
+      [[ -e $SOURCE_CACHE/$source ]] &&
+      to_summon="$(sed "/^$source /d" <<< "$to_summon")"
+    done
+    if [[ -z $to_summon ]]; then
+      message "Nothing new to summon, all sources found."
+    else
+      if ! summon -r <<< "$to_summon"; then
+        error_msg "Summoning failed, aborting update!"
+        query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
+        continue 2
+      fi
+    fi
+    echo
+}
+
+#---
+## @Synopsis sets the parameter to the next free (biggest+1) source number
+##
+## @param variable
+##
+## @Globals "version_switch"
+#---
+function inc_to_unique_src_num() {
+  local name="$1" num
+
+  num=$(
+    eval ${version_switch:-:}; . DETAILS &> /dev/null
+    # the numbers are alphabetically sorted, which is not good enough in the
+    # rare case where there are more than 9 sources - so we resort to resorting
+    get_source_nums | sort -n | tail -n1
+  )
+  [[ ! $num ]] && num=1
+
+  eval $name=\$\(\(++num\)\)
+}
+
+#---
+## @Synopsis increments the parameter by 1 or sets it to 1 if it is empty
+##
+## @param variable
+##
+## @Globals none
+#---
+function inc_src_num() {
+  local name="$1" num
+
+  num="${!name}"
+  [[ ! $num ]] && num=1
+
+  eval $name=\$\(\(++num\)\)
 }
 
 #---

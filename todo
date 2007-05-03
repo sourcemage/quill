@@ -21,12 +21,9 @@ update mode:
   * plug other linters at the end of the update and move them all in liblint
 
 improvements in the standard mode:
-  * use some of the functions from update mode,
-	especially the verification stuff
   * handle bad entries and ^C better
 
 fmxml:
-  * improve the speed
   * dump xml-grep (awk, sed)?
   * redo html parsing
 
@@ -35,3 +32,4 @@ documentation:
 
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it
+  * add quill mode to /quillrc to avoid the need to constantly pass it
