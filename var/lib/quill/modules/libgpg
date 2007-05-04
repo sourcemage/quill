@@ -1,0 +1,329 @@
+
+
+
+#---
+## @Synopsis Tries to change the source verification in favour of upstream gpg
+##
+## @Globals "version" "versions" SPELL_KEYRING SPELL_SIGNATURE SPELL_UPDATED
+## @Globals SPELL_NAME SPELL_VERSION
+#---
+function convert_to_upstream_gpg() {
+  local update_counter=${#versions[@]} source su i new_value new_su new_source
+  local version_switch j l
+  if query "Do you want to do it for $version?" y; then
+    multiversion_check
+    SPELL_VERSION="$version"
+
+    get_sources_and_urls
+    i=
+    SPELL_KEYRING=
+    l=$(wc -l <<< "$sources_and_urls")
+    while [[ $l > 0 ]]; do
+      # use the original DETAILS, as we already changed the VERSION
+      current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
+
+      read source su <<< $(sed -n "/$l/p" <<< "$sources_and_urls")
+      let l-=1
+
+      if [[ -z $current_check ]]; then
+        error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
+        message "Add the appropriate one to the spell!"
+        inc_src_num i
+        continue
+      fi
+
+      # skip already upstream signed sources and SOURCE_IGNORE
+      if grep -Eq "UPSTREAM_KEY|volatile|signature|unversioned" <<< "$current_check"; then
+        message "SOURCE${i} is already upstream signed or the verification is ignored."
+        inc_src_num i
+        continue
+      fi
+
+      if ! grep -Eq "^((sha(512|256|1)|md5):.*|[^:]*)$" <<< "$current_check"; then
+        # probably a non-upstream SOURCE_GPG
+        if ! grep -q "gurus.gpg" <<< "$current_check"; then
+          echo "SOURCE${i}_GPG=$current_check"
+          error_msg "This looks like an upstream keyring and should be marked as such."
+          error_msg "Probably with :UPSTREAM_KEY at the end of $current_check."
+          echo
+          inc_src_num i
+          continue
+        fi
+      fi
+
+      guess_signature_url verbose
+      echo
+
+      SPELL_SIGNATURE="$new_su"
+      query_spell_signature
+      while ! url_verify "$SPELL_SIGNATURE" &> /dev/null; do
+        error_msg "You entered a bad signature url!"
+        echo
+        unset SPELL_SIGNATURE
+        query_spell_signature
+      done
+      new_source=$(basename $SPELL_SIGNATURE)
+      substitute_with_variables new_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL} \
+        "$new_source" {SOURCE$j} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+
+      j="$i"
+      inc_to_unique_src_num j
+
+      echo
+      quill_get_spell_keyring
+
+      # two modes of new line insertion
+      # for single-versioned spells we can have the prettier one
+      # for multiversioned ones we use the safe(r), but uglier aggregate one
+      if [[ -z $version_switch ]]; then
+        # sed in the new source[j] right after source[i]
+        new_value=$(count_spaces SOURCE${j})
+        sed -i "/^\s*SOURCE$i=/ s%^.*$%&\n${new_value}SOURCE${j}=$new_source%" DETAILS
+        SPELL_UPDATED=y
+
+        # sed in the new su[j] right after su[i]
+        new_value=$(count_spaces SOURCE${j}_URL[0])
+        sed -i "/^\s*SOURCE${i}_URL[^=]*=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
+
+        # ignore the signature
+        new_value=$(count_spaces SOURCE${j}_IGNORE)
+        sed -i "s%^.*${current_check}.*$%&\n${new_value}SOURCE${j}_IGNORE=signature%" DETAILS
+
+        # finally change verification to upstream source_gpg
+        new_value=$(count_spaces SOURCE${i}_GPG)
+        sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY%" DETAILS
+      else
+        # sed in the new source[j] before $current_check
+        new_value=$(count_spaces SOURCE${j})
+        sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${j}=$new_source\n&%" DETAILS
+        SPELL_UPDATED=y
+
+        # sed in the new su[j] right after source[j] (before $current_check)
+        new_value=$(count_spaces SOURCE${j}_URL[0])
+        sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE\n&%" DETAILS
+
+        # ignore the signature after $current_check
+        new_value=$(count_spaces SOURCE${j}_IGNORE)
+        sed -i "s%^.*${current_check}.*$%&\n${new_value}SOURCE${j}_IGNORE=signature%" DETAILS
+
+        # finally change verification to upstream source_gpg
+        new_value=$(count_spaces SOURCE${i}_GPG)
+        sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY%" DETAILS
+      fi
+
+      inc_src_num i
+    done
+    echo
+
+    if query "Do you want to try if the new verification system works?" y; then
+      get_sources_and_urls
+      summon_sources
+      conditional_set_var SOURCE_DIRECTORY
+      delve -c start PRE_BUILD $SPELL_NAME
+      rm -ri $SOURCE_DIRECTORY
+    fi
+
+  else
+    let update_counter-=1
+  fi
+  [[ $update_counter == 0 ]] && continue 2 # there were no updates
+
+}
+
+#---
+## @Synopsis guesses signature urls from the source url
+##
+## @param silent - silent to print nothing
+##
+## @return 0 if a guess is a valid url
+## @return 1 otherwise
+##
+## @Globals "i" "su" "source"
+function guess_signature_url() {
+  local suffix silent=$1
+
+  [[ $silent != silent ]] && message -n "Trying to guess the signature url for SOURCE$i ... "
+  for suffix in sig asc sign; do
+    if url_verify "$su.$suffix" &> /dev/null; then
+      new_su="$su.$suffix"
+      new_source="$source.$suffix"
+      [[ $silent != silent ]] && message "Succes!"
+      return 0
+    fi
+  done
+  [[ $silent != silent ]] && message "Failed."
+  return 1
+}
+
+#---
+## @Synopsis sets up SPELL_KEYRING, either from an exsisting or from
+## @Synopsis a remote one
+##
+## @Globals SPELL_KEYRING QUILL_MODE QUILL_SPELL_DIR SPELL_NAME
+## @Globals QUILL_TMP_DIR
+function quill_get_spell_keyring() {
+  # return if a previous pass already set it
+  [[ -n $SPELL_KEYRING ]] && return 0
+
+  if query "Is the appropriate keyring already in the grimoire?" n; then
+    # list them as suggestions
+    codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+    case $QUILL_MODE in
+    apprentice)
+      message "Here is a list of grimoire level keyrings:"
+      find $GRIMOIRE -maxdepth 1 -iname "*.gpg" -printf "%P\n" ;;
+    mage)
+      message "Here is a list of grimoire and section level keyrings:"
+      find $GRIMOIRE -maxdepth 2 -iname "*.gpg" -printf "%P\n" ;;
+    wizard)
+      message "Here is a list of all keyrings:"
+      find $GRIMOIRE -iname "*.gpg" -printf "%P\n" ;;
+    esac | grep -v gurus.gpg | column
+    shopt -s nullglob
+    query_string SPELL_KEYRING "Which of the above is the correct keyring? " *.gpg
+    shopt -u nullglob
+
+    local kr_path=$(dirname $SPELL_KEYRING)
+    if [[ $QUILL_MODE != apprentice && $kr_path != "." ]]; then
+      if [[ $kr_path != $SECTION && $kr_path != $SECTION/$SPELL_NAME ]]; then
+        message "Copying the keyring to the spell dir as it is not a grimoire"
+        message "level one, from the same section nor from the same spell!"
+        cp $GRIMOIRE/$SPELL_KEYRING "$QUILL_SPELL_DIR/$SPELL_NAME"
+        SPELL_KEYRING=$(basename $SPELL_KEYRING)
+      fi
+    fi
+    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+  else
+    # get a hint from the failed verification
+    message "Creating a keyring from the key that made the signature ..."
+    wget -O $QUILL_TMP_DIR/$SPELL_NAME.sig $SPELL_SIGNATURE
+    # get the key id
+    SPELL_KEYRING=$(gpg --verify $QUILL_TMP_DIR/$SPELL_NAME.sig 2>&1 | sed -n 's,^.* key ID ,,p')
+    rm $QUILL_TMP_DIR/$SPELL_NAME.sig
+
+    # create the keyring
+    gpg --no-default-keyring --keyring $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_NAME.gpg --recv-keys $SPELL_KEYRING
+    SPELL_KEYRING=$SPELL_NAME.gpg
+
+    if query "Is there a more complete keyring available?" y; then
+      rm $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_NAME.gpg
+      unset SPELL_KEYRING
+      query_spell_keyring
+      while ! url_verify "$SPELL_KEYRING" &> /dev/null; do
+        error_msg "You entered a bad keyring url!"
+        unset SPELL_KEYRING
+        query_spell_keyring
+      done
+      wget -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
+      SPELL_KEYRING=$(basename "$SPELL_KEYRING")
+    fi
+  fi
+
+}
+
+##
+## @Globals SPELL_SIGNATURE
+function query_spell_signature(){
+  if [[ $SPELL_SIGNATURE ]] &&
+    ! query "Is $SPELL_SIGNATURE the proper signature url?" y; then
+    query_msg "Please enter the url of the signature:"
+    read "SPELL_SIGNATURE"
+  fi
+  while ! [[ $SPELL_SIGNATURE ]]; do
+    query_msg "Please enter the url of the signature:"
+    read "SPELL_SIGNATURE"
+  done
+}
+
+##
+## @Globals SPELL_KEYRING
+function query_spell_keyring(){
+  while ! [[ $SPELL_KEYRING ]]; do
+    query_msg "Please enter the url of the keyring:"
+    read "SPELL_KEYRING"
+  done
+}
+
+#---
+## @Synopsis Unexpands SOURCE_GPG if necessary to be later able to match it
+##
+## @Globals "current_check" "version_switch"
+##
+## @return 0 if current_check was found
+## @return 1 otherwise
+#---
+function unexpand_source_gpg()
+{
+  local j
+
+  if grep -q "$current_check" DETAILS.orig
+  then
+    return 0
+  else # looks like it is expanded
+    current_check=$(
+    eval ${version_switch:-:}; . DETAILS.orig &> /dev/null;
+    for j in `get_source_nums s`
+    do
+      j="${j%s}"
+      SOURCE=$(eval echo \$SOURCE$j)
+      substitute_with_variables current_check "$SOURCE" {SOURCE$j}
+    done
+    substitute_with_variables current_check "$SPELL_NAME" {SPELL} "$VERSION" {VERSION}
+    echo $current_check
+    )
+  fi
+  if grep -q "$current_check" DETAILS.orig
+  then # maybe the author doesn't like the ugly braces too
+    return 0
+  else
+    current_check="$(tr -d "{}" <<< "$current_check")"
+  fi
+  if grep -q "$current_check" DETAILS.orig
+  then
+    return 0
+  else # give up
+    error_msg "Giving up, you'll have to update SOURCE${i}_(GPG|HASH) yourself."
+    return 1
+  fi
+}
+
+#---
+## @Synopsis Removes unneeded sigs
+##
+## @param old version
+## @Globals none
+#---
+function remove_old_sigs()
+{
+  local version="$1" files
+  if ! grep -q "VERSION=$version *$" DETAILS;
+  then
+    # compgen has a plain wierd output
+    # lynx wants interactivity and no 404s
+    # the glob could expand to more than one file, so test -e could break
+    files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
+    files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
+    files="$files $(compgen -G "*$version*.sign" | tr '\n' ' ')"
+    [[ $files != "  " ]] && rm -i $files
+  fi
+
+}
+
+#---
+##
+## This software is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+#---

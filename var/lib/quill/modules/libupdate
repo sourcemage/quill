@@ -101,71 +101,6 @@ function count_spaces()
 }
 
 #---
-## @Synopsis Removes unneeded sigs
-##
-## @param old version
-## @Globals none
-#---
-function remove_old_sigs()
-{
-  local version="$1" files
-  if ! grep -q "VERSION=$version *$" DETAILS;
-  then
-    # compgen has a plain wierd output
-    # lynx wants interactivity and no 404s
-    # the glob could expand to more than one file, so test -e could break
-    files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
-    files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
-    files="$files $(compgen -G "*$version*.sign" | tr '\n' ' ')"
-    [[ $files != "  " ]] && rm -i $files
-  fi
-
-}
-
-#---
-## @Synopsis Unexpands SOURCE_GPG if necessary to be later able to match it
-##
-## @Globals "current_check" "version_switch"
-##
-## @return 0 if current_check was found
-## @return 1 otherwise
-#---
-function unexpand_source_gpg()
-{
-  local j
-
-  if grep -q "$current_check" DETAILS.orig
-  then
-    return 0
-  else # looks like it is expanded
-    current_check=$(
-    eval ${version_switch:-:}; . DETAILS.orig &> /dev/null;
-    for j in `get_source_nums s`
-    do
-      j="${j%s}"
-      SOURCE=$(eval echo \$SOURCE$j)
-      substitute_with_variables current_check "$SOURCE" {SOURCE$j}
-    done
-    substitute_with_variables current_check "$SPELL_NAME" {SPELL} "$VERSION" {VERSION}
-    echo $current_check
-    )
-  fi
-  if grep -q "$current_check" DETAILS.orig
-  then # maybe the author doesn't like the ugly braces too
-    return 0
-  else
-    current_check="$(tr -d "{}" <<< "$current_check")"
-  fi
-  if grep -q "$current_check" DETAILS.orig
-  then
-    return 0
-  else # give up
-    error_msg "Giving up, you'll have to update SOURCE${i}_(GPG|HASH) yourself."
-    return 1
-  fi
-}
-
-#---
 ## @Synopsis Checks if the spell is multiversioned and sets the delimiter
 ## @Synopsis variable (version_switch) if it is
 ##
@@ -200,157 +135,6 @@ function user_increment_patchlevel() {
     message "Done."
     SPELL_UPDATED=y
   fi
-}
-
-#---
-## @Synopsis Tries to change the source verification in favour of upstream gpg
-##
-## @Globals "version" "versions" SPELL_KEYRING SPELL_SIGNATURE SPELL_UPDATED
-## @Globals SPELL_NAME SPELL_VERSION QUILL_SPELL_DIR QUILL_MODE
-#---
-function convert_to_upstream_gpg() {
-  local update_counter=${#versions[@]} source su i new_value new_su new_source
-  local version_switch j l
-  if query "Do you want to do it for $version?" y; then
-    multiversion_check
-    SPELL_VERSION="$version"
-
-    get_sources_and_urls
-    i=
-    l=$(wc -l <<< "$sources_and_urls")
-    while [[ $l > 0 ]]; do
-      # use the original DETAILS, as we already changed the VERSION
-      current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
-
-      read source su <<< $(sed -n "/$l/p" <<< "$sources_and_urls")
-      let l-=1
-
-      if [[ -z $current_check ]]; then
-        error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
-        message "Add the appropriate one to the spell!"
-        inc_src_num i
-        continue
-      fi
-
-      # skip already upstream signed sources and SOURCE_IGNORE
-      if grep -Eq "UPSTREAM_KEY|volatile|signature|unversioned" <<< "$current_check"; then
-        message "SOURCE${i} is already upstream signed or the verification is ignored."
-        inc_src_num i
-        continue
-      fi
-
-      if ! grep -Eq "^((sha(512|256|1)|md5):.*|[^:]*)$" <<< "$current_check"; then
-        # probably a non-upstream SOURCE_GPG
-        if ! grep -q "gurus.gpg" <<< "$current_check"; then
-          echo "SOURCE${i}_GPG=$current_check"
-          error_msg "This looks like an upstream keyring and should be marked as such."
-          error_msg "Probably with :UPSTREAM_KEY at the end of $current_check."
-          echo
-          inc_src_num i
-          continue
-        fi
-      fi
-
-      local suffix
-      message -n "Trying to guess the signature url for SOURCE$i... "
-      for suffix in sig asc sign; do
-        if url_verify "$su.$suffix" &> /dev/null; then
-          new_su="$su.$suffix"
-          new_source="$source.$suffix"
-          break
-        fi
-      done
-      message "Done."
-      echo
-
-      SPELL_SIGNATURE="$new_su"
-      query_spell_signature
-      while ! url_verify "$SPELL_SIGNATURE" &> /dev/null; do
-        error_msg "You entered a bad signature url!"
-        echo
-        unset SPELL_SIGNATURE
-        query_spell_signature
-      done
-
-      j="$i"
-      inc_to_unique_src_num j
-
-      # sed in the new source[j] right after source[i]
-      new_source=$(basename $SPELL_SIGNATURE)
-      substitute_with_variables new_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-      new_value=$(count_spaces SOURCE${j})
-      sed -i "/^\s*SOURCE$i=/ s%^.*$%&\n${new_value}SOURCE${j}=$new_source%" DETAILS
-      SPELL_UPDATED=y
-
-      # sed in the new su[j] right after su[i]
-      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL} \
-        "$new_source" {SOURCE$j} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-      new_value=$(count_spaces SOURCE${j}_URL[0])
-      sed -i "/^\s*SOURCE${i}_URL[^=]*=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
-
-      echo
-      SPELL_KEYRING=""
-      if query "Is the appropriate keyring already in the grimoire?" n; then
-        # list them as suggestions
-        codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-        case $QUILL_MODE in
-        apprentice)
-          message "Here is a list of grimoire level keyrings:"
-          find $GRIMOIRE -maxdepth 1 -iname "*.gpg" -printf "%P\n" ;;
-        mage)
-          message "Here is a list of grimoire and section level keyrings:"
-          find $GRIMOIRE -maxdepth 2 -iname "*.gpg" -printf "%P\n" ;;
-        wizard)
-          message "Here is a list of all keyrings:"
-          find $GRIMOIRE -iname "*.gpg" -printf "%P\n" ;;
-        esac | grep -v gurus.gpg | column
-        shopt -s nullglob
-        query_string SPELL_KEYRING "Which of the above is the correct keyring? " *.gpg
-        shopt -u nullglob
-
-        local kr_path=$(dirname $SPELL_KEYRING)
-        if [[ $QUILL_MODE != apprentice && $kr_path != "." ]]; then
-          if [[ $kr_path != $SECTION && $kr_path != $SECTION/$SPELL_NAME ]]; then
-            message "Copying the keyring to the spell dir as it is not a grimoire"
-            message "level one or from the same section!"
-            cp $GRIMOIRE/$SPELL_KEYRING "$QUILL_SPELL_DIR/$SPELL_NAME"
-            SPELL_KEYRING=$(basename $SPELL_KEYRING)
-          fi
-        fi
-
-        ##substitute_with_variables SPELL_KEYRING "$GRIMOIRE_NAME" GRIMOIRE "$SECTION" SECTION
-        unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
-      else
-        query_spell_keyring
-        while ! url_verify "$SPELL_KEYRING" &> /dev/null; do
-          error_msg "You entered a bad keyring url!"
-          unset SPELL_KEYRING
-          query_spell_keyring
-        done
-      fi
-
-
-      new_value=$(count_spaces SOURCE${j}_GPG)
-      # finally change verification to upstream source_gpg
-      sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY%" DETAILS
-
-      inc_src_num i
-    done
-    echo
-
-    if query "Do you want to try if the new verification system works?" y; then
-      get_sources_and_urls
-      summon_sources
-      conditional_set_var SOURCE_DIRECTORY_DIRECTORY
-      delve -c start PRE_BUILD $SPELL_NAME
-      rm -ri $SOURCE_DIRECTORY
-    fi
-
-  else
-    let update_counter-=1
-  fi
-  [[ $update_counter == 0 ]] && continue 2 # there were no updates
-
 }
 
 #---
@@ -422,6 +206,13 @@ function version_bump() {
         inc_src_num i
         continue
       fi
+
+      # plug in the ad for upstream sigs if valid urls were found
+      local su=$(sed -n "s,^$source ,,p" <<< "$sources_and_urls")
+      guess_signature_url silent &&
+      message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
+      message "converted to upstream signing. Please choose that option from" &&
+      message "the menu once this update finishes.$DEFAULT_COLOR"
 
       # MD5? These contain no :
       if ! grep -q ":" <<< "$current_check"; then

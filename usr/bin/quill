@@ -307,6 +307,13 @@ then
   done
 else
   query_spell_name
+  while codex_does_spell_exist $SPELL_NAME > /dev/null; do
+    message "This spell name is already taken!"
+    gaze short $SPELL_NAME
+    unset SPELL_NAME
+    echo
+    query_spell_name
+  done
   query_spell_source_url
   # the semirandom fallback url is there to circumvent sorcery bug #13729
   while ! url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null; do

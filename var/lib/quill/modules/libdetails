@@ -59,34 +59,6 @@ function query_spell_version(){
 }
 
 ##
-## @Globals SPELL_SIGNATURE
-function query_spell_signature(){
-  if [[ $SPELL_SIGNATURE ]] &&
-    ! query "Is $SPELL_SIGNATURE the proper signature url?" y; then
-    query_msg "Please enter the url of the signature:"
-    read "SPELL_SIGNATURE"
-  fi
-  while ! [[ $SPELL_SIGNATURE ]]; do
-    query_msg "Please enter the url of the signature:"
-    read "SPELL_SIGNATURE"
-  done
-}
-
-##
-## @Globals SPELL_KEYRING
-function query_spell_keyring(){
-  if [[ $SPELL_KEYRING ]] &&
-    ! query "Is $SPELL_KEYRING the proper keyring url?" y; then
-    query_msg "Please enter the url of the keyring:"
-    read "SPELL_KEYRING"
-  fi
-  while ! [[ $SPELL_KEYRING ]]; do
-    query_msg "Please enter the url of the keyring:"
-    read "SPELL_KEYRING"
-  done
-}
-
-##
 ## @Globals SPELL_LICENSE
 function query_spell_license(){
 if ! [[ $SPELL_LICENSE ]] ||

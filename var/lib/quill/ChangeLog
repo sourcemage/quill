@@ -1,3 +1,13 @@
+2007-05-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: ensure the spell name is unique
+	* libgpg: created to house all the gpg related functions
+	  finished and added another file change implementation
+	  factored out quill_get_spell_keyring, guess_signature_url
+	  added support for automagically creating the keyring from the signature
+	  misc changes to complete the beta version of convert_to_upstream_gpg
+	* libupdate: added silent checking, but yelling for upstream signatures
+	* version: 0.2.6-rc5
+
 2007-05-03 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added inc_src_num and inc_to_unique_src_num to enhace readability
 	  factored summon_sources out of version_bump for other uses
@@ -7,7 +17,6 @@
 	* libdetails: added query_spell_keyring, adapted query_spell_signature
 	* quill: add convert_to_upstream_gpg to the menu
 	  add placeholders to the menu to avoid future renumbering
-	* version: 0.2.6-rc4
 
 2007-05-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcopy: suggest only git clones for target git grimoires

@@ -8,10 +8,6 @@ new menu choices
 	branches
 	SCM: wierd versions; also needs the autoupdate stuff; only for -w
 
-  * 'Convert to upstream signing'
-	try automatically on updates (check for .sig. .asc)?
-	downloadable or manually included
-
   * 'list/remove files?'
 
   * 'Manage CONFIGURE options'
