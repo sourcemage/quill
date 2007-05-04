@@ -4,8 +4,11 @@
 	  finished and added another file change implementation
 	  factored out quill_get_spell_keyring, guess_signature_url
 	  added support for automagically creating the keyring from the signature
+	  added HISTORY updates
+	  fixed dry run
 	  misc changes to complete the beta version of convert_to_upstream_gpg
 	* libupdate: added silent checking, but yelling for upstream signatures
+	  renamed conditional_set_var to *_get_var and plugged the variable leak
 	* version: 0.2.6-rc5
 
 2007-05-03 Jaka Kranjc <lynxlynxlynx@sourcemage.org>

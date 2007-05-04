@@ -17,9 +17,9 @@ function get_sources_and_urls()
 ##
 ## @Globals "version_switch"
 #---
-function conditional_set_var()
+function conditional_get_var()
 {
-  eval ${version_switch:-:}; . DETAILS &> /dev/null; eval echo -n \$$1
+  ( eval ${version_switch:-:}; . DETAILS &> /dev/null; eval echo -n \$$1 )
 }
 
 #---
@@ -35,7 +35,7 @@ function conditional_set_var()
 #---
 function update_patchlevel()
 {
-  local current_value=$(conditional_set_var $1)
+  local current_value=$(conditional_get_var $1)
 
   if [[ -z $current_value ]]
   then

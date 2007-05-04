@@ -501,7 +501,7 @@ function summon_sources() {
       if ! summon -r <<< "$to_summon"; then
         error_msg "Summoning failed, aborting update!"
         query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
-        continue 2
+        continue 2 || return 1
       fi
     fi
     echo

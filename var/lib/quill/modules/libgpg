@@ -1,6 +1,3 @@
-
-
-
 #---
 ## @Synopsis Tries to change the source verification in favour of upstream gpg
 ##
@@ -22,7 +19,8 @@ function convert_to_upstream_gpg() {
       # use the original DETAILS, as we already changed the VERSION
       current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
 
-      read source su <<< $(sed -n "/$l/p" <<< "$sources_and_urls")
+      read source su extras <<< $(sed -n "$l p" <<< "$sources_and_urls")
+      unset extras
       let l-=1
 
       if [[ -z $current_check ]]; then
@@ -54,6 +52,9 @@ function convert_to_upstream_gpg() {
       guess_signature_url verbose
       echo
 
+      j="$i"
+      inc_to_unique_src_num j
+
       SPELL_SIGNATURE="$new_su"
       query_spell_signature
       while ! url_verify "$SPELL_SIGNATURE" &> /dev/null; do
@@ -62,16 +63,14 @@ function convert_to_upstream_gpg() {
         unset SPELL_SIGNATURE
         query_spell_signature
       done
-      new_source=$(basename $SPELL_SIGNATURE)
-      substitute_with_variables new_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL} \
-        "$new_source" {SOURCE$j} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-
-      j="$i"
-      inc_to_unique_src_num j
+      substitute_with_variables new_source "$source" {SOURCE$i} \
+        "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
       echo
       quill_get_spell_keyring
+
+      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL} \
+        "$new_source" {SOURCE$j} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
       # two modes of new line insertion
       # for single-versioned spells we can have the prettier one
@@ -84,7 +83,7 @@ function convert_to_upstream_gpg() {
 
         # sed in the new su[j] right after su[i]
         new_value=$(count_spaces SOURCE${j}_URL[0])
-        sed -i "/^\s*SOURCE${i}_URL[^=]*=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
+        sed -i "/^\s*SOURCE${i}_URL\[0\]=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
 
         # ignore the signature
         new_value=$(count_spaces SOURCE${j}_IGNORE)
@@ -93,6 +92,23 @@ function convert_to_upstream_gpg() {
         # finally change verification to upstream source_gpg
         new_value=$(count_spaces SOURCE${i}_GPG)
         sed -i "s%^.*${current_check}.*$%${new_value}SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY%" DETAILS
+
+        # SOURCE must be first since others reference it
+        # compare line numbers and move the vars if necessary
+        local s_ln su_ln sgpg_ln
+        s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
+        sgpg_ln=$(sed -n "/^\s*SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY/=" DETAILS)
+        if (( $s_ln > $sgpg_ln )); then
+          sed -i "$sgpg_ln{ x;d }; $s_ln G" DETAILS
+          si_ln=$(sed -n "/^\s*SOURCE${j}_IGNORE=signature/=" DETAILS)
+          s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
+          sed -i "$si_ln{ x;d }; $s_ln G" DETAILS
+          s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
+        fi
+        su_ln=$(sed -n "/^\s*SOURCE${j}_URL[^=]*=$SPELL_SIGNATURE/=" DETAILS)
+        if (( $s_ln > $su_ln )); then
+          sed -i "$su_ln{ x;d }; $s_ln G" DETAILS
+        fi
       else
         # sed in the new source[j] before $current_check
         new_value=$(count_spaces SOURCE${j})
@@ -114,14 +130,33 @@ function convert_to_upstream_gpg() {
 
       inc_src_num i
     done
+
+    [[ $SPELL_UPDATED == n ]] && return 0
+
+    add_history_entries "DETAILS: converted to upstream signature checking"
     echo
 
+    # ugly, but avoids excessive suing
     if query "Do you want to try if the new verification system works?" y; then
       get_sources_and_urls
-      summon_sources
-      conditional_set_var SOURCE_DIRECTORY
-      delve -c start PRE_BUILD $SPELL_NAME
-      rm -ri $SOURCE_DIRECTORY
+      SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
+      codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+      $QUILL_SUDO -c ". /etc/sorcery/config; . $QUILL_MODULES/libcore;
+      . $QUILL_MODULES/libcopy; . $QUILL_MODULES/libupdate
+      SPELL_NAME=$SPELL_NAME; QUILL_SPELL_DIR=$QUILL_SPELL_DIR
+      get_sources_and_urls
+      SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
+      codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+      summon_sources || exit 1
+      quill_final_put_in_grimoire $GRIMOIRE $SECTION no
+      delve -c start PRE_BUILD $SPELL_NAME; rc=\$?
+      rm -r $SOURCE_DIRECTORY
+      if [[ \$rc == 0 ]]; then
+        message "Succes!"
+      else
+        error_msg "Failed!"
+      fi
+      sleep 2"
     fi
 
   else
@@ -188,19 +223,18 @@ function quill_get_spell_keyring() {
     if [[ $QUILL_MODE != apprentice && $kr_path != "." ]]; then
       if [[ $kr_path != $SECTION && $kr_path != $SECTION/$SPELL_NAME ]]; then
         message "Copying the keyring to the spell dir as it is not a grimoire"
-        message "level one, from the same section nor from the same spell!"
+        message "level one, from the same section nor from the same spell!\n"
         cp $GRIMOIRE/$SPELL_KEYRING "$QUILL_SPELL_DIR/$SPELL_NAME"
-        SPELL_KEYRING=$(basename $SPELL_KEYRING)
       fi
+      SPELL_KEYRING=$(basename $SPELL_KEYRING)
     fi
     unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
   else
     # get a hint from the failed verification
     message "Creating a keyring from the key that made the signature ..."
-    wget -O $QUILL_TMP_DIR/$SPELL_NAME.sig $SPELL_SIGNATURE
-    # get the key id
-    SPELL_KEYRING=$(gpg --verify $QUILL_TMP_DIR/$SPELL_NAME.sig 2>&1 | sed -n 's,^.* key ID ,,p')
-    rm $QUILL_TMP_DIR/$SPELL_NAME.sig
+    $QUILL_SUDO -c "wget -nc -P $SOURCE_CACHE $SPELL_SIGNATURE"
+    # get the key id, reuse a var
+    SPELL_KEYRING=$(gpg --verify $SOURCE_CACHE/${SPELL_SIGNATURE##*/} 2>&1 | sed -n 's,^.* key ID ,,p')
 
     # create the keyring
     gpg --no-default-keyring --keyring $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_NAME.gpg --recv-keys $SPELL_KEYRING
@@ -215,9 +249,11 @@ function quill_get_spell_keyring() {
         unset SPELL_KEYRING
         query_spell_keyring
       done
-      wget -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
+      wget -nc -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
       SPELL_KEYRING=$(basename "$SPELL_KEYRING")
     fi
+    rm $QUILL_SPELL_DIR/$SPELL_NAME/*.gpg~
+    add_history_entry "$SPELL_KEYRING: added gpg keyring"
   fi
 
 }

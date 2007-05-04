@@ -15,6 +15,7 @@ new menu choices
 update mode:
   * clean the namespace by moving more stuff into functions
   * plug other linters at the end of the update and move them all in liblint
+  * add mirror support for SOURCE_URLs when adding new sources
 
 improvements in the standard mode:
   * handle bad entries and ^C better
