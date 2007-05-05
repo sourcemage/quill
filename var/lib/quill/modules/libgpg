@@ -105,7 +105,8 @@ function convert_to_upstream_gpg() {
           sed -i "$si_ln{ x;d }; $s_ln G" DETAILS
           s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
         fi
-        su_ln=$(sed -n "/^\s*SOURCE${j}_URL[^=]*=$SPELL_SIGNATURE/=" DETAILS)
+        SPELL_SIGNATURE=$(sed 's,[][],\\&,g' <<< "$SPELL_SIGNATURE")
+        su_ln=$(sed -n "/^\s*SOURCE${j}_URL\[.*\]=$SPELL_SIGNATURE/=" DETAILS)
         if (( $s_ln > $su_ln )); then
           sed -i "$su_ln{ x;d }; $s_ln G" DETAILS
         fi
@@ -225,6 +226,7 @@ function quill_get_spell_keyring() {
         message "Copying the keyring to the spell dir as it is not a grimoire"
         message "level one, from the same section nor from the same spell!\n"
         cp $GRIMOIRE/$SPELL_KEYRING "$QUILL_SPELL_DIR/$SPELL_NAME"
+        add_history_entry "$SPELL_KEYRING: added gpg keyring"
       fi
       SPELL_KEYRING=$(basename $SPELL_KEYRING)
     fi
@@ -287,7 +289,7 @@ function query_spell_keyring(){
 ##
 ## @Globals "source" "sources_and_urls"
 #---
-function upstream_gpg_ad
+function upstream_gpg_ad() {
   # plug in the ad for upstream sigs if valid urls were found
   local su=$(sed -n "s,^$source ,,p" <<< "$sources_and_urls")
   guess_signature_url silent &&

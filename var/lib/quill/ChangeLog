@@ -2,6 +2,7 @@
 	* libgpg: factored upstream_gpg_ad for more uses in version_bump
 	  removed a stale debug file
 	  fixed missing source url index when substituting
+	  added another history update; fixed some errors from last commit
 	* libupdate:  use upstream_gpg_ad in more places
 	* version: 0.2.6-rc6
 
