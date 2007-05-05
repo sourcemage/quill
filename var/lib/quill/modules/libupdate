@@ -168,10 +168,6 @@ function version_bump() {
     get_sources_and_urls
     echo
 
-# do the silent check for gpg
-# if succesful then convert
-# else continue
-
     summon_sources
 
     #update HISTORY - already here, so that the patchlevels come later
@@ -207,18 +203,12 @@ function version_bump() {
         continue
       fi
 
-      # plug in the ad for upstream sigs if valid urls were found
-      local su=$(sed -n "s,^$source ,,p" <<< "$sources_and_urls")
-      guess_signature_url silent &&
-      message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
-      message "converted to upstream signing. Please choose that option from" &&
-      message "the menu once this update finishes.$DEFAULT_COLOR"
-
       # MD5? These contain no :
       if ! grep -q ":" <<< "$current_check"; then
         new_value=$(count_spaces SOURCE${i}_HASH)
         sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
         remove_old_sigs "$version"
+        upstream_gpg_ad
 
         inc_src_num i
         continue
@@ -245,12 +235,14 @@ function version_bump() {
           gpg --default-key $GURU_GPGKEY -v --digest-algo SHA512 -o $QUILL_SPELL_DIR/$SPELL_NAME/$source.sig --detach-sign $SOURCE_CACHE/$source
           echo
           remove_old_sigs "$version"
+          upstream_gpg_ad
 
           inc_src_num i
           continue
         fi
       fi
 
+      upstream_gpg_ad
       # it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
       # SOURCE_GPG usually has unexpanded variables, while we have the expanded
       unexpand_source_gpg || {

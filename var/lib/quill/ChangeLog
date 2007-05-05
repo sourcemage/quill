@@ -1,3 +1,10 @@
+2007-05-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libgpg: factored upstream_gpg_ad for more uses in version_bump
+	  removed a stale debug file
+	  fixed missing source url index when substituting
+	* libupdate:  use upstream_gpg_ad in more places
+	* version: 0.2.6-rc6
+
 2007-05-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: ensure the spell name is unique
 	* libgpg: created to house all the gpg related functions

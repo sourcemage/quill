@@ -63,14 +63,14 @@ function convert_to_upstream_gpg() {
         unset SPELL_SIGNATURE
         query_spell_signature
       done
-      substitute_with_variables new_source "$source" {SOURCE$i} \
+      substitute_with_variables new_source "$source" SOURCE$i \
         "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
       echo
       quill_get_spell_keyring
 
-      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL} \
-        "$new_source" {SOURCE$j} "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
+      substitute_with_variables SPELL_SIGNATURE "$su" {SOURCE${i}_URL[0]} \
+        "$new_source" SOURCE$j "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
 
       # two modes of new line insertion
       # for single-versioned spells we can have the prettier one
@@ -138,15 +138,15 @@ function convert_to_upstream_gpg() {
 
     # ugly, but avoids excessive suing
     if query "Do you want to try if the new verification system works?" y; then
-      get_sources_and_urls
+      #get_sources_and_urls
       SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
       codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
       $QUILL_SUDO -c ". /etc/sorcery/config; . $QUILL_MODULES/libcore;
       . $QUILL_MODULES/libcopy; . $QUILL_MODULES/libupdate
       SPELL_NAME=$SPELL_NAME; QUILL_SPELL_DIR=$QUILL_SPELL_DIR
       get_sources_and_urls
-      SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
-      codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+#SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
+#codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
       summon_sources || exit 1
       quill_final_put_in_grimoire $GRIMOIRE $SECTION no
       delve -c start PRE_BUILD $SPELL_NAME; rc=\$?
@@ -279,6 +279,21 @@ function query_spell_keyring(){
     query_msg "Please enter the url of the keyring:"
     read "SPELL_KEYRING"
   done
+}
+
+#---
+## @Synopsis silently check if a signed version of the source exsist
+## @Synopsis and if so, verbosely try to sell it
+##
+## @Globals "source" "sources_and_urls"
+#---
+function upstream_gpg_ad
+  # plug in the ad for upstream sigs if valid urls were found
+  local su=$(sed -n "s,^$source ,,p" <<< "$sources_and_urls")
+  guess_signature_url silent &&
+  message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
+  message "converted to upstream signing. Please choose that option from" &&
+  message "the menu once this update finishes.$DEFAULT_COLOR"
 }
 
 #---
