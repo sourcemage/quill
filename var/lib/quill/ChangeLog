@@ -1,3 +1,9 @@
+2007-05-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: check for upstream sigs when creating spells too
+	* libgpg: improve a history addition message
+	  one needs the signed data too to guess the signing key
+	* version: 0.2.6-rc7
+
 2007-05-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libgpg: factored upstream_gpg_ad for more uses in version_bump
 	  removed a stale debug file

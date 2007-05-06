@@ -453,6 +453,12 @@ else
     add_desktop_file
   fi
 
+  local source sources sources_and_urls source_urls
+  get_sources_and_urls
+  for source in $sources; do
+    upstream_gpg_ad && break
+  done
+
   add_history
   quill_set_executable_bit
   if query "Do you want to edit all the spell files?" n

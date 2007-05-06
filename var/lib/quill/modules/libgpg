@@ -146,8 +146,6 @@ function convert_to_upstream_gpg() {
       . $QUILL_MODULES/libcopy; . $QUILL_MODULES/libupdate
       SPELL_NAME=$SPELL_NAME; QUILL_SPELL_DIR=$QUILL_SPELL_DIR
       get_sources_and_urls
-#SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
-#codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
       summon_sources || exit 1
       quill_final_put_in_grimoire $GRIMOIRE $SECTION no
       delve -c start PRE_BUILD $SPELL_NAME; rc=\$?
@@ -226,7 +224,7 @@ function quill_get_spell_keyring() {
         message "Copying the keyring to the spell dir as it is not a grimoire"
         message "level one, from the same section nor from the same spell!\n"
         cp $GRIMOIRE/$SPELL_KEYRING "$QUILL_SPELL_DIR/$SPELL_NAME"
-        add_history_entry "$SPELL_KEYRING: added gpg keyring"
+        add_history_entry "${SPELL_KEYRING##*/}: added gpg keyring from $kr_path"
       fi
       SPELL_KEYRING=$(basename $SPELL_KEYRING)
     fi
@@ -234,7 +232,7 @@ function quill_get_spell_keyring() {
   else
     # get a hint from the failed verification
     message "Creating a keyring from the key that made the signature ..."
-    $QUILL_SUDO -c "wget -nc -P $SOURCE_CACHE $SPELL_SIGNATURE"
+    $QUILL_SUDO -c "wget -nc -P $SOURCE_CACHE $SPELL_SIGNATURE ${SPELL_SIGNATURE%.*}"
     # get the key id, reuse a var
     SPELL_KEYRING=$(gpg --verify $SOURCE_CACHE/${SPELL_SIGNATURE##*/} 2>&1 | sed -n 's,^.* key ID ,,p')
 
@@ -254,7 +252,8 @@ function quill_get_spell_keyring() {
       wget -nc -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
       SPELL_KEYRING=$(basename "$SPELL_KEYRING")
     fi
-    rm $QUILL_SPELL_DIR/$SPELL_NAME/*.gpg~
+
+    rm -f $QUILL_SPELL_DIR/$SPELL_NAME/*.gpg~
     add_history_entry "$SPELL_KEYRING: added gpg keyring"
   fi
 
@@ -286,6 +285,9 @@ function query_spell_keyring(){
 #---
 ## @Synopsis silently check if a signed version of the source exsist
 ## @Synopsis and if so, verbosely try to sell it
+##
+## @return 0 if a valid signature was found
+## @return 1 otherwise
 ##
 ## @Globals "source" "sources_and_urls"
 #---
