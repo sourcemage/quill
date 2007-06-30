@@ -1,3 +1,9 @@
+2007-06-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: fixed local varibles and synced 13001 workaround
+	* libgpg: added import-minimal to the key generator
+	  fixed success typos
+	* version: 0.2.6-rc8
+
 2007-05-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: check for upstream sigs when creating spells too
 	* libgpg: improve a history addition message

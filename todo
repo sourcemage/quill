@@ -1,4 +1,4 @@
-post 0.2 things that would be cool to have done:
+things that would be cool to have:
 new menu choices
   * 'Manage patches'
 	add/remove them and their references in PRE_BUILD
@@ -30,3 +30,6 @@ documentation:
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it
   * add quill mode to /quillrc to avoid the need to constantly pass it
+
+ads:
+  <p3pilot> i am a believer in using quill for updates...very few failures and is just quicker for me

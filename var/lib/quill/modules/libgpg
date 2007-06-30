@@ -151,7 +151,7 @@ function convert_to_upstream_gpg() {
       delve -c start PRE_BUILD $SPELL_NAME; rc=\$?
       rm -r $SOURCE_DIRECTORY
       if [[ \$rc == 0 ]]; then
-        message "Succes!"
+        message "Success!"
       else
         error_msg "Failed!"
       fi
@@ -182,7 +182,7 @@ function guess_signature_url() {
     if url_verify "$su.$suffix" &> /dev/null; then
       new_su="$su.$suffix"
       new_source="$source.$suffix"
-      [[ $silent != silent ]] && message "Succes!"
+      [[ $silent != silent ]] && message "Success!"
       return 0
     fi
   done
@@ -237,7 +237,9 @@ function quill_get_spell_keyring() {
     SPELL_KEYRING=$(gpg --verify $SOURCE_CACHE/${SPELL_SIGNATURE##*/} 2>&1 | sed -n 's,^.* key ID ,,p')
 
     # create the keyring
-    gpg --no-default-keyring --keyring $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_NAME.gpg --recv-keys $SPELL_KEYRING
+    gpg --import-options import-minimal --no-default-keyring --keyring \
+      $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING.gpg --recv-keys $SPELL_KEYRING
+
     SPELL_KEYRING=$SPELL_NAME.gpg
 
     if query "Is there a more complete keyring available?" y; then
