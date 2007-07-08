@@ -6,22 +6,23 @@
 #---
 function convert_to_upstream_gpg() {
   local update_counter=${#versions[@]} source su i new_value new_su new_source
-  local version_switch j l
+  local version_switch j ll ll_max mirrors
   if query "Do you want to do it for $version?" y; then
     multiversion_check
     SPELL_VERSION="$version"
 
     get_sources_and_urls
+#echo -e "---\n${source_urls[@]}\n---"
     i=
     SPELL_KEYRING=
-    l=$(wc -l <<< "$sources_and_urls")
-    while [[ $l > 0 ]]; do
+    ll_max=$(wc -l <<< "$sources_and_urls")
+    for (( ll=1; ll <= $ll_max; ll++ )); do
       # use the original DETAILS, as we already changed the VERSION
       current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
 
-      read source su extras <<< $(sed -n "$l p" <<< "$sources_and_urls")
-      unset extras
-      let l-=1
+      read source su mirrors <<< $(sed -n "$ll p" <<< "$sources_and_urls")
+#echo "$source --- $su --- $mirrors"
+#      let ll-=1
 
       if [[ -z $current_check ]]; then
         error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
@@ -57,6 +58,7 @@ function convert_to_upstream_gpg() {
 
       SPELL_SIGNATURE="$new_su"
       query_spell_signature
+      [[ $SPELL_SIGNATURE == skip ]] && continue
       while ! url_verify "$SPELL_SIGNATURE" &> /dev/null; do
         error_msg "You entered a bad signature url!"
         echo
@@ -110,6 +112,30 @@ function convert_to_upstream_gpg() {
         if (( $s_ln > $su_ln )); then
           sed -i "$su_ln{ x;d }; $s_ln G" DETAILS
         fi
+
+
+
+        # now that the order is pretty much fine, add any other mirrors
+        local mirror_url suffix k=$(wc -w <<< "$mirrors")
+
+        if [[ $k != 0 ]]; then
+          # get the suffix that was used from new_source
+          suffix="${new_source##*.}"
+
+          # traverse over mirror numbers in reverse, so mirrors end up
+          # ordered ascendingly, since we're adding them at a fixed location
+          for mirror_url in $mirrors; do
+            if url_verify "$mirror_url.$suffix" > /dev/null; then
+              # add it after original, first su
+              new_value=$(count_spaces SOURCE${j}_URL[$k])
+              sed -i "/^\s*SOURCE${i}_URL\[0\]=/ s%^.*$%&\n${new_value}SOURCE${i}_URL[$k]=$mirror_url.$suffix%" DETAILS
+            fi
+            let k-=1
+          done
+        fi
+
+
+
       else
         # sed in the new source[j] before $current_check
         new_value=$(count_spaces SOURCE${j})
@@ -134,12 +160,12 @@ function convert_to_upstream_gpg() {
 
     [[ $SPELL_UPDATED == n ]] && return 0
 
+    echo
     add_history_entries "DETAILS: converted to upstream signature checking"
     echo
 
     # ugly, but avoids excessive suing
     if query "Do you want to try if the new verification system works?" y; then
-      #get_sources_and_urls
       SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
       codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
       $QUILL_SUDO -c ". /etc/sorcery/config; . $QUILL_MODULES/libcore;
@@ -240,10 +266,10 @@ function quill_get_spell_keyring() {
     gpg --import-options import-minimal --no-default-keyring --keyring \
       $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING.gpg --recv-keys $SPELL_KEYRING
 
-    SPELL_KEYRING=$SPELL_NAME.gpg
+    SPELL_KEYRING=$SPELL_KEYRING.gpg
 
     if query "Is there a more complete keyring available?" y; then
-      rm $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_NAME.gpg
+      rm $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING
       unset SPELL_KEYRING
       query_spell_keyring
       while ! url_verify "$SPELL_KEYRING" &> /dev/null; do
@@ -270,7 +296,7 @@ function query_spell_signature(){
     read "SPELL_SIGNATURE"
   fi
   while ! [[ $SPELL_SIGNATURE ]]; do
-    query_msg "Please enter the url of the signature:"
+    query_msg "Please enter the url of the signature or 'skip' to skip this source:"
     read "SPELL_SIGNATURE"
   done
 }
@@ -295,7 +321,7 @@ function query_spell_keyring(){
 #---
 function upstream_gpg_ad() {
   # plug in the ad for upstream sigs if valid urls were found
-  local su=$(sed -n "s,^$source ,,p" <<< "$sources_and_urls")
+  local su=$(sed -n "s,^$source \(\S*\) .*$,\1,p" <<< "$sources_and_urls")
   guess_signature_url silent &&
   message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
   message "converted to upstream signing. Please choose that option from" &&

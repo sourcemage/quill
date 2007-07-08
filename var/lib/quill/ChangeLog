@@ -1,7 +1,17 @@
+2007-07-08 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: added complete mirror support to check_source_urls
+	* libgpg: added mirror support (single version spells only)
+	  made query_spell_signature accept 'skip' to skip converting a source
+	  fixed some keyfile naming
+	  made the converter traverse the sources in consistent ascending order
+	* libupdate: made source_urls an array
+	* version: 0.2.6-rc9
+
 2007-06-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: fixed local varibles and synced 13001 workaround
 	* libgpg: added import-minimal to the key generator
 	  fixed success typos
+	  made the new keyrings be named after their key
 	* version: 0.2.6-rc8
 
 2007-05-06 Jaka Kranjc <lynxlynxlynx@sourcemage.org>

@@ -8,7 +8,8 @@ function get_sources_and_urls()
 {
   sources_and_urls=$(eval ${version_switch:-:}; . DETAILS &> /dev/null; get_spell_files_and_urls)
   sources=$(cut -d" " -f1 <<< "$sources_and_urls")
-  source_urls=$(cut -d" " -f2 <<< "$sources_and_urls")
+  source_urls=()
+  explode "$(cut -d" " -f2- <<< "$sources_and_urls")" $'\n' source_urls
 }
 
 #---
