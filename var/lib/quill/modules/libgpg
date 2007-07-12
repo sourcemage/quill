@@ -6,7 +6,7 @@
 #---
 function convert_to_upstream_gpg() {
   local update_counter=${#versions[@]} source su i new_value new_su new_source
-  local version_switch j ll ll_max mirrors
+  local version_switch j ll ll_max mirrors num_of_mirrors
   if query "Do you want to do it for $version?" y; then
     multiversion_check
     SPELL_VERSION="$version"
@@ -21,8 +21,7 @@ function convert_to_upstream_gpg() {
       current_check=$(eval ${version_switch:-:}; . DETAILS.orig &> /dev/null; eval echo \$SOURCE${i}_HASH\$SOURCE${i}_GPG\$SOURCE${i}_IGNORE\$\{MD5[${i:-0}]\})
 
       read source su mirrors <<< $(sed -n "$ll p" <<< "$sources_and_urls")
-#echo "$source --- $su --- $mirrors"
-#      let ll-=1
+      num_of_mirrors=$(wc -w <<< "$mirrors")
 
       if [[ -z $current_check ]]; then
         error_msg "Missing SOURCE${i}_HASH/SOURCE${i}_GPG/SOURCE${i}_IGNORE"
@@ -83,9 +82,9 @@ function convert_to_upstream_gpg() {
         sed -i "/^\s*SOURCE$i=/ s%^.*$%&\n${new_value}SOURCE${j}=$new_source%" DETAILS
         SPELL_UPDATED=y
 
-        # sed in the new su[j] right after su[i]
-        new_value=$(count_spaces SOURCE${j}_URL[0])
-        sed -i "/^\s*SOURCE${i}_URL\[0\]=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
+        # sed in the new su$j right after su$i or last su$i[]
+        new_value=$(count_spaces SOURCE${j}_URL[$num_of_mirrors])
+        sed -i "/^\s*SOURCE${i}_URL\[$num_of_mirrors\]=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[0]=$SPELL_SIGNATURE%" DETAILS
 
         # ignore the signature
         new_value=$(count_spaces SOURCE${j}_IGNORE)
@@ -116,9 +115,9 @@ function convert_to_upstream_gpg() {
 
 
         # now that the order is pretty much fine, add any other mirrors
-        local mirror_url suffix k=$(wc -w <<< "$mirrors")
+        local mirror_url suffix mirror_num=1
 
-        if [[ $k != 0 ]]; then
+        if [[ $num_of_mirrors != 0 ]]; then
           # get the suffix that was used from new_source
           suffix="${new_source##*.}"
 
@@ -127,10 +126,13 @@ function convert_to_upstream_gpg() {
           for mirror_url in $mirrors; do
             if url_verify "$mirror_url.$suffix" > /dev/null; then
               # add it after original, first su
-              new_value=$(count_spaces SOURCE${j}_URL[$k])
-              sed -i "/^\s*SOURCE${i}_URL\[0\]=/ s%^.*$%&\n${new_value}SOURCE${i}_URL[$k]=$mirror_url.$suffix%" DETAILS
+              new_value=$(count_spaces SOURCE${j}_URL[$mirror_num])
+
+              # expand vars first
+              substitute_with_variables mirror_url "$mirror_url" {SOURCE${i}_URL[$mirror_num]}
+              sed -i "/^\s*SOURCE${j}_URL\[0\]=/ s%^.*$%&\n${new_value}SOURCE${j}_URL[$mirror_num]=$mirror_url.$suffix%" DETAILS
             fi
-            let k-=1
+            let mirror_num++
           done
         fi
 

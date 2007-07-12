@@ -1,3 +1,10 @@
+2007-07-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: fixed mirror indexing in check_source_urls messages
+	* libgpg: add the new source url after the last mirror url - fixed ordering
+	  made mirror addition expand the source url
+	  fixed some mirror indices
+	* version: 0.2.7
+
 2007-07-08 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added complete mirror support to check_source_urls
 	* libgpg: added mirror support (single version spells only)
