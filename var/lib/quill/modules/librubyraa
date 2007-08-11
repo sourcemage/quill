@@ -26,19 +26,21 @@ function quill_raa_core(){
   SPELL_NAME="$1"
   project="$SPELL_NAME"
   raa_project_file=${QUILL_TMP_DIR}/${project}.raa
-  message "Attempting to retrieve project page..."
-  wget -q -O $raa_project_file.tmp \
-       http://raa.ruby-lang.org/project/$project/ || \
-       error_msg "Error: unable to fetch project page" && \
-       return 1
-  sed -e "s:<a href=\"\(.*\)\".*:\1:g" \
-      -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" \
-      $raa_project_file.tmp | \
-      sed -e ":pot /:\s*$/{ N; s/\n//g; t pot}; /:$/{ b pot}" \
-      -e "/^$/d" > $raa_project_file
-  if $(head -n3 $raa_project_file | grep -q "RAA - Search") ; then
-    error_msg "Error: project not found"
-    return 1
+  if [[ ! -e ${raa_project_file} ]]; then
+    message "Attempting to retrieve project page..."
+    wget -q -O $raa_project_file.tmp \
+         http://raa.ruby-lang.org/project/$project/ || \
+         (error_msg "Error: unable to fetch project page" && \
+         return 1)
+    sed -e "s:<a href=\"\(.*\)\".*:\1:g" \
+        -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" \
+        $raa_project_file.tmp | \
+        sed -e ":pot /:\s*$/{ N; s/\n//g; t pot}; /:$/{ b pot}" \
+        -e "/^$/d" > $raa_project_file
+    if $(head -n3 $raa_project_file | grep -q "RAA - Search") ; then
+      error_msg "Error: project not found"
+      return 1
+    fi
   fi
   SPELL_SHORT_DESCRIPTION="$(quill_raa_get_info "Short description" "$raa_project_file" )"
   SPELL_LICENSE="$(quill_raa_get_info "License" "$raa_project_file" )"
