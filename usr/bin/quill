@@ -55,6 +55,10 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="cpan"
                   shift ;;
+    --rubyraa|-r)
+                  check_parameter $2
+                  QUILL_FETCH_MODE="raa"
+                  shift ;;
      --savane|-s)
                   check_parameter $2
                   QUILL_FETCH_MODE="savane"

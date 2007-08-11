@@ -4,6 +4,7 @@
 	* libgna: specific calls for Gna! site
 	* libsavannah: specific calls for savannah site
 	* quill: added necessary calls
+	  put back raa mode
 
 2007-07-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed mirror indexing in check_source_urls messages
