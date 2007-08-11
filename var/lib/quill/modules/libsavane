@@ -1,0 +1,62 @@
+#
+## Generic savane module
+#
+
+##
+## @Globals SPELL_NAME SPELL_LICENSE SPELL_URL
+## @Globals QUILL_TMP_DIR
+function quill_savane_core(){
+  local project
+  local project_url
+  local savane_project_file
+
+  # so it is set even if we end prematurely, useful when adding spells
+  # gets properly overwritten later on
+  SPELL_NAME="$1"
+  project_url="${2:-$1}"
+  project="$SPELL_NAME"
+  if grep -q "^http://.*" <<< $SPELL_NAME; then
+    message "Unknown site, please file a bug for it..."
+    message "Attempting to figure out the project from the url..."
+    project=""
+    project="$(echo "$project_url" | sed -e 's:http.*/\(.*\)$:\1:')"
+    project_url="$(echo $project_url | sed -e 's:\(http.*\)/.*$:\1:')"
+    if [[ $project == "" ]]; then
+      project=$(echo "$project_url" | sed -e 's:http.*/\(.*\)/$:\1:')
+    fi
+    if [[ -n $project ]]; then
+      message "Project $project detected with project_url $project_url..."
+      message "Assuming this is what you want to create a spell for."
+    else
+      error_msg "Error no project detected..."
+      return 1
+    fi
+  else
+    error_msg "Unsupported..."
+    return 1
+  fi
+  savane_project_file=${QUILL_TMP_DIR}/${project}.savane
+  if [[ ! -e ${savane_project_file} ]]; then
+    message "Attempting to retrieve project page..."
+    wget --no-check-certificate -q -O $savane_project_file.tmp \
+         $project_url/$project/ || \
+         (error_msg "Error: unable to fetch project page" && \
+         return 1)
+  fi
+  SPELL_LICENSE="$(cat $savane_project_file | grep "License:" | sed -e "s:.*<a href=\"\(.*\)\".*:\1:g" )"
+  SPELL_URL="$(cat $savane_project_file | grep "alt=\"Homepage\"" | sed -e "s:.*<a href=\"\(.*\)\".*:\1:g")"
+  SPELL_NAME="$project"
+  cat $savane_project_file | \
+  sed -e 's:div class="indexcenter":>INDEX<:' | \
+  sed -e "s:.*<a href=\"\(.*\)\".*:\1:g" \
+      -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" | \
+  sed -n '/INDEX/,/Registration Date:/ p' > \
+      ${QUILL_TMP_DIR}/${SPELL_NAME}
+  sed -i -e '1s/INDEX.*//' \
+         -e '2s/This project is not part of the GNU Project\..*//' \
+         -e '2s/This project is part of the GNU Project\..*//' \
+         -e 's/Registration Date:.*//' \
+         -e '/^$/d' \
+         ${QUILL_TMP_DIR}/${SPELL_NAME}
+
+}

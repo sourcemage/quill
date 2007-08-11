@@ -1,5 +1,9 @@
 2007-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* librubyraa: added to check if the project page exists yet
+	* libsavane: generic support for any savane compatible site
+	* libgna: specific calls for Gna! site
+	* libsavannah: specific calls for savannah site
+	* quill: added necessary calls
 
 2007-07-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed mirror indexing in check_source_urls messages

@@ -1,0 +1,7 @@
+#
+## Gna! module
+#
+
+function quill_gna_core(){
+  quill_savane_core "${1}" "https://gna.org/projects"
+}

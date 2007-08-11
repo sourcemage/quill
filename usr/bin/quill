@@ -55,9 +55,17 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="cpan"
                   shift ;;
-    --rubyraa|-y)
+     --savane|-s)
                   check_parameter $2
-                  QUILL_FETCH_MODE="raa"
+                  QUILL_FETCH_MODE="savane"
+                  shift ;;
+   --savannah|-a)
+                  check_parameter $2
+                  QUILL_FETCH_MODE="savannah"
+                  shift ;;
+        --gna|-g)
+                  check_parameter $2
+                  QUILL_FETCH_MODE="gna"
                   shift ;;
      --update|-u)
                   check_parameter $2
@@ -67,6 +75,21 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_UPDATE="on"
                   QUILL_FETCH_MODE="fmxml"
+                  shift ;;
+         -us|-su)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="savane"
+                  shift ;;
+         -ug|-gu)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="gna"
+                  shift ;;
+         -ua|-au)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="savannah"
                   shift ;;
          -uc|-cu)
                   check_parameter $2
@@ -136,7 +159,7 @@ unset -f url_ftp_verify &&
 function url_ftp_verify() {
   local  URL=$1
 
-  if  [  -n  "$URL"  ];  then
+  if  [[  -n  "$URL"  ]];  then
     local  FILENAME=`basename $URL`
     local  DIRECTORY=`dirname $URL`
     local  OUTPUT=`wget --passive-ftp -t 1 -T 30 -O - --spider -S "$DIRECTORY/" 2>&1`
@@ -145,7 +168,7 @@ function url_ftp_verify() {
       rm  -f  .listing
     else
       echo  $OUTPUT  |  sed  's/LIST.*//g'
-      [  -f  .listing  ]  &&  cat  .listing
+      [[  -f  .listing  ]]  &&  cat  .listing
       rm -f  .listing
       false
     fi
