@@ -31,14 +31,14 @@ function quill_savane_core(){
       error_msg "Error no project detected..."
       return 1
     fi
-  else
-    error_msg "Unsupported..."
-    return 1
   fi
+#    error_msg "Unsupported..."
+#    return 1
+#  fi
   savane_project_file=${QUILL_TMP_DIR}/${project}.savane
   if [[ ! -e ${savane_project_file} ]]; then
     message "Attempting to retrieve project page..."
-    wget --no-check-certificate -q -O $savane_project_file.tmp \
+    wget --no-check-certificate -q -O $savane_project_file \
          $project_url/$project/ || \
          (error_msg "Error: unable to fetch project page" && \
          return 1)
