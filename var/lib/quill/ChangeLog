@@ -3,6 +3,8 @@
 	  of Free Software
 	* quill: fsf option
 	* libcore: added some forgotten flags
+	* libsavane: made it work
+	* libfsfdirectory: made it work
 
 2007-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* librubyraa: added to check if the project page exists yet
