@@ -1,3 +1,9 @@
+2007-08-12 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libfsfdirectory: added support for FSF/UNESCO directory
+	  of Free Software
+	* quill: fsf option
+	* libcore: added some forgotten flags
+
 2007-08-11 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* librubyraa: added to check if the project page exists yet
 	* libsavane: generic support for any savane compatible site

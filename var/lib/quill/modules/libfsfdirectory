@@ -1,0 +1,47 @@
+#
+## FSF/UNESCO directory module
+#
+
+function quill_fsf_get_deps(){
+  local data
+  local file
+  file="${2}"
+  data="${1}"
+  cat $file | \
+  grep "$data" | \
+  sed -e "s:.*<tr><td valign=\"top\">$data</td><td>\(.*\)</td></tr>.*:\1:g" |\
+  sed -e "s:</td></tr>.*::g"
+}
+##
+## @Globals SPELL_NAME SPELL_LICENSE SPELL_URL
+## @Globals QUILL_TMP_DIR
+function quill_fsf_core(){
+  local project
+  local fsf_project_file
+
+  # so it is set even if we end prematurely, useful when adding spells
+  # gets properly overwritten later on
+  SPELL_NAME="$1"
+  project="$2"
+  fsf_project_file=${QUILL_TMP_DIR}/${project}.fsf
+  if [[ ! -e ${fsf_project_file} ]]; then
+    message "Attempting to retrieve project page..."
+    wget -q -O $fsf_project_file \
+         $project_url/$project/ || \
+         (error_msg "Error: unable to fetch project page" && \
+         return 1)
+  fi
+  SPELL_SRC_URL="$(cat $fsf_project_file| grep "Source tarball" | sed -e 's:.*<tr><td valign=\"top\">Source tarball</td><td><a href=[^\"]*\"\([^\"]*\)\"[^\"]*>.*</a></td>.*:\1:g')"
+  SPELL_SHORT_DESCRIPTION="$(cat $fsf_project_file | grep "</p><h3>" | sed -e 's:.*</p><h3>\(.*\)</h3>.*:\1:')"
+  SPELL_DEPENDENCIES="$(quill_fsf_get_deps "Source languages" "$fsf_project_file") $(quill_fsf_get_deps "Build prerequisites" "$fsf_project_file") $(quill_fsf_get_deps "Use requirements" "$fsf_project_file"))"
+  SPELL_OPTIONAL_DEPENDENCIES="$(quill_fsf_get_deps "Weak prerequisites" "$fsf_project_file")"
+  SPELL_LICENSE="$(cat $fsf_project_file| grep "Licensed under" | sed -e 's:.*<tr><td>\(Licensed under .*\)\.</td></tr> *.*:\1:' -e 's:<tr><td>This.*::' -e 's:\.</td></tr>::')"
+  SPELL_URL="$(cat $fsf_project_file| grep "Web page" | sed -e 's:.*<tr><td valign=\"top\">Web page</td><td><a href=[^\"]*\"\([^\"]*\)\"[^\"]*>.*</a></td>.*:\1:g')"
+  SPELL_NAME="$project"
+  sed -e 's:<body bgcolor="white">:>INDEX<:' $fsf_project_file | \
+  sed -e "s:.*<a href=\"\(.*\)\".*:\1:g" | \
+  sed -n '/INDEX/,/All_Packages_in_Directory/ p' | \
+  sed -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" > \
+      ${QUILL_TMP_DIR}/${SPELL_NAME}
+
+}

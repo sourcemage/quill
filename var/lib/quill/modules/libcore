@@ -587,6 +587,10 @@ OPTIONS:
   --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
   --perlcpan, -c <SPELL>	get spell data from Perl-CPAN if possible
   --rubyraa, -y <SPELL>		get spell data from Ruby Application Archive if possible
+  --savane, -s <SPELL>		get spell data from a savane run site
+  --savannah, -a <SPELL>		get spell data from the savannah site
+  --gna, -g <SPELL>		get spell data from the gna! site
+  --fsf, -F <SPELL>		get spell data from the fsf/unesco directory site
   --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)

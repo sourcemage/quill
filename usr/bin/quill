@@ -71,6 +71,10 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="gna"
                   shift ;;
+        --fsf|-F)
+                  check_parameter $2
+                  QUILL_FETCH_MODE="fsf"
+                  shift ;;
      --update|-u)
                   check_parameter $2
                   QUILL_UPDATE="on"
@@ -104,6 +108,11 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_UPDATE="on"
                   QUILL_FETCH_MODE="raa"
+                  shift ;;
+         -Fu|-uF)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="fsf"
                   shift ;;
       --purge|-p) QUILL_MODE="purge"; quill_purge $2 ;;
  --apprentice|-a) QUILL_MODE="apprentice" ;;
