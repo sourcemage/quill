@@ -591,6 +591,7 @@ OPTIONS:
   --savannah, -a <SPELL>		get spell data from the savannah site
   --gna, -g <SPELL>		get spell data from the gna! site
   --fsf, -F <SPELL>		get spell data from the fsf/unesco directory site
+  --hackagedb, -H <SPELL>	get spell data from Haskell HackageDB if possible
   --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)

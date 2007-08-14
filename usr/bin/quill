@@ -75,6 +75,10 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="fsf"
                   shift ;;
+  --hackagedb|-H)
+                  check_parameter $2
+                  QUILL_FETCH_MODE="hdb"
+                  shift ;;
      --update|-u)
                   check_parameter $2
                   QUILL_UPDATE="on"
@@ -113,6 +117,11 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_UPDATE="on"
                   QUILL_FETCH_MODE="fsf"
+                  shift ;;
+         -Hu|-uH)
+                  check_parameter $2
+                  QUILL_UPDATE="on"
+                  QUILL_FETCH_MODE="hdb"
                   shift ;;
       --purge|-p) QUILL_MODE="purge"; quill_purge $2 ;;
  --apprentice|-a) QUILL_MODE="apprentice" ;;

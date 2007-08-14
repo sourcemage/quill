@@ -1,3 +1,9 @@
+2007-08-15 Alexander Tsamutali <astsmtl@gmail.com>
+	* quill: added new mode --hackagedb | -H which fetches information
+	  about the package from Haskell HackageDB
+	* libcore: added HackageDB mode to the help message
+	* libhackagedb: new file, provides HackageDB support
+
 2007-08-12 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libfsfdirectory: added support for FSF/UNESCO directory
 	  of Free Software
