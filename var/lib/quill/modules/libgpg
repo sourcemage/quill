@@ -322,7 +322,7 @@ function query_spell_keyring(){
 ## @Globals QUILL_GPG_AD "source" "sources_and_urls"
 #---
 function upstream_gpg_ad() {
-  if [[ -z $QUILL_GPG_AD ]]
+  if [[ -z $QUILL_GPG_AD ]]; then
     # plug in the ad for upstream sigs if valid urls were found
     local su=$(sed -n "s,^$source \(\S*\) .*$,\1,p" <<< "$sources_and_urls")
     guess_signature_url silent &&
