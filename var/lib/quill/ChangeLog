@@ -1,3 +1,9 @@
+2007-07-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: fixed bad ruby restoration, savannah switch
+	* libcore: removed extra tab in savannah quill_help
+	  separated the extra modules in quill_help and updated it
+	* version: 0.2.8-rc7
+
 2007-08-15 Alexander Tsamutali <astsmtl@gmail.com>
 	* quill: added new mode --hackagedb | -H which fetches information
 	  about the package from Haskell HackageDB

@@ -55,7 +55,7 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="cpan"
                   shift ;;
-    --rubyraa|-r)
+    --rubyraa|-y)
                   check_parameter $2
                   QUILL_FETCH_MODE="raa"
                   shift ;;
@@ -63,7 +63,7 @@ while [[ -n $1 ]]; do
                   check_parameter $2
                   QUILL_FETCH_MODE="savane"
                   shift ;;
-   --savannah|-a)
+   --savannah|-n)
                   check_parameter $2
                   QUILL_FETCH_MODE="savannah"
                   shift ;;
@@ -98,7 +98,7 @@ while [[ -n $1 ]]; do
                   QUILL_UPDATE="on"
                   QUILL_FETCH_MODE="gna"
                   shift ;;
-         -ua|-au)
+         -un|-nu)
                   check_parameter $2
                   QUILL_UPDATE="on"
                   QUILL_FETCH_MODE="savannah"
