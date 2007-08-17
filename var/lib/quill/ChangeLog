@@ -20,6 +20,11 @@
 	* quill: added necessary calls
 	  put back raa mode
 
+2007-07-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: moved the menu definition out of the main loop
+	* libgpg: added safeguard to prevent multiple gpg ads
+	* version: 0.2.7-rc1
+
 2007-07-12 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed mirror indexing in check_source_urls messages
 	* libgpg: add the new source url after the last mirror url - fixed ordering

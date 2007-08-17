@@ -220,21 +220,23 @@ then
   ask_and_copy_over || exit 7
   cd $QUILL_SPELL_DIR/$SPELL_NAME
 
+  actions=('Update the spell to a newer version' \
+            'Add arbitrary HISTORY entries' \
+            'Increment/add PATCHLEVEL or SECURITY_PATCH' \
+            'Switch to upstream gpg verification' \
+            '--NOOP--' \
+            '--NOOP--' \
+            '--NOOP--' \
+            '--NOOP--' \
+            '--NOOP--' \
+            'Copy it here from the grimoire or QUILL_GIT_DIR' \
+            'Copy it under QUILL_GIT_DIR' \
+            'Copy it back to the grimoire' \
+            'Try it out' \
+            'Quit' ) #'Manage patches' 'Add a another version'
+
   while true; do
-    actions=('Update the spell to a newer version' \
-             'Add arbitrary HISTORY entries' \
-             'Increment/add PATCHLEVEL or SECURITY_PATCH' \
-             'Switch to upstream gpg verification' \
-             '--NOOP--' \
-             '--NOOP--' \
-             '--NOOP--' \
-             '--NOOP--' \
-             '--NOOP--' \
-             'Copy it here from the grimoire or QUILL_GIT_DIR' \
-             'Copy it under QUILL_GIT_DIR' \
-             'Copy it back to the grimoire' \
-             'Try it out' \
-             'Quit' ) #'Manage patches' 'Add a another version'
+    unset QUILL_GPG_AD
     echo
     query_list "What do you want to do?" ANSWER "Quit" "${actions[@]}"
 
