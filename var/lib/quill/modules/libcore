@@ -580,26 +580,28 @@ This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
 
-USAGE: quill [OPTIONS]
+USAGE: quill [OPTIONS] [MODULE <SPELL>]
 A spell creator and updater.
 
 OPTIONS:
-  --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
-  --perlcpan, -c <SPELL>	get spell data from Perl-CPAN if possible
-  --rubyraa, -y <SPELL>		get spell data from Ruby Application Archive if possible
-  --savane, -s <SPELL>		get spell data from a savane run site
-  --savannah, -a <SPELL>		get spell data from the savannah site
-  --gna, -g <SPELL>		get spell data from the gna! site
-  --fsf, -F <SPELL>		get spell data from the fsf/unesco directory site
-  --hackagedb, -H <SPELL>	get spell data from Haskell HackageDB if possible
   --update, -u <SPELL>		update exsisting spell
   --apprentice, -a		apprentice mode	(default)
   --mage, -m			mage mode (advanced)
-  --wizard, -w			wizard mode (expert)(DOES NOTHING FOR NOW)
+  --wizard, -w			wizard mode (expert)
   --help, -h			display this help
   --version, -v			display version
   --reconfigure, -r		reconfigure settings
   --purge, -p [spells|tmp]	purge internal quill files, defaults to both dirs
+
+MODULES:
+  --fmxml, -f <SPELL>		get spell data from Freshmeat if possible
+  --perlcpan, -c <SPELL>	get spell data from Perl-CPAN if possible
+  --rubyraa, -y <SPELL>		get spell data from Ruby Application Archive if possible
+  --savane, -s <SPELL>		get spell data from a savane run site
+  --savannah, -n <SPELL>	get spell data from the savannah site
+  --gna, -g <SPELL>		get spell data from the gna! site
+  --fsf, -F <SPELL>		get spell data from the fsf/unesco directory site
+  --hackagedb, -H <SPELL>	get spell data from Haskell HackageDB if possible
 
 EXAMPLES:
   Create a spell; try to get some information from Freshmeat and ask about some
@@ -609,7 +611,7 @@ EXAMPLES:
   Update a spell; try to get some information from Perl-CPAN:
     quill -c wormux -u wormux
 
-  The same can be done with shorter forms (fu, uc, yu and inverses are supported):
+  The same can be done with shorter forms (fu, uc, yu et cetera):
     quill -cu wormux
 "
   exit ${1:-0}

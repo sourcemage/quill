@@ -319,15 +319,18 @@ function query_spell_keyring(){
 ## @return 0 if a valid signature was found
 ## @return 1 otherwise
 ##
-## @Globals "source" "sources_and_urls"
+## @Globals QUILL_GPG_AD "source" "sources_and_urls"
 #---
 function upstream_gpg_ad() {
-  # plug in the ad for upstream sigs if valid urls were found
-  local su=$(sed -n "s,^$source \(\S*\) .*$,\1,p" <<< "$sources_and_urls")
-  guess_signature_url silent &&
-  message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
-  message "converted to upstream signing. Please choose that option from" &&
-  message "the menu once this update finishes.$DEFAULT_COLOR"
+  if [[ -z $QUILL_GPG_AD ]]; then
+    # plug in the ad for upstream sigs if valid urls were found
+    local su=$(sed -n "s,^$source \(\S*\) .*$,\1,p" <<< "$sources_and_urls")
+    guess_signature_url silent &&
+    message "${MESSAGE_COLOR}Cool! It looks like this spell would easily be" &&
+    message "converted to upstream signing. Please choose that option from" &&
+    message "the menu once this update finishes.$DEFAULT_COLOR"
+    QUILL_GPG_AD=done
+  fi
 }
 
 #---
