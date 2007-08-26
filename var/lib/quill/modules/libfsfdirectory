@@ -37,7 +37,6 @@ function quill_fsf_core(){
   SPELL_OPTIONAL_DEPENDENCIES="$(quill_fsf_get_deps "Weak prerequisites" "$fsf_project_file")"
   SPELL_LICENSE="$(cat $fsf_project_file| grep "Licensed under" | sed -e 's:.*<tr><td>\(Licensed under .*\)\.</td></tr> *.*:\1:' -e 's:<tr><td>This.*::' -e 's:\.</td></tr>::')"
   SPELL_URL="$(cat $fsf_project_file| grep "Web page" | sed -e 's:.*<tr><td valign=\"top\">Web page</td><td><a href=[^\"]*\"\([^\"]*\)\"[^\"]*>.*</a></td>.*:\1:g')"
-  SPELL_NAME="$project"
   cat $fsf_project_file | \
   sed -e 's:<body bgcolor="white">:>INDEX<:' | \
   sed -n '/INDEX/,/All_Packages_in_Directory/ p' | \
