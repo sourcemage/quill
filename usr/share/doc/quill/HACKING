@@ -1,0 +1,12 @@
+The coding style is similar to the one of sorcery. Just play along with the
+rest of the code.
+
+Adding download modules
+* the name of $MODULE should be unique
+* write the download code
+* provide a quill_${MODULE}_core function as the entry point for quill
+* add unique commandline switches to the argument parser
+* add the commandline switches to help
+* the module should fall back to the provided spell name if it couldn't
+  retrieve one itself
+* don't exit on error but return

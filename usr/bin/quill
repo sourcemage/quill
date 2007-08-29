@@ -133,6 +133,8 @@ while [[ -n $1 ]]; do
                *) error_msg "Invalid parameter $1"
                   quill_help 102 ;;
     esac
+  else
+    [[ -z $QUILL_TARGET ]] && QUILL_TARGET=$1
   fi
   shift
 done
@@ -353,6 +355,7 @@ then
 
   done
 else
+  SPELL_NAME=${SPELL_NAME:-$QUILL_TARGET}
   query_spell_name
   while codex_does_spell_exist $SPELL_NAME > /dev/null; do
     message "This spell name is already taken!"
