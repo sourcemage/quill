@@ -358,7 +358,7 @@ else
   SPELL_NAME=${SPELL_NAME:-$QUILL_TARGET}
   query_spell_name
   while codex_does_spell_exist $SPELL_NAME > /dev/null; do
-    message "This spell name is already taken!"
+    error_msg "This spell name is already taken!"
     gaze short $SPELL_NAME
     unset SPELL_NAME
     echo
@@ -367,6 +367,8 @@ else
   query_spell_source_url
   # the semirandom fallback url is there to circumvent sorcery bug #13729
   while ! url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null; do
+    error_msg "Invalid URL!"
+    unset SPELL_SRC_URL
     query_spell_source_url
   done
   query_spell_license
@@ -509,7 +511,7 @@ else
   done
   unset source sources sources_and_urls source_urls
 
-  add_history
+  add_history "spell created"
   quill_set_executable_bit
   if query "Do you want to edit all the spell files?" n
   then

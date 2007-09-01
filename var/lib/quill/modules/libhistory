@@ -2,19 +2,20 @@
 ## @Synopsis libhistory
 #---
 
+## @param entry without the leading tab, bullet and space
 ##
-## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL PROVIDESISON DEPENDSISON
-## @Globals CONFIGUREISON PREPAREISON CONFLICTSISON PREBUILDISON BUILDISON
-## @Globals INSTALLISON POSTINSTALLISON TRIGGERSISON FINALISON BUILD_DTFILE
+## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL
 function add_history()
 {
-message "Generating HISTORY file ..."
+  local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" files
 
-echo \
-"${HISTORY_DATE} ${GURU_NAME} <${GURU_EMAIL}>
-	* DETAILS, ${PROVIDESISON}${DEPENDSISON}${CONFIGUREISON}${PREPAREISON}${CONFLICTSISON}${PREBUILDISON}${BUILDISON}${INSTALLISON}${POSTINSTALLISON}${TRIGGERSISON}${FINALISON}HISTORY${BUILD_DTFILE}: created spell" > HISTORY
+  message "Generating HISTORY file ..."
 
-message "Done."
+  files=$(echo * | sed -e 's, \S*\.sign* , ,g; s, \S*\.asc , ,g' -e 's/ /, /g')
+  echo > HISTORY
+  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}, HISTORY: $1\n%" HISTORY
+
+  message "Done."
 
 }
 
@@ -27,6 +28,13 @@ message "Done."
 function add_history_entry()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
+
+  if [[ ! -e HISTORY ]]; then
+    error_msg "Spell is missing a HISTORY file!"
+    [[ -e DETAILS.orig ]] && mv DETAILS.orig ..
+    add_history "added missing HISTORY file"
+    [[ -e ../DETAILS.orig ]] && mv ../DETAILS.orig .
+  fi
 
   if grep -q "$title" HISTORY;
   then

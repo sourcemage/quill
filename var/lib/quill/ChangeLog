@@ -1,4 +1,11 @@
-2007-07-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+2007-09-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libhistory: simplified HISTORY addition and added a fallback for those
+	  broken perlcpan spells
+	* libcore: added Alexander to the credits
+	* quill: prettified the source url check loop; added some coloring
+	* version: 0.2.8-rc9
+
+2007-08-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill, libcore: fixed argument being lost when no option was passed
 	* HACKING: added with some notes
 	* version: 0.2.8-rc8
