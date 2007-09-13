@@ -1,3 +1,8 @@
+2007-09-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: pass -E to sudo, newer versions need it to preserve the env
+	* quill: bump the config version
+	* version: 0.2.8
+
 2007-09-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: simplified HISTORY addition and added a fallback for those
 	  broken perlcpan spells

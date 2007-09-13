@@ -104,7 +104,7 @@ function quill_rc() {
     if query "Do you want to use sudo where possible?" $saved; then
       # we need the bash since we call multiple commands at a time
       # and sudo doesn't like just sudo -c "ls; ls; ls"
-      QUILL_SUDO="sudo bash"
+      QUILL_SUDO="sudo -E bash"
     else
       QUILL_SUDO="su"
     fi
