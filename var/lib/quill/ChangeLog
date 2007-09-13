@@ -1,4 +1,9 @@
 2007-09-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libdesktop: fixed the Version field of the desktop entry (spec version)
+	  fixed a punctuation error
+	* version: 0.2.9-rc1
+
+2007-09-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: pass -E to sudo, newer versions need it to preserve the env
 	* quill: bump the config version
 	* version: 0.2.8
