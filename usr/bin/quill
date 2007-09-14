@@ -142,7 +142,7 @@ done
 unset -f message
 . /etc/sorcery/config
 EDITOR=${EDITOR:-nano}
-for i in /var/lib/quill/modules/lib*
+for i in /var/lib/quill/modules/lib* /var/lib/quill/modules/site_handlers/*
 do
   . $i
 done

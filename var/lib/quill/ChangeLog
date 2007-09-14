@@ -1,3 +1,9 @@
+2007-09-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: added a sanity check to quill_final_put_in_grimoire
+	* quill: source the site handlers from their new home
+	* lib*: moved site handlers to modules/site_handlers
+	* version: 0.2.9-rc2
+
 2007-09-13 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdesktop: fixed the Version field of the desktop entry (spec version)
 	  fixed a punctuation error

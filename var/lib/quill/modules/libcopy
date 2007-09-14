@@ -197,6 +197,7 @@ function quill_final_put_in_grimoire() {
     mkdir -p $quill_grim_name/$quill_sect_name/$SPELL_NAME || return 1
 
     # we wipe it first, so we can handle any files that we deleted before
+    [[ "$quill_grim_name/$quill_sect_name/$SPELL_NAME" == "//" ]] && return 1
     rm -r "$quill_grim_name/$quill_sect_name/$SPELL_NAME" || return 1
     rm -f "$QUILL_SPELL_DIR/$SPELL_NAME/DETAILS.orig"
 

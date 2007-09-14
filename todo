@@ -15,6 +15,7 @@ new menu choices
 update mode:
   * plug other linters at the end of the update and move them all in liblint
   * add mirror support for SOURCE_URLs when adding new sources
+  * investigate the bash mirror url index mismatch when it was converted to gpg
 
 improvements in the standard mode:
   * handle bad entries and ^C better
@@ -28,6 +29,7 @@ documentation:
 
 modules:
   * a try-all switch with some basic apriori module reckognition support
+  * extract the common code
 
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it
