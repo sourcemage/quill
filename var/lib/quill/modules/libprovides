@@ -11,15 +11,14 @@ function query_spell_provides() {
 }
 
 ##
-## @Globals PROVIDESISON SPELL_PROVIDES
+## @Globals SPELL_PROVIDES
 function add_provides() {
   local n
 
-  touch PROVIDES
-  PROVIDESISON="PROVIDES, "
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/PROVIDES
   for n in ${SPELL_PROVIDES}
   do
-     echo "${n}" | tr "a-z" "A-Z" >> PROVIDES
+     echo "${n}" | tr "a-z" "A-Z" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/PROVIDES
   done
 }
 #---

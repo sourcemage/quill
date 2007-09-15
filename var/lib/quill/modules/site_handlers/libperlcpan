@@ -42,8 +42,8 @@ function quill_get_cpan_meta(){
 
 ##
 ## @Globals QUILL_TMP_DIR SPELL_NAME SPELL_SRC_URL SPELL_VERSION SPELL_LICENSE
-## @Globals SPELL_SHORT_DESCRIPTION SPELL_URL SPELL_DEPENDENCIES BUILDISON
-## @Globals DEPENDSISON QUILL_CPAN_INFO QUILL_CPAN_METADATA
+## @Globals SPELL_SHORT_DESCRIPTION SPELL_URL SPELL_DEPENDENCIES
+## @Globals QUILL_CPAN_INFO QUILL_CPAN_METADATA
 function quill_cpan_core()
 {
   # so it is set even if we end prematurely, useful when adding spells
@@ -65,10 +65,9 @@ function quill_cpan_core()
     description="${QUILL_CPAN_METADATA[6]}"
     SPELL_NAME="${1//::/-}" # the lower case target wasn't manipulated yet
     echo $description > ${QUILL_TMP_DIR}/${SPELL_NAME}
-    BUILDISON="BUILD, "
+    touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
     touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
     echo "default_build_perl" > ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
-    DEPENDSISON="DEPENDS, "
     SPELL_DEPENDENCIES="perl"
   else
     error_msg "Error: unable to find such a CPAN module"

@@ -3,12 +3,12 @@
 #---
 
 ##
-## @Globals PREPAREISON
+## @Globals
 function query_spell_prepare()
 {
 if query "Will you be adding a PREPARE file:" "n"
 then
-  PREPAREISON="PREPARE, "
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/PREPARE
 fi
 }
 
@@ -16,8 +16,8 @@ fi
 ## @Globals EDITOR
 function add_prepare()
 {
-  touch PREPARE
-  $EDITOR PREPARE
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/PREPARE
+  $EDITOR ${QUILL_SPELL_DIR}/${SPELL_NAME}/PREPARE
 }
 #---
 ##

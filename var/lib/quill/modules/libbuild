@@ -3,12 +3,12 @@
 #---
 
 ##
-## @Globals QUILL_FETCH_MODE BUILDISON
+## @Globals QUILL_FETCH_MODE
 function query_spell_build() {
   if [[ "$QUILL_FETCH_MODE" != "cpan" ]]; then
      if query "Will you be adding a custom BUILD file:" "n"
      then
-       BUILDISON="BUILD, "
+       touch $QUILL_SPELL_DIR/$SPELL_NAME/BUILD
      fi
   fi
 }
@@ -21,12 +21,12 @@ function add_build() {
   else
     if query "Do you want the default_build function dumped into the BUILD file" "n"
     then
-      dump_default_function build | sed -e 's:\( --[^hb]\): \\\n \1:g' -e "s:&& make:\&\&\nmake:" >> BUILD
+      dump_default_function build | sed -e 's:\( --[^hb]\): \\\n \1:g' -e "s:&& make:\&\&\nmake:" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
     else
-      echo "default_build &&" >> BUILD
+      echo "default_build &&" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
     fi
   fi
-  $EDITOR BUILD
+  $EDITOR ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
 }
 
 #---
@@ -100,10 +100,10 @@ function implement_build_system() {
   [[ $bs == make,configure ]] && return 0
 
   if grep -q autogen <<< $bs; then
-    echo "cd blabla ./autogen.sh &&" >> PRE_BUILD
+    echo "cd blabla ./autogen.sh &&" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/PRE_BUILD
   fi
   if grep -q configure <<< $bs; then
-    cat <<"FEO" >> BUILD
+    cat <<"FEO" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD
 ./configure --prefix=$INSTALL_ROOT/usr  \
             --sysconfdir=$INSTALL_ROOT/etc  \
             --localstatedir=$INSTALL_ROOT/var  \
@@ -114,14 +114,14 @@ FEO
   fi
 
   case $bs in
-    rake) echo "rake" >> BUILD ;;
-    perl) echo "perl Makefile.pl" >> BUILD ;;
-    PerL) echo "perl Makefile.PL" >> BUILD ;;
-  python) echo "python setup.py" >> BUILD ;;
-     waf) echo "waf_build" >> BUILD ;;
-   scons) echo 'scons PREFIX=$INSTALL_ROOT/usr' >> BUILD ;;
-     jam) echo "jam" >> BUILD ;;
-    make) echo "make" >> BUILD ;;
+    rake) echo "rake" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+    perl) echo "perl Makefile.pl" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+    PerL) echo "perl Makefile.PL" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+  python) echo "python setup.py" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+     waf) echo "waf_build" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+   scons) echo 'scons PREFIX=$INSTALL_ROOT/usr' >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+     jam) echo "jam" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
+    make) echo "make" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ;;
   esac
 
 }

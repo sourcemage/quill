@@ -446,7 +446,7 @@ else
 
   add_details
 
-  if [[ "${PREPAREISON}" == "PREPARE, " ]]
+  if [[ -f ${QUILL_SPELL_DIR}/${SPELL_NAME}/PREPARE ]]
   then
     add_prepare
   fi
@@ -456,12 +456,12 @@ else
   #-  add_configure
   #-fi
 
-  if [[ "${PREBUILDISON}" == "PRE_BUILD, " ]]
+  if [[ -f ${QUILL_SPELL_DIR}/${SPELL_NAME}/PRE_BUILD ]]
   then
     add_pre_build
   fi
 
-  if [[ "${BUILDISON}" == "BUILD, " ]]
+  if [[ -f ${QUILL_SPELL_DIR}/${SPELL_NAME}/BUILD ]]
   then
     if [[ -e $QUILL_TMP_DIR/${SPELL_SRC_FILE:-uag1au234gaugua} ]]
     then
@@ -477,7 +477,7 @@ else
     fi
   fi
 
-  if [[ "${INSTALLISON}" == "INSTALL, " ]]
+  if [[ -f ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL ]]
   then
     if [[ -z $BS ]]; then
       add_install
@@ -500,7 +500,7 @@ else
   #-  add_triggers
   #-fi
 
-  if [[ "${BUILD_DTFILE}" != "" ]]
+  if [[ -f ${QUILL_SPELL_DIR}/${SPELL_NAME}/desktop/${SPELL_NAME}.desktop ]]
   then
     add_desktop_file
   fi

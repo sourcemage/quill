@@ -1,3 +1,36 @@
+2007-09-15 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: use the new way of checking for file existance
+	* libbuild: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libconflicts: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libcopy: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libcore: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libdepends: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libdesktop: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libdetails: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libhistory: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libinstall: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libpre_build: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libprepare: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libprovides: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* libupdate: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* site_handlers/libperlcpan: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+	* site_handlers/librubyraa: removed unenecassry variables,
+	  added touching of file, don't assume we are in the correct dir
+
 2007-09-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added a sanity check to quill_final_put_in_grimoire
 	* quill: source the site handlers from their new home

@@ -23,20 +23,19 @@ function query_spell_optional_dependencies() {
 }
 
 ##
-## @Globals DEPENDSISON SPELL_DEPENDENCIES
+## @Globals SPELL_DEPENDENCIES
 function add_dependencies() {
   local i
 
-  touch DEPENDS
-  DEPENDSISON="DEPENDS, "
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
   for i in ${SPELL_DEPENDENCIES}
   do
-     echo "depends ${i}" >> DEPENDS
+     echo "depends  ${i}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
   done
 }
 
 ##
-## @Globals DEPENDSISON SPELL_OPTIONAL_DEPENDENCIES
+## @Globals SPELL_OPTIONAL_DEPENDENCIES
 function add_optional_dependencies() {
   local dep dep_count
   local SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
@@ -44,8 +43,7 @@ function add_optional_dependencies() {
   local SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[0]=""
 
   dep_count=${#SPELL_OPTIONAL_DEPENDENCIES[*]}
-  touch DEPENDS
-  DEPENDSISON="DEPENDS, "
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
   for  ((dep=0; dep < $dep_count; dep++))
   do
     query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$dep]} needs a ./configure enable option"
@@ -55,10 +53,10 @@ function add_optional_dependencies() {
     query_msg "${SPELL_OPTIONAL_DEPENDENCIES[$dep]} needs a description"
     read SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$dep]
 
-    message "optional_depends ${SPELL_OPTIONAL_DEPENDENCIES[$dep]} \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$dep]}\" \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$dep]}\" \\" >> DEPENDS
-    message "                 \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$dep]}\"" >> DEPENDS
+    message "optional_depends  ${SPELL_OPTIONAL_DEPENDENCIES[$dep]} \\" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
+    message "                  \"${SPELL_OPTIONAL_DEPENDENCIES_ENABLED[$dep]}\" \\" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
+    message "                  \"${SPELL_OPTIONAL_DEPENDENCIES_DISABLED[$dep]}\" \\" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
+    message "                  \"${SPELL_OPTIONAL_DEPENDENCIES_DESCRIPTION[$dep]}\"" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DEPENDS
   done
 # "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\""
 }

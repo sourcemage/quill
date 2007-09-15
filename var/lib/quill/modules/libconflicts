@@ -11,10 +11,9 @@ function query_spell_conflicts() {
 }
 
 ##
-## @Globals CONFLICTSISON SPELL_CONFLICTS
+## @Globals SPELL_CONFLICTS
 function add_conflicts() {
-  touch CONFLICTS
-  CONFLICTSISON="CONFLICTS, "
+  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/CONFLICTS
   for n in ${SPELL_CONFLICTS}
   do
      echo "conflicts ${n}" >> CONFLICTS
