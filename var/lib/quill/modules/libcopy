@@ -106,7 +106,7 @@ function copy_from_git()
 
   # update SPELL_UPDATED
   codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-  diff -q $QUILL_SPELL_DIR/$SPELL_NAME "$GRIMOIRE/$SECTION/$SPELL_NAME" -x ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS.orig > /dev/null || SPELL_UPDATED=y
+  diff -q $QUILL_SPELL_DIR/$SPELL_NAME "$GRIMOIRE/$SECTION/$SPELL_NAME" -x DETAILS.orig > /dev/null || SPELL_UPDATED=y
 
   unset GRIMOIRE2 SECTION2 GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
   cd "$QUILL_SPELL_DIR/$SPELL_NAME"
@@ -151,7 +151,7 @@ function ask_and_copy_over()
     return
   fi &&
   cd $QUILL_SPELL_DIR/$SPELL_NAME &&
-  cp ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS.orig || return 1
+  cp DETAILS DETAILS.orig || return 1
 }
 
 #---

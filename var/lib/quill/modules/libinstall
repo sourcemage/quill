@@ -6,23 +6,23 @@
 ## @Globals EDITOR
 function add_install()
 {
-  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL
+  touch INSTALL
   if query "Do you want the default_install function dumped into the INSTALL file" "n"
   then
-    dump_default_function install > ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL
+    dump_default_function install > INSTALL
   else
-    echo "default_install &&" > ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL
+    echo "default_install &&" > INSTALL
   fi
-  $EDITOR ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL
+  $EDITOR INSTALL
 }
 
 ##
-## @Globals
+## @Globals INSTALLISON
 function query_spell_install()
 {
 if query "Will you be adding a custom INSTALL file:" "n"
 then
-  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/INSTALL
+  INSTALLISON="INSTALL, "
 fi
 }
 

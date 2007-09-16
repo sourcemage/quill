@@ -8,7 +8,7 @@
 query_spell_desktop_file() {
 if query "Will you be adding a custom desktop file?" "n"
 then
-  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/desktop/${SPELL_NAME}.desktop
+  BUILD_DTFILE="desktop/${SPELL_NAME}.desktop, "
   DTFILE_MENUENTRY="${SPELL_NAME}"
 
   query_msg "Please enter the name of the executable:"
@@ -29,18 +29,18 @@ fi
 ## @Globals SPELL_NAME SPELL_SHORT_DESCRIPTION DTFILE_MENUENTRY SPELL_VERSION
 ## @Globals  DTFILE_EXEC DTFILE_ICON DTFILE_MENUPATH DTFILE_TERM
 add_desktop_file() {
-  mkdir -p ${QUILL_SPELL_DIR}/${SPELL_NAME}/desktop
-  cd ${QUILL_SPELL_DIR}/${SPELL_NAME}/desktop
-  echo "[Desktop Entry]" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Encoding=UTF-8" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Version=1.0" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Name=${DTFILE_MENUENTRY}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Type=Application" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Comment=${SPELL_SHORT_DESCRIPTION}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Exec=${DTFILE_EXEC}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Icon=${DTFILE_ICON}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Categories=${DTFILE_MENUPATH}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
-  echo "Term=${DTFILE_TERM}" >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/${SPELL_NAME}.desktop
+  mkdir -p desktop
+  cd desktop
+  echo "[Desktop Entry]" >> ${SPELL_NAME}.desktop
+  echo "Encoding=UTF-8" >> ${SPELL_NAME}.desktop
+  echo "Version=1.0" >> ${SPELL_NAME}.desktop
+  echo "Name=${DTFILE_MENUENTRY}" >> ${SPELL_NAME}.desktop
+  echo "Type=Application" >> ${SPELL_NAME}.desktop
+  echo "Comment=${SPELL_SHORT_DESCRIPTION}" >> ${SPELL_NAME}.desktop
+  echo "Exec=${DTFILE_EXEC}" >> ${SPELL_NAME}.desktop
+  echo "Icon=${DTFILE_ICON}" >> ${SPELL_NAME}.desktop
+  echo "Categories=${DTFILE_MENUPATH}" >> ${SPELL_NAME}.desktop
+  echo "Term=${DTFILE_TERM}" >> ${SPELL_NAME}.desktop
   cd ..
 }
 #---

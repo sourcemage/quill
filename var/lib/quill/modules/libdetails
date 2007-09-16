@@ -201,8 +201,7 @@ function hunt_src_dir(){
                                 { error_msg "Error: getting path from zipfile" && return 1; }
                                 if [[ $SPELL_SRC_DIR == "" ]] ; then
                                   SPELL_SRC_DIR=${SPELL_NAME}-${SPELL_VERSION}
-                                  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/PRE_BUILD
-
+                                  PREBUILDISON="PRE_BUILD, "
                                   rm -f ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
                                   touch ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
                                   echo "mk_source_dir \$SOURCE_DIRECTORY  &&" >> ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD
@@ -251,10 +250,10 @@ SOURCE_DIRECTORY=\"\${BUILD_DIRECTORY}/$spell_src_dir\"
            SHORT=\"${SPELL_SHORT_DESCRIPTION}\"
 cat << EOF
 $(fmt -u -w80 ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME})
-EOF" > ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+EOF" > DETAILS
   rm ${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-$SPELL_NAME}
 
-  clear_html_specials ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+  clear_html_specials DETAILS
 
   message "Done.\n"
 }

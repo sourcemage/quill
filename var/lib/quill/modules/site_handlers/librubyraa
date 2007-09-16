@@ -14,7 +14,7 @@ function quill_raa_get_info(){
 
 ##
 ## @Globals SPELL_NAME SPELL_SHORT_DESCRIPTION SPELL_LICENSE SPELL_URL
-## @Globals SPELL_SRC_URL SPELL_DEPENDENCIES QUILL_TMP_DIR
+## @Globals SPELL_SRC_URL SPELL_DEPENDENCIES DEPENDSISON QUILL_TMP_DIR
 function quill_raa_core(){
   local project
   local desc
@@ -53,6 +53,7 @@ function quill_raa_core(){
       -e '1s/.*Description: *\(.*\)/\1/' \
       -e "/.*Edit this project.*/d" \
       ${QUILL_TMP_DIR}/${SPELL_NAME}
+  DEPENDSISON="DEPENDS, "
   SPELL_DEPENDENCIES="ruby"
 
 }

@@ -12,9 +12,8 @@ function add_history()
   message "Generating HISTORY file ..."
 
   files=$(echo * | sed -e 's, \S*\.sign* , ,g; s, \S*\.asc , ,g' -e 's/ /, /g')
-  echo > ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
-  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}, HISTORY: $1\n%" \
-      ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
+  echo > HISTORY
+  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}, HISTORY: $1\n%" HISTORY
 
   message "Done."
 
@@ -30,38 +29,31 @@ function add_history_entry()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
 
-  if [[ ! -e ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY ]]; then
+  if [[ ! -e HISTORY ]]; then
     error_msg "Spell is missing a HISTORY file!"
-    [[ -e ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS.orig ]] &&
-    mv ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS.orig       \
-       ${QUILL_TMP_DIR}/${SPELL_NAME}-DETAILS.orig
+    [[ -e DETAILS.orig ]] && mv DETAILS.orig ..
     add_history "added missing HISTORY file"
-    [[ -e ${QUILL_TMP_DIR}/${SPELL_NAME}-DETAILS.orig ]] &&
-    mv ${QUILL_TMP_DIR}/${SPELL_NAME}-DETAILS.orig      \
-       ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS.orig
+    [[ -e ../DETAILS.orig ]] && mv ../DETAILS.orig .
   fi
 
-  if grep -q "$title" ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY;
+  if grep -q "$title" HISTORY;
   then
     # check if we already have an entry for the same file
     file="${1%%:*}"
-    if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p"      \
-          ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY) ]]
+    if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p" HISTORY) ]]
     then # we don't
-      sed -i "/$title/ a\\\t* $1" ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
+      sed -i "/$title/ a\\\t* $1" HISTORY
     else
       # we do, but first check that the new addition is unique
-      if ! sed -n "1,/^\s*$/p" ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY | \
-           grep -qF "* $1"
+      if ! sed -n "1,/^\s*$/p" HISTORY | grep -qF "* $1"
       then
         sed -i "1,/^\s*$/ {
                 /\* $file:/ a\\\t ${1#*:}
-               }" ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
+               }" HISTORY
       fi
     fi
   else # first time today
-    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%"          \
-        ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
+    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" HISTORY
   fi
 }
 
@@ -104,7 +96,7 @@ function add_user_history_entries()
   echo
   if [[ $modified == "1" ]]; then
     query "Do you want to review the HISTORY changes?" n &&
-    quill_edit ${QUILL_SPELL_DIR}/${SPELL_NAME}/HISTORY
+    quill_edit HISTORY
     echo
     SPELL_UPDATED=y
   fi

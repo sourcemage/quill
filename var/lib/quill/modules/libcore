@@ -18,13 +18,15 @@ function query_list()
 #---
 ## @Synopsis generate basic spell dir
 ##
-## @Globals QUILL_SPELL_DIR SPELL_NAME
+## @Globals QUILL_SPELL_DIR SPELL_NAME DEPENDSISON CONFLICTSON
 #---
 function create_spell_base(){
   mkdir -p ${QUILL_SPELL_DIR}/${SPELL_NAME}
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
-  touch ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
-  chmod +x ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+  touch DETAILS
+  chmod +x DETAILS
+  DEPENDSISON=""
+  CONFLICTSON=""
 }
 
 #---
@@ -295,9 +297,9 @@ function check_source_urls() {
             fi
 
             # some urls may contain other expanded vars that we are not aware of
-            if grep -q "$oldest_su" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+            if grep -q "$oldest_su" DETAILS
             then # all is fine
-              sed -i "s,$oldest_su,$su," ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+              sed -i "s,$oldest_su,$su," DETAILS
             else
               error_msg "Couldn't find $oldest_su in DETAILS,"
               error_msg "probably due to it containing nonstandard variables"
@@ -306,13 +308,13 @@ function check_source_urls() {
             add_history_entry "DETAILS: Changed SOURCE${i}_URL[$mirror_num] extension"
           else
             substitute_with_variables source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-            sed -i "s,$old_source,$source," ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+            sed -i "s,$old_source,$source," DETAILS
             # we don't know if the SOURCE is expanded or not, trying just both extremes
             substitute_with_variables old_source "$SPELL_NAME" {SPELL} "$SPELL_VERSION" {VERSION}
-            sed -i "s,$old_source,$source," ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+            sed -i "s,$old_source,$source," DETAILS
             # and with the beautiful syntax last
             old_source="$(tr -d "{}" <<< "$old_source")"
-            sed -i "s,$old_source,$source," ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+            sed -i "s,$old_source,$source," DETAILS
             add_history_entry "DETAILS: Changed SOURCE${i} extension"
           fi
           rc=0
@@ -320,7 +322,7 @@ function check_source_urls() {
           # if they are still not ok ask for fixed ones
           error_msg  "SOURCE${i}_URL[$mirror_num] is hopelessly broken! Fix it manually."
           sleep 2
-          quill_edit ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+          quill_edit DETAILS
           add_history_entry "DETAILS: Fixed SOURCE${i}_URL[$mirror_num]"
           rc=1
         fi
@@ -465,17 +467,17 @@ function check_executable_bits(){
 #---
 function check_description_wrap(){
 
-  sed -n '/cat *<< *EOF/,/EOF/p' ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS > long.description
+  sed -n '/cat *<< *EOF/,/EOF/p' DETAILS > long.description
   awk '{ if(length($0)>a) a=length($0)} \
        END{if(a>80)exit 1; else exit 0}' \
       long.description && rm long.description && return 0
 
-  sed -i '/cat *<< *EOF/,/EOF/d' ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
-  sed '1d; $d' long.description | fmt -u -w 80 > long.description.2
+  sed -i '/cat *<< *EOF/,/EOF/d' DETAILS
+  sed '1d; $d' long.description | fmt -w 80 > long.description.2
   mv long.description.2 long.description
-  echo 'cat << EOF' >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
-  cat long.description >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
-  echo 'EOF' >> ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+  echo 'cat << EOF' >> DETAILS
+  cat long.description >> DETAILS
+  echo 'EOF' >> DETAILS
   add_history_entry "DETAILS: fixed long description wrap"
   rm long.description
 
@@ -504,7 +506,7 @@ function summon_sources() {
     else
       if ! summon -r <<< "$to_summon"; then
         error_msg "Summoning failed, aborting update!"
-        query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+        query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
         continue 2 || return 1
       fi
     fi
@@ -522,7 +524,7 @@ function inc_to_unique_src_num() {
   local name="$1" num
 
   num=$(
-    eval ${version_switch:-:}; . ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS &> /dev/null
+    eval ${version_switch:-:}; . DETAILS &> /dev/null
     # the numbers are alphabetically sorted, which is not good enough in the
     # rare case where there are more than 9 sources - so we resort to resorting
     get_source_nums | sort -n | tail -n1

@@ -6,7 +6,7 @@
 #---
 function get_sources_and_urls()
 {
-  sources_and_urls=$(eval ${version_switch:-:}; . ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS &> /dev/null; get_spell_files_and_urls)
+  sources_and_urls=$(eval ${version_switch:-:}; . DETAILS &> /dev/null; get_spell_files_and_urls)
   sources=$(cut -d" " -f1 <<< "$sources_and_urls")
   source_urls=()
   explode "$(cut -d" " -f2- <<< "$sources_and_urls")" $'\n' source_urls
@@ -20,7 +20,7 @@ function get_sources_and_urls()
 #---
 function conditional_get_var()
 {
-  ( eval ${version_switch:-:}; . ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS &> /dev/null; eval echo -n \$$1 )
+  ( eval ${version_switch:-:}; . DETAILS &> /dev/null; eval echo -n \$$1 )
 }
 
 #---
@@ -65,7 +65,7 @@ function update_patchlevel_sub()
     add_history_entry "DETAILS: $1++"
   else
     new_value=$(( current_value + 1 ))
-    count=$(grep -c "^[^#]*$1=['\"]*${current_value}['\"]* *$" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS)
+    count=$(grep -c "^[^#]*$1=['\"]*${current_value}['\"]* *$" DETAILS)
     if (( $count  > 1 ))
     then
       echo
@@ -75,9 +75,9 @@ function update_patchlevel_sub()
     fi
     if [[ $action == remove ]]
     then #PATCHLEVEL removal on version updates
-      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/d" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/d" DETAILS
     else
-      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/ s,=.*$,=$new_value," ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+      sed -i "/^[^#]*$1=['\"]*${current_value}['\"]*/ s,=.*$,=$new_value," DETAILS
       add_history_entry "DETAILS: $1++"
     fi
   fi
@@ -93,7 +93,7 @@ function update_patchlevel_sub()
 function count_spaces()
 {
   local count spaces eq_col
-  eq_col=$(awk -F '=' '{ if($1)print length($1) }' ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS | sort | uniq -c | sort -n | sed -n '$ s,^\s*\S*\s,,p')
+  eq_col=$(awk -F '=' '{ if($1)print length($1) }' DETAILS | sort | uniq -c | sort -n | sed -n '$ s,^\s*\S*\s,,p')
   count=$(( $eq_col - ${#1} ))
   for (( i=0 ; i<$count; i++ )) ; do
     spaces="$spaces "
@@ -116,8 +116,8 @@ function multiversion_check()
     message "and then you will tell me which variable I need to set, so I can get "
     message "to the correct version ($version)."
     sleep 3
-    cat ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
-    suggestions=$(sed -n 's,[{}],,g; s,^.*if.*$\([A-Za-z_]*\).*$,\1,p' ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS)
+    cat DETAILS
+    suggestions=$(sed -n 's,[{}],,g; s,^.*if.*$\([A-Za-z_]*\).*$,\1,p' DETAILS)
     [[ ! -z $suggestions ]] && query_msg "Perhaps it is one of these:" $suggestions
     query_string version_switch "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
   fi
@@ -153,7 +153,7 @@ function version_bump() {
     [[ -z $SPELL_VERSION ]] && error_msg "Empty VERSION!" && continue 2
 
     #save the chosen version
-    sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+    sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
     SPELL_UPDATED=y
 
     #check for multiversion spells
@@ -182,7 +182,7 @@ function version_bump() {
     update_patchlevel PATCHLEVEL skip remove
 
     # remove UPDATED if any
-    sed -i "/^\s*UPDATED=/d" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+    sed -i "/^\s*UPDATED=/d" DETAILS
 
     #get hashes and save them, removing any previous hash/gpg
     i=
@@ -207,7 +207,7 @@ function version_bump() {
       # MD5? These contain no :
       if ! grep -q ":" <<< "$current_check"; then
         new_value=$(count_spaces SOURCE${i}_HASH)
-        sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+        sed -i "s/^.*MD5\[${i:-0}\]=['\"]*${current_check}['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
         remove_old_sigs "$version"
         upstream_gpg_ad
 
@@ -253,7 +253,7 @@ function version_bump() {
 
       #it is either a SOURCE_HASH or the user wants to replace SOURCE_GPG
       new_value=$(count_spaces SOURCE${i}_HASH)
-      sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS
+      sed -i "s/^.*SOURCE${i}_[^=]*=['\"]*${current_check}.*['\"]*\s*$/${new_value}SOURCE${i}_HASH=sha512:$hash/" DETAILS
 
       # remove sigs, trying not to touch any that are still needed
       remove_old_sigs "$version"
@@ -280,7 +280,7 @@ function main_update_loop() {
   local version versions=()
 
   #fetch current versions, ignoring SCM ones
-  versions=( $(sed -n 's/\s*\<VERSION=//p' ${QUILL_SPELL_DIR}/${SPELL_NAME}/DETAILS |
+  versions=( $(sed -n 's/\s*\<VERSION=//p' DETAILS |
               grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort | uniq) )
   [[ -z ${versions[@]} ]] && error_msg "No versions to update!" && continue
 
