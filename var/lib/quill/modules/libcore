@@ -504,10 +504,10 @@ function summon_sources() {
     if [[ -z $to_summon ]]; then
       message "Nothing new to summon, all sources found."
     else
-      if ! summon -r <<< "$to_summon"; then
+      if ! $QUILL_SUDO -c "summon -r <<< \"$to_summon\""; then
         error_msg "Summoning failed, aborting update!"
         query "Do you want to edit DETAILS? (you can retry the update)" n && quill_edit DETAILS
-        continue 2 || return 1
+        continue 2
       fi
     fi
     echo

@@ -346,9 +346,9 @@ then
         fi
 
         if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
-          cast -r $SPELL_NAME
+          $QUILL_SUDO -c "cast -r $SPELL_NAME"
         else
-          cast -c $SPELL_NAME
+          $QUILL_SUDO -c "cast -c $SPELL_NAME"
         fi
       ;;
     esac
@@ -528,7 +528,7 @@ else
     quill_final_put_in_grimoire &&
     if query "Do you want to *try* to cast the spell?" n
     then
-      cast $SPELL_NAME
+      $QUILL_SUDO -c "cast $SPELL_NAME"
     fi
   fi
   if query "Do you want to put the spell into QUILL_GIT_DIR?" n

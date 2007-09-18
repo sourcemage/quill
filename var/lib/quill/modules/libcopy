@@ -210,7 +210,7 @@ function quill_final_put_in_grimoire() {
       if [[ $1 != no ]]; then
         echo
         echo "Running scribe reindex on $quill_grim_name ..."
-        scribe reindex $(basename $quill_grim_name)
+        $QUILL_SUDO -c "scribe reindex $(basename $quill_grim_name)"
       fi
     fi
   }

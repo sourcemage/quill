@@ -1,3 +1,7 @@
+2007-09-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore, quill, libcopy: added QUILL_SUDO to the rest of the system calls
+	* version: 0.2.9-rc3
+
 2007-09-14 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added a sanity check to quill_final_put_in_grimoire
 	* quill: source the site handlers from their new home
