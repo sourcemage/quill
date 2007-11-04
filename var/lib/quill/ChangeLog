@@ -1,4 +1,8 @@
 2007-11-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: fixed QUILL_SUDO default for when reconfiguring
+	* version: 0.2.9-rc5
+
+2007-11-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libgpg: colorized the remove sigs prompts
 	* libupdate: fixed the changed update_counter logic, uppercased
 	* quill: accompanying fix for update_counter, new select_list
