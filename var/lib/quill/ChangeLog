@@ -1,3 +1,10 @@
+2007-11-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libgpg: colorized the remove sigs prompts
+	* libupdate: fixed the changed update_counter logic, uppercased
+	* quill: accompanying fix for update_counter, new select_list
+	  backport and some comments
+	* version: 0.2.9-rc4
+
 2007-09-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore, quill, libcopy: added QUILL_SUDO to the rest of the system calls
 	* version: 0.2.9-rc3

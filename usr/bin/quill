@@ -13,6 +13,7 @@
 ## @Globals SPELL_DEPENDENCIES SPELL_OPTIONAL_DEPENDENCIES SPELL_CONFLICTS
 ## @Globals SPELL_PROVIDES PREPAREISON PREBUILDISON BUILDISON SPELL_SRC_FILE
 ## @Globals INSTALLISON BS BUILD_DTFILE SPELL_SRC_URL QUILL_ORIG_TARGET
+## @Globals UPDATE_COUNTER
 ##
 ## @Thanks BearPerson, dufflebunk, afrayedknot
 ## @Thanks To all testers
@@ -199,12 +200,57 @@ function url_ftp_verify() {
   fi
 }
 
-## Down to here... from here it's question and answer time
-#---
+# too many menu options for 1.13
+unset -f select_list &&
+function select_list()
+{
+    local i
+    local foo temp number
+    local returnvar=$1
+    local _default=$2
+    local stuff=()
+    local _default_num=0
+
+    shift 2
+    hash_unset select_list_hash
+    # see note in select_provider
+    stuff=(0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+
+    let i=0
+    for foo in "$@"; do
+        message "\t$DEFAULT_COLOR(${stuff[$i]})  $SPELL_COLOR$foo$DEFAULT_COLOR"
+        hash_put select_list_hash "${stuff[$i]}" "$foo"
+        [[ "$foo" ]] && [[ "$foo" == "$_default" ]] && _default_num=${stuff[$i]}
+        let i++
+    done
+
+    local msgstr="\n${QUERY_COLOR}Which one do you want? [$_default_num]$DEFAULT_COLOR "
+    select_list_sub "$returnvar" select_list_hash "$msgstr" "$_default_num"
+    hash_unset select_list_hash
+}
+
+unset -f select_list_sub &&
+function select_list_sub() {
+  local returnvar=$1
+  local hashname=$2
+  local msgstr=$3
+  local _default=$4
+
+  local _result _answer
+
+  while [[ ! $_result ]] ; do
+    message -n "$msgstr"
+    read   -t  $PROMPT_DELAY  -n  1  _answer
+    [[ "$_answer" ]] || _answer=$_default
+    _result="$(hash_get $hashname $_answer)"
+  done
+  echo
+  eval $returnvar=\"$_result\"
+}
+
 
 #---
 ## Questions and stuff
-
 quill_welcome
 if [[ ! -z $QUILL_FETCH_MODE ]]
 then
@@ -255,6 +301,8 @@ then
       "${actions[0]}") #"Update the spell to a newer version"
 
         main_update_loop version_bump
+
+        [[ $UPDATE_COUNTER == 0 ]] && continue # there were no updates
 
         # check if WEB_SITE is reachable
         WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
@@ -354,7 +402,7 @@ then
     esac
 
   done
-else
+else # no updates, we'll be making a spell
   SPELL_NAME=${SPELL_NAME:-$QUILL_TARGET}
   query_spell_name
   while codex_does_spell_exist $SPELL_NAME > /dev/null; do

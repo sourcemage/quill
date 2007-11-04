@@ -1,11 +1,11 @@
 #---
 ## @Synopsis Tries to change the source verification in favour of upstream gpg
 ##
-## @Globals "version" "versions" SPELL_KEYRING SPELL_SIGNATURE SPELL_UPDATED
-## @Globals SPELL_NAME SPELL_VERSION
+## @Globals "version" SPELL_KEYRING SPELL_SIGNATURE SPELL_UPDATED
+## @Globals SPELL_NAME SPELL_VERSION UPDATE_COUNTER
 #---
 function convert_to_upstream_gpg() {
-  local update_counter=${#versions[@]} source su i new_value new_su new_source
+  local source su i new_value new_su new_source
   local version_switch j ll ll_max mirrors num_of_mirrors
   if query "Do you want to do it for $version?" y; then
     multiversion_check
@@ -185,11 +185,9 @@ function convert_to_upstream_gpg() {
       fi
       sleep 2"
     fi
-
   else
-    let update_counter-=1
+    let UPDATE_COUNTER--
   fi
-  [[ $update_counter == 0 ]] && continue 2 # there were no updates
 
 }
 
@@ -393,7 +391,11 @@ function remove_old_sigs()
     files=$(compgen -G "*$version*.sig" | tr '\n' ' ')
     files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
     files="$files $(compgen -G "*$version*.sign" | tr '\n' ' ')"
-    [[ $files != "  " ]] && rm -i $files
+    if [[ $files != "  " ]]; then
+      echo -n $QUERY_COLOR
+      rm -i $files
+      echo -n $DEFAULT_COLOR
+    fi
   fi
 
 }
