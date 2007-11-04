@@ -137,7 +137,7 @@ QUA
 ##
 ## @Globals QUILL_SPELL_DIR
 function quill_welcome() {
-  message "Welcome to SourceMage GNU/Linux quill - a spell creator and updater script."
+  message "Welcome to Source Mage GNU/Linux quill - a spell creator and updater script."
   message "-----------------------------------------------------------------------------"
   message "This makes an immediately useable spell from some minor data or "
   message "updates an exsisting one.."
