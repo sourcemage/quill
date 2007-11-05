@@ -220,11 +220,13 @@ function quill_final_put_in_grimoire() {
     if [[ $? == 1 ]]; then
       error_msg "Permission problems, trying as root ..."
       export quill_grim_name quill_sect_name QUILL_SPELL_DIR SPELL_NAME
+      export QUILL_SUDO
       $QUILL_SUDO -c "$(declare -f quill_final_put_in_grimoire_sub); \
         quill_final_put_in_grimoire_sub $reindex"
     fi
   else
     export quill_grim_name quill_sect_name QUILL_SPELL_DIR SPELL_NAME
+    export QUILL_SUDO
     $QUILL_SUDO -c "$(declare -f quill_final_put_in_grimoire_sub); \
       quill_final_put_in_grimoire_sub $reindex"
   fi

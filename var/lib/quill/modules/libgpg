@@ -392,9 +392,9 @@ function remove_old_sigs()
     files="$files $(compgen -G "*$version*.asc" | tr '\n' ' ')"
     files="$files $(compgen -G "*$version*.sign" | tr '\n' ' ')"
     if [[ $files != "  " ]]; then
-      echo -n $QUERY_COLOR
+      echo -ne $QUERY_COLOR
       rm -i $files
-      echo -n $DEFAULT_COLOR
+      echo -ne $DEFAULT_COLOR
     fi
   fi
 

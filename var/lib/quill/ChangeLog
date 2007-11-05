@@ -1,4 +1,9 @@
 2007-11-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libgpg: fixed the new coloring
+	* libcopy: fixed scribe reindexing
+	* version: 0.2.9-rc7
+
+2007-11-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: fixed typo
 	* libcompat, quill: moved compatibility overrides to a separate file
 	* libhistory: don't mention HISTORY when adding it
