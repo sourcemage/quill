@@ -1,3 +1,11 @@
+2007-11-05 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: fixed typo
+	* libcompat, quill: moved compatibility overrides to a separate file
+	* libhistory: don't mention HISTORY when adding it
+	* libcore: fixed quill_edit. It seems more than a hundred HISTORY files
+	  are not mime-typed as text/plain, but text/x-{c,c++,java,makefile,pascal}
+	* version: 0.2.9-rc6
+
 2007-11-04 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: fixed QUILL_SUDO default for when reconfiguring
 	* version: 0.2.9-rc5

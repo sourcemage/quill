@@ -162,7 +162,7 @@ function quill_edit() {
   for spell_file in ${1:-*}
   do
     type=$(file -bi $spell_file)
-    if list_find "$type" "text/plain;"
+    if grep -q "text/" <<< "$type"
     then
       $EDITOR $spell_file
     fi

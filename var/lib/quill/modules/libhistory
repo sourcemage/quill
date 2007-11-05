@@ -13,7 +13,7 @@ function add_history()
 
   files=$(echo * | sed -e 's, \S*\.sign* , ,g; s, \S*\.asc , ,g' -e 's/ /, /g')
   echo > HISTORY
-  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}, HISTORY: $1\n%" HISTORY
+  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}: $1\n%" HISTORY
 
   message "Done."
 
