@@ -605,6 +605,9 @@ MODULES:
   --hackagedb, -H <SPELL>	get spell data from Haskell HackageDB if possible
 
 EXAMPLES:
+  Create a spell; no extra information:
+    quill
+
   Create a spell; try to get some information from Freshmeat and ask about some
   additional spell files:
     quill -f wormux -m
