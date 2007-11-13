@@ -11,9 +11,9 @@ function add_history()
 
   message "Generating HISTORY file ..."
 
-  files=$(echo * | sed -e 's, \S*\.sign* , ,g; s, \S*\.asc , ,g' -e 's/ /, /g')
+  files=$(echo * | sed -e 's, \S*\.sign*\>,,g; s, \S*\.asc\>,,g' -e 's/ /, /g')
   echo > HISTORY
-  sed -i "1 s%^.*$%$title\n\t* ${files/HISTORY/}: $1\n%" HISTORY
+  sed -i "1 s%^.*$%$title\n\t* ${files/, HISTORY/}: $1\n%" HISTORY
 
   message "Done."
 
