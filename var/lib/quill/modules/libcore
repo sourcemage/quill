@@ -45,7 +45,7 @@ function get_spell_source(){
     cp $SOURCE_CACHE/$SPELL_SRC_FILE .
     message "Done."
   else
-    wget -c "${SPELL_SRC_URL}"
+    wget --no-check-certificate -c "${SPELL_SRC_URL}"
   fi
   echo
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}

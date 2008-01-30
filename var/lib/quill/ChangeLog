@@ -1,4 +1,8 @@
 2008-01-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore, libgpg: added --no-check-certificates to manual wget calls too
+	* version: 0.2.9-rc11
+
+2008-01-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcompat: added url_https_verify override which always passes
 	  --no-check-certificates #14106
 	* version: 0.2.9-rc10

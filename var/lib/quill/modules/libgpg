@@ -258,7 +258,7 @@ function quill_get_spell_keyring() {
   else
     # get a hint from the failed verification
     message "Creating a keyring from the key that made the signature ..."
-    $QUILL_SUDO -c "wget -nc -P $SOURCE_CACHE $SPELL_SIGNATURE ${SPELL_SIGNATURE%.*}"
+    $QUILL_SUDO -c "wget --no-check-certificate -nc -P $SOURCE_CACHE $SPELL_SIGNATURE ${SPELL_SIGNATURE%.*}"
     # get the key id, reuse a var
     SPELL_KEYRING=$(gpg --verify $SOURCE_CACHE/${SPELL_SIGNATURE##*/} 2>&1 | sed -n 's,^.* key ID ,,p')
 
@@ -277,7 +277,7 @@ function quill_get_spell_keyring() {
         unset SPELL_KEYRING
         query_spell_keyring
       done
-      wget -nc -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
+      wget --no-check-certificate -nc -P $QUILL_SPELL_DIR/$SPELL_NAME/ "$SPELL_KEYRING"
       SPELL_KEYRING=$(basename "$SPELL_KEYRING")
     fi
 
