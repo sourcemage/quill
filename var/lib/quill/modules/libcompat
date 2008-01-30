@@ -78,6 +78,20 @@ function select_list_sub() {
   eval $returnvar=\"$_result\"
 }
 
+unset -f url_https_verify &&
+function url_https_verify() {
+  local  URL=$1
+
+  if [  -n  "$URL"  ]; then
+    if  OUTPUT=`wget --passive-ftp -t 1 -T 30 --spider --no-check-certificate "$URL" 2>&1`;  then
+      true
+    else
+      echo  $OUTPUT
+      false
+    fi
+  fi
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify
