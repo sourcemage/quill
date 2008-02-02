@@ -1,3 +1,17 @@
+2008-02-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libdesktop:use -s with fmt, so it is much less likely for the formatting
+	  to get screwed (think bulleted lists)
+	* quill: copying non-quilled new spells will work now (like from bug
+	  attachments)
+	  improved an error message
+	* libcopy: fixed a broken chain in ask_and_copy_over
+	* libupdate: offer automatic addition of the UPSTREAM_KEY qualifier when we
+	  detect that a key should be marked as such
+	* quill, libcore: extended copylefts to 2008
+	* libcore: more options when mirrors are broken - they should not be always
+	  removed (example: $url and $url/old, where old gets updated with delay)
+	* version: 0.2.9-rc12
+
 2008-01-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore, libgpg: added --no-check-certificates to manual wget calls too
 	* version: 0.2.9-rc11

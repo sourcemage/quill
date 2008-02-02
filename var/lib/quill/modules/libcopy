@@ -139,7 +139,7 @@ function ask_and_copy_over()
     rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
     cp -pr $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
     message "Done." &&
-    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY &&
     SPELL_UPDATED=n
   elif [[ $reply == "QUILL_GIT_DIR" ]]
   then

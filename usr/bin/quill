@@ -1,7 +1,7 @@
 #!/bin/bash
 #---
 ## @Synopsis Spell creator script for SourceMage GNU/Linux
-## @Copyright Copyright 2006-2007 SourceMage GNU/Linux
+## @Copyright Copyright 2006-2008 SourceMage GNU/Linux
 ## @License GPL v2 or higher
 ##
 ## Asks the user in simple questions about generating a spell.
@@ -183,7 +183,10 @@ fi
 if [[ "$QUILL_UPDATE" == "on" ]]
 then
   SPELL_NAME=$QUILL_TARGET
-  codex_does_spell_exist $SPELL_NAME || exit 6
+  if ! codex_does_spell_exist $SPELL_NAME; then
+    query "Is $SPELL_NAME a new spell in QUILL_GIT_DIR?" n ||
+    exit 6
+  fi
   ask_and_copy_over || exit 7
   cd $QUILL_SPELL_DIR/$SPELL_NAME
 
@@ -280,7 +283,11 @@ then
         fi
         if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
         then
-          error_msg "Origin not found! Very severe!"
+          error_msg "Spell not found in the grimoire!"
+          if query "Is $SPELL_NAME a new spell in QUILL_GIT_DIR?" n
+          then
+            quill_final_put_in_grimoire
+          fi
           continue
         fi
 
@@ -290,7 +297,7 @@ then
         codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
         if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
         then
-          error_msg "Origin not found! Very severe!"
+          error_msg "Spell not found in the grimoire!"
           continue
         fi
 

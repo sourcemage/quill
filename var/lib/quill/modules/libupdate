@@ -231,6 +231,12 @@ function version_bump() {
           error_msg "This looks like an upstream keyring and should be marked as such."
           error_msg "Probably with :UPSTREAM_KEY at the end of the $current_check."
           error_msg "Do not replace it!"
+          if query "Do you want to add this qualifier?" y; then
+            sed -i "s/SOURCE${i}_GPG=['\"]*${current_check}.*['\"]*\s*$/SOURCE${i}_GPG=$current_check:UPSTREAM_KEY/" DETAILS
+            remove_old_sigs "$version" # likely not needed, but be thorough
+            inc_src_num i
+            continue
+          fi
         fi
         if ! query "Do you want to replace SOURCE${i}_GPG with a hash?" n; then
           # sign it and continue

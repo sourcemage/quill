@@ -320,11 +320,22 @@ function check_source_urls() {
           rc=0
         else
           # if they are still not ok ask for fixed ones
-          error_msg  "SOURCE${i}_URL[$mirror_num] is hopelessly broken! Fix it manually."
-          sleep 2
-          quill_edit DETAILS
-          add_history_entry "DETAILS: Fixed SOURCE${i}_URL[$mirror_num]"
-          rc=1
+          if [[ $mirror_num == 0 ]]; then
+            error_msg  "SOURCE${i}_URL[0] is hopelessly broken! Fix it manually."
+            sleep 2
+            quill_edit DETAILS
+            add_history_entry "DETAILS: Fixed SOURCE${i}_URL[0]"
+            rc=1
+          else # be less strict for mirrors
+            error_msg  "SOURCE${i}_URL[$mirror_num] is broken. Perhaps it should be removed."
+            if query "Do you want to fix or remove it?" n; then
+              quill_edit DETAILS
+              add_history_entry "DETAILS: Fixed SOURCE${i}_URL[$mirror_num]"
+              rc=1
+            else
+              rc=0
+            fi
+          fi
         fi
       fi
       let mirror_num++
@@ -355,7 +366,7 @@ function dump_default_function() {
 function quill_version() {
 
   message "quill - $QUILL_VERSION
-Copyright (C) 2006-2007 Source Mage
+Copyright (C) 2006-2008 Source Mage
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
@@ -473,7 +484,7 @@ function check_description_wrap(){
       long.description && rm long.description && return 0
 
   sed -i '/cat *<< *EOF/,/EOF/d' DETAILS
-  sed '1d; $d' long.description | fmt -w 80 > long.description.2
+  sed '1d; $d' long.description | fmt -s -w 80 > long.description.2
   mv long.description.2 long.description
   echo 'cat << EOF' >> DETAILS
   cat long.description >> DETAILS
@@ -576,7 +587,7 @@ function query_msg() {
 function quill_help() {
 
   message "quill $QUILL_VERSION
-Copyright (C) 2006-2007 Source Mage
+Copyright (C) 2006-2008 Source Mage
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
 There is NO WARRANTY, to the extent permitted by law.
