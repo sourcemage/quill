@@ -1,3 +1,7 @@
+2008-01-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: added another sanity check for adding spells
+	* version: 0.2.9-rc13
+
 2008-02-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdesktop:use -s with fmt, so it is much less likely for the formatting
 	  to get screwed (think bulleted lists)
