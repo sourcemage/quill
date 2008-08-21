@@ -8,9 +8,11 @@ function quill_fsf_get_deps(){
   file="${2}"
   data="${1}"
   cat $file | \
-  grep "$data" | \
-  sed -e "s:.*<tr><td valign=\"top\">$data</td><td>\(.*\)</td></tr>.*:\1:g" |\
-  sed -e "s:</td></tr>.*::g"
+  sed -n '/h5>Requirements</,/<\/ul>/ p' ${file} | \
+      grep "li" | \
+      grep "$data" | \
+      sed -e "s:<li>\(.*\)\ ($data).*</li>:\1:g" | \
+      tr "\n" " " | tr "A-Z" "a-z"
 }
 ##
 ## @Globals SPELL_NAME SPELL_LICENSE SPELL_URL
@@ -27,23 +29,28 @@ function quill_fsf_core(){
   if [[ ! -e ${fsf_project_file} ]]; then
     message "Attempting to retrieve project page..."
     wget -q -O $fsf_project_file \
-         http://directory.fsf.org/$project.html || \
+         http://directory.fsf.org/project/$project/ || \
          (error_msg "Error: unable to fetch project page" && \
          return 1)
   fi
-  SPELL_SRC_URL="$(cat $fsf_project_file| grep "Source tarball" | sed -e 's:.*<tr><td valign=\"top\">Source tarball</td><td><a href=[^\"]*\"\([^\"]*\)\"[^\"]*>.*</a></td>.*:\1:g')"
-  SPELL_SHORT_DESCRIPTION="$(cat $fsf_project_file | grep "</p><h3>" | sed -e 's:.*</p><h3>\(.*\)</h3>.*:\1:')"
-  SPELL_DEPENDENCIES="$(quill_fsf_get_deps "Source languages" "$fsf_project_file") $(quill_fsf_get_deps "Build prerequisites" "$fsf_project_file") $(quill_fsf_get_deps "Use requirements" "$fsf_project_file"))"
-  SPELL_OPTIONAL_DEPENDENCIES="$(quill_fsf_get_deps "Weak prerequisites" "$fsf_project_file")"
-  SPELL_LICENSE="$(cat $fsf_project_file| grep "Licensed under" | sed -e 's:.*<tr><td>\(Licensed under .*\)\.</td></tr> *.*:\1:' -e 's:<tr><td>This.*::' -e 's:\.</td></tr>::')"
-  SPELL_URL="$(cat $fsf_project_file| grep "Web page" | sed -e 's:.*<tr><td valign=\"top\">Web page</td><td><a href=[^\"]*\"\([^\"]*\)\"[^\"]*>.*</a></td>.*:\1:g')"
-  cat $fsf_project_file | \
-  sed -e 's:<body bgcolor="white">:>INDEX<:' | \
-  sed -n '/INDEX/,/All_Packages_in_Directory/ p' | \
-  sed -e ":top;/<.*>/{;s/<[^<>]*>//g;t top;};/</{;N;b top;}" | \
-  sed '/Obtaining/d' | \
-  sed '/INDEX/d' | \
-  sed 's:Top &gt;.* &gt;::g' > \
-      ${QUILL_TMP_DIR}/${SPELL_NAME}
+  SPELL_SRC_URL="$(sed -n '/<h4>Versions/,/<li>Licenses:/ p' $fsf_project_file | grep "Source Archive:" | sed -e "s:.*<a href=\"\(.*\)\".*:\1:g" -e "s:\".*::g")"
+
+  SPELL_SHORT_DESCRIPTION="$(sed -n '/<div id="description">/,/<p><em>Last updated/ p' $fsf_project_file | sed -n '/<\/h3>/,/<p><em>/ p' | sed -e "s:</h3>::g" -e "s:<p>::g" -e "s:</p>::g" -e "s:<em>.*::g" | head -n2 | tail -n1 | sed -e "s:^ *::" -e "s: *$::")"
+
+  SPELL_DEPENDENCIES="$(echo $(quill_fsf_get_deps "Source Language" "$fsf_project_file") $(quill_fsf_get_deps "Build Prerequisite" "$fsf_project_file") $(quill_fsf_get_deps "Use Requirement" "$fsf_project_file") | sed -e "s:^ *::" -e "s: *$::" )"
+
+  SPELL_OPTIONAL_DEPENDENCIES="$(echo $(quill_fsf_get_deps "Weak prerequisites" "$fsf_project_file") | sed -e "s:^ *::" -e "s: *$::" )"
+
+  SPELL_LICENSE="$(sed -n '/<li>Licenses:/,/<\/li>/ p' $fsf_project_file | tr "\n" " " | sed -e "s:.*<a href.*>\(.*\)</a>.*:\1:g")"
+
+  SPELL_URL="$(grep -E "<p>.*Homepage" $fsf_project_file | sed -e "s:.*<a href=\"\(.*\)\">Homepage.*:\1:g")"
+
+  # Description
+
+  sed -n '/<div id="description">/,/<p><em>Last updated/ p' $fsf_project_file | \
+  sed -n '/<\/h3>/,/<p><em>/ p' | \
+  sed -e "s:</h3>::g" -e "s:<p>::g" -e "s:</p>::g" -e "s:<em>.*::g" |
+  sed -e "s:^ *::" -e "s: *$::" > \
+  ${QUILL_TMP_DIR}/${SPELL_NAME}
 
 }

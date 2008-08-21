@@ -1,3 +1,7 @@
+2008-08-21 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libfsfdirectory: updated for new layout
+	* version: 0.2.9, time for the dance
+
 2008-08-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: made it possible to ^C out of the source_url sanity checks
 	* version: 0.2.9-rc14
