@@ -163,9 +163,11 @@ function version_bump() {
     # parse the (usually new) source urls
     get_sources_and_urls
 
+    trap break INT
     while ! check_source_urls; do
       get_sources_and_urls
     done
+    trap INT
     # do it again, needed if the source suffix was changed
     get_sources_and_urls
     echo

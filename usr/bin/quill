@@ -340,11 +340,14 @@ else # no updates, we'll be making a spell
   done
   query_spell_source_url
   # the semirandom fallback url is there to circumvent sorcery bug #13729
+  trap break INT
   while ! url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null; do
     error_msg "Invalid URL!\n"
     unset SPELL_SRC_URL
     query_spell_source_url
   done
+  trap INT
+
   query_spell_license
   query_spell_url
   query_spell_short_description
