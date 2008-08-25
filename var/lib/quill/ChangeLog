@@ -1,3 +1,10 @@
+2008-08-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libhistory: made add_history_entry work on arbitrary files and added
+	  a limited add_changelog_entry
+	* libcore: added unset_spell_paths, so we do that consistently
+	* quill, libgpg, libcopy: use unset_spell_paths
+	* version: 0.3.0-rc1
+
 2008-08-21 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libfsfdirectory: updated for new layout
 	* version: 0.2.9, time for the dance

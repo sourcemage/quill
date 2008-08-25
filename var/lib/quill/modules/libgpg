@@ -184,6 +184,7 @@ function convert_to_upstream_gpg() {
         error_msg "Failed!"
       fi
       sleep 2"
+      unset_spell_paths
     fi
   else
     let UPDATE_COUNTER--
@@ -254,7 +255,7 @@ function quill_get_spell_keyring() {
       fi
       SPELL_KEYRING=$(basename $SPELL_KEYRING)
     fi
-    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+    unset_spell_paths
   else
     # get a hint from the failed verification
     message "Creating a keyring from the key that made the signature ..."

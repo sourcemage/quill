@@ -108,7 +108,8 @@ function copy_from_git()
   codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
   diff -q $QUILL_SPELL_DIR/$SPELL_NAME "$GRIMOIRE/$SECTION/$SPELL_NAME" -x DETAILS.orig > /dev/null || SPELL_UPDATED=y
 
-  unset GRIMOIRE2 SECTION2 GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY
+  unset_spell_paths
+  unset GRIMOIRE2 SECTION2
   cd "$QUILL_SPELL_DIR/$SPELL_NAME"
 }
 
@@ -139,7 +140,7 @@ function ask_and_copy_over()
     rm -fr $QUILL_SPELL_DIR/$SPELL_NAME &&
     cp -pr $SECTION_DIRECTORY/$SPELL_NAME $QUILL_SPELL_DIR &&
     message "Done." &&
-    unset GRIMOIRE SECTION GRIMOIRE_NAME SECTION_DIRECTORY &&
+    unset_spell_paths &&
     SPELL_UPDATED=n
   elif [[ $reply == "QUILL_GIT_DIR" ]]
   then

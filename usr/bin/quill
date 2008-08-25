@@ -194,7 +194,7 @@ then
             'Add arbitrary HISTORY entries' \
             'Increment/add PATCHLEVEL or SECURITY_PATCH' \
             'Switch to upstream gpg verification' \
-            '--NOOP--' \
+            'Deprecate the spell (also for renames)' \
             '--NOOP--' \
             '--NOOP--' \
             '--NOOP--' \
@@ -268,6 +268,9 @@ then
       "${actions[3]}") #'Switch to upstream gpg verification'
         main_update_loop convert_to_upstream_gpg
       ;;
+      "${actions[4]}") # deprecate the spell
+        true deprecate_menu
+      ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue
       ;;
@@ -279,6 +282,7 @@ then
         if [[ ! -e $QUILL_SPELL_DIR/$SPELL_NAME ]]
         then
           error_msg "There is nothing to copy back!"
+          unset_spell_paths
           continue
         fi
         if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
@@ -288,16 +292,19 @@ then
           then
             quill_final_put_in_grimoire
           fi
+          unset_spell_paths
           continue
         fi
 
         quill_final_put_in_grimoire $GRIMOIRE $SECTION no
+        unset_spell_paths
       ;;
       "${actions[12]}") #"Try it out"
         codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
         if [[ ! -e $GRIMOIRE/$SECTION/$SPELL_NAME ]]
         then
           error_msg "Spell not found in the grimoire!"
+          unset_spell_paths
           continue
         fi
 
@@ -309,14 +316,18 @@ then
         if [[ $SPELL_UPDATED == n ]]
         then
           # 1. there is no difference; there is no change
-          query "Are you sure you want to cast the unchanged spell from the grimoire?" y ||
-          continue
+          query "Are you sure you want to cast the unchanged spell from the grimoire?" y || {
+            unset_spell_paths
+            continue
+          }
         fi
         if ! diff -q $QUILL_SPELL_DIR/$SPELL_NAME $GRIMOIRE/$SECTION/$SPELL_NAME -x DETAILS.orig > /dev/null
         then
           # 3. the spell was changed, but not copied over yet
-          query "Are you sure you want to cast the unchanged spell from the grimoire?" y ||
-          continue
+          query "Are you sure you want to cast the unchanged spell from the grimoire?" y || {
+            unset_spell_paths
+            continue
+          }
         fi
 
         if query "Do you want to cast -r? (possibly needed for multiversion spells)" n; then
@@ -324,6 +335,7 @@ then
         else
           $QUILL_SUDO -c "cast -c $SPELL_NAME"
         fi
+        unset_spell_paths
       ;;
     esac
 

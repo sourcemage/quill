@@ -22,38 +22,40 @@ function add_history()
 #---
 ## @Synopsis Adds a new HISTORY entry. Uses idempotent date title handling.
 ## @param entry without the leading tab, bullet and space
+## @param file, defaults to HISTORY - used for adding Changelog entries
 ##
 ## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL
 #---
 function add_history_entry()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
+  local history_file=${1:-HISTORY}
 
-  if [[ ! -e HISTORY ]]; then
-    error_msg "Spell is missing a HISTORY file!"
+  if [[ ! -e $history_file ]]; then
+    error_msg "Spell is missing a $history_file file!"
     [[ -e DETAILS.orig ]] && mv DETAILS.orig ..
-    add_history "added missing HISTORY file"
+    add_history "added missing $history_file file"
     [[ -e ../DETAILS.orig ]] && mv ../DETAILS.orig .
   fi
 
-  if grep -q "$title" HISTORY;
+  if grep -q "$title" $history_file;
   then
     # check if we already have an entry for the same file
     file="${1%%:*}"
-    if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p" HISTORY) ]]
+    if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p" $history_file) ]]
     then # we don't
-      sed -i "/$title/ a\\\t* $1" HISTORY
+      sed -i "/$title/ a\\\t* $1" $history_file
     else
       # we do, but first check that the new addition is unique
-      if ! sed -n "1,/^\s*$/p" HISTORY | grep -qF "* $1"
+      if ! sed -n "1,/^\s*$/p" $history_file | grep -qF "* $1"
       then
         sed -i "1,/^\s*$/ {
                 /\* $file:/ a\\\t ${1#*:}
-               }" HISTORY
+               }" $history_file
       fi
     fi
   else # first time today
-    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" HISTORY
+    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" $history_file
   fi
 }
 
@@ -100,6 +102,30 @@ function add_user_history_entries()
     echo
     SPELL_UPDATED=y
   fi
+}
+
+#---
+## @Synopsis Adds a new Changelog entry
+## @param entry without the leading tab, bullet and space
+##
+## WARNING: currently only modifies the live grimoire!
+##
+## @Globals SPELL_NAME
+#---
+function add_changelog_entry()
+{
+  local tmpf=cl.$$
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
+  add_history_entry "$@" $GRIMOIRE/ChangeLog
+  unset_spell_paths
+
+  echo > $tmpf
+  add_history_entry "$@" $tmpf
+  message "The Changelog entry was added directly to the grimoire."
+  message "Either copy it over or add this to your git grimoire (if applicable)"
+  message "and fix the initial tab:"
+  cat $tmpf
+  rm $tmpf
 }
 
 #---
