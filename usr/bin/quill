@@ -269,7 +269,7 @@ then
         main_update_loop convert_to_upstream_gpg
       ;;
       "${actions[4]}") # deprecate the spell
-        true deprecate_menu
+        deprecate_menu
       ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue

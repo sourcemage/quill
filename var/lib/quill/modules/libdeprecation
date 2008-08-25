@@ -1,0 +1,175 @@
+#!/bin/bash
+#---
+## @Synopsis functions dealing with spell deprecation and removal
+#---
+
+#---
+## @Synopsis the main deprecation interface
+##
+## @Globals SPELL_NAME
+#---
+function deprecate_menu() {
+  local actions choice replacement
+
+  actions=('Deprecate in favour of another spell' \
+           'Rename the spell' \
+           'Complete a previous deprecation' \
+           'Delete the spell' \
+           'Return to the main menu' )
+  query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
+
+  case "$choice" in
+    "${actions[0]}")
+      get_replacement replacement
+      deprecate $replacement ;;
+    "${actions[1]}") # rename
+      get_replacement replacement
+      deprecate $replacement rename ;;
+    "${actions[2]}")
+      complete_deprecation ;;
+    "${actions[3]}")
+      delete_spell ;;
+    "${actions[4]}")
+      return ;;
+  esac
+  sleep 5
+}
+
+# start the deprecation
+function deprecate() {
+  local overrides='DOWNLOAD PRE_BUILD BUILD INSTALL'
+  local replacement=$1
+  local rename=$2
+  local reason
+  local explanation
+
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+
+  mv HISTORY DETAILS.orig ..
+  if [[ ! -z $QUILL_GIT_DIR ]]; then
+    local remove_list=$(ls | tr '\n' ' ')
+    echo +$remove_list+
+    list_remove remove_list DETAILS DEPENDS HISTORY $overrides TRIGGERS
+    echo +$remove_list+
+    message "${MESSAGE_COLOR}AFTER you copy the spell back,$DEFAULT_COLOR"
+    message "run this under $QUILL_GIT_DIR:"
+    message "cd $SECTION/$SPELL_NAME; git rm -r -f" $remove_list
+    message "git add DETAILS DEPENDS HISTORY $overrides TRIGGERS; cd -"
+    message
+  fi
+  rm -r *
+  mv ../HISTORY ../DETAILS.orig .
+
+  add_history_entry "DETAILS: version 0"
+  add_history_entry "PATCHLEVEL=9999"
+  if [[ -z $rename ]]; then
+    query_string reason "Enter the reason for deprecation: "
+    explanation="spell deprecated [$reason]"
+  else
+    explanation="spell deprecated [renamed to $replacement]"
+  fi
+  add_history_entry "$explanation"
+
+  deprecate_details $replacement
+
+  local file
+  for file in $overrides;do
+    echo true > $file
+  done
+
+  echo on_cast $SPELL_NAME dispel_self > TRIGGERS
+  echo depends $replacement > DEPENDS
+
+  chmod u+x $overrides DETAILS TRIGGERS DEPENDS
+
+  message "Add $replacement/CONFLICTS containing 'conflicts $SPELL_NAME y'.\n"
+
+  message "Also read up on EXPORTS on the deprecation wiki page, quill doesn't handle it!\n"
+
+  add_changelog_entry "$SECTION/$SPELL: $explanation"
+  unset_spell_paths
+}
+
+# complete the deprecation of a spell
+function complete_deprecation() {
+
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+
+  # remove the spell files
+  delete_spell "deprecation complete"
+  message
+
+  unset_spell_paths
+
+  message "$MESSAGE_COLOR"
+  message "Don't forget to check if any spell still depends on or conflicts with $SPELL_NAME!"
+  message "Basically nothing but HISTORY/ChangeLog entries should mention it."
+  message "$DEFAULT_COLOR"
+}
+
+# recreate DETAILS for a deprecated spell
+function deprecate_details() {
+  local replacement=$1
+
+cat > DETAILS <<EOFZ
+          SPELL=$SPELL_NAME
+        VERSION=0
+     PATCHLEVEL=9999
+          SHORT="deprecated"
+  cat << EOF
+    deprecated spell [replaced by $replacement]
+  EOF
+EOFZ
+
+  if [[ -z $replacement ]]; then
+    sed -i 's,deprecated spell.*$,deprecated spell,' DETAILS
+  fi
+}
+
+# ask the user for the replacement spell
+function get_replacement() {
+  local __replacement
+  local var=$1
+  while [[ -z $__replacement ]]; do
+    query_string __replacement "Enter the new spell name: "
+    codex_does_spell_exist $__replacement || unset __replacement
+  done
+  upvar $var "$__replacement"
+}
+
+# plain deletes a spell, can't really work
+function delete_spell() {
+  local reason=$1
+
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+
+  rm -r * # can't do much more
+  if [[ ! -z $QUILL_GIT_DIR ]]; then
+    message "Run this under $QUILL_GIT_DIR: git rm -r $SECTION/$SPELL_NAME\n"
+  fi
+
+  if [[ -z $reason ]]; then
+    query_string reason "Enter the reason for straight removal: "
+  fi
+  add_changelog_entry "$SECTION/$SPELL_NAME: removed, $reason"
+
+  unset_spell_paths
+}
+
+#---
+##
+## This software is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+#---

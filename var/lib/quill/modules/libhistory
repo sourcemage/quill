@@ -29,7 +29,7 @@ function add_history()
 function add_history_entry()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
-  local history_file=${1:-HISTORY}
+  local history_file=${2:-HISTORY}
 
   if [[ ! -e $history_file ]]; then
     error_msg "Spell is missing a $history_file file!"
@@ -116,12 +116,12 @@ function add_changelog_entry()
 {
   local tmpf=cl.$$
   codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME) &&
-  add_history_entry "$@" $GRIMOIRE/ChangeLog
+  [[ -w $GRIMOIRE/ChangeLog ]] && add_history_entry "$@" $GRIMOIRE/ChangeLog
   unset_spell_paths
 
   echo > $tmpf
   add_history_entry "$@" $tmpf
-  message "The Changelog entry was added directly to the grimoire."
+  message "The Changelog entry was added directly to the grimoire (if writable)."
   message "Either copy it over or add this to your git grimoire (if applicable)"
   message "and fix the initial tab:"
   cat $tmpf
