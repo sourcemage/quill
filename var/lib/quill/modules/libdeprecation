@@ -48,9 +48,7 @@ function deprecate() {
   mv HISTORY DETAILS.orig ..
   if [[ ! -z $QUILL_GIT_DIR ]]; then
     local remove_list=$(ls | tr '\n' ' ')
-    echo +$remove_list+
     list_remove remove_list DETAILS DEPENDS HISTORY $overrides TRIGGERS
-    echo +$remove_list+
     message "${MESSAGE_COLOR}AFTER you copy the spell back,$DEFAULT_COLOR"
     message "run this under $QUILL_GIT_DIR:"
     message "cd $SECTION/$SPELL_NAME; git rm -r -f" $remove_list
