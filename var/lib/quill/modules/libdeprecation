@@ -80,7 +80,14 @@ function deprecate() {
 
   chmod u+x $overrides DETAILS TRIGGERS DEPENDS
 
-  message "Add $replacement/CONFLICTS containing 'conflicts $SPELL_NAME y'.\n"
+  message "Add $replacement/CONFLICTS containing 'conflicts $SPELL_NAME y'."
+  message "And a HISTORY entry, but you can do this with quill too:
+quill -u $replacement
+11
+CONFLICTS: added $SPELL_NAME (deprecated)
+na
+
+"
 
   message "Also read up on EXPORTS on the deprecation wiki page, quill doesn't handle it!\n"
 

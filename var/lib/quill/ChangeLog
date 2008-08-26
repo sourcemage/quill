@@ -1,10 +1,14 @@
-2008-08-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+2008-08-26 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libdeprecation: added a note about the conflict's HISTORY
+	* version: 0.3.0-rc3
+
+2008-08-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: fixed an argument in add_history_entry
 	* libdeprecation: added with most of the functionality done
 	* quill: added/enabled the deprecation main menu option
 	* version: 0.3.0-rc2
 
-2008-08-21 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+2008-08-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: made add_history_entry work on arbitrary files and added
 	  a limited add_changelog_entry
 	* libcore: added unset_spell_paths, so we do that consistently
