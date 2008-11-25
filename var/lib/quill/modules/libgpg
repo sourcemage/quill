@@ -171,7 +171,7 @@ function convert_to_upstream_gpg() {
       SOURCE_DIRECTORY=$(conditional_get_var SOURCE_DIRECTORY)
       codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
       $QUILL_SUDO -c ". /etc/sorcery/config; . $QUILL_MODULES/libcore;
-      . $QUILL_MODULES/libcopy; . $QUILL_MODULES/libupdate
+      . $QUILL_MODULES/libcopy; . $QUILL_MODULES/libupdate; . $QUILL_QUILLRC;
       SPELL_NAME=$SPELL_NAME; QUILL_SPELL_DIR=$QUILL_SPELL_DIR
       get_sources_and_urls
       summon_sources || exit 1
