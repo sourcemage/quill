@@ -147,8 +147,9 @@ function get_patches()
     until url_verify $_patch; do
       query_string _patch "Enter the patch url: "
     done
-    wget --no-check-certificate $_patch -O $(basename $_patch)
-    _patch=$(basename $_patch)
+    local name=$(basename $_patch | sed 's/\.diff.*/.diff/; s/\.patch.*/.patch/')
+    wget --no-check-certificate $_patch -O $name
+    _patch=$name
   fi
 
   if [[ -z $_patch ]]; then
