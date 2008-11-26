@@ -13,9 +13,14 @@ function query_spell_pre_build()
 }
 
 ##
-## @Globals EDITOR
+## @Globals QUILL_TMP_DIR SPELL_NAME
 function add_pre_build()
 {
+  if [[ -e PRE_BUILD ]]; then
+    echo "PRE_BUILD already exists, skipping!"
+    return 0
+  fi
+
   if [[ -e ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD ]] ; then
     cp ${QUILL_TMP_DIR}/${SPELL_NAME}-PRE_BUILD    \
        ${QUILL_SPELL_DIR}/${SPELL_NAME}/PRE_BUILD
@@ -28,8 +33,137 @@ function add_pre_build()
       echo "default_pre_build &&" > PRE_BUILD
     fi
   fi
-  $EDITOR PRE_BUILD
+  chmod +x PRE_BUILD
+  quill_edit PRE_BUILD
 }
+
+#---
+## @Synopsis the main pre_build interface
+##
+## @Globals
+#---
+function pre_build_menu() {
+  local actions choice
+
+  actions=('Add PRE_BUILD' \
+           'Edit PRE_BUILD' \
+           'Add patch' \
+           'Remove patch' \
+           'Remove PRE_BUILD' \
+           'Return to the main menu' )
+  query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
+
+  case "$choice" in
+    "${actions[0]}")
+      add_pre_build ;;
+    "${actions[1]}")
+      quill_edit PRE_BUILD ;;
+    "${actions[2]}")
+      add_pre_build
+
+      # enter filename (suggestions from *.diff *.patch) + custom url
+      get_patches patch add || return 1
+
+      # check that the just fetched patch isn't already applied
+
+      if grep -q "patch.*$patch" PRE_BUILD; then
+        echo "This patch is already being applied, skipping!"
+        return
+      fi
+
+      # ask for -p
+      grep -F '+++' -B1 $patch | head -n2
+      query_string patch_level "Enter the patch level (the -p option): "
+
+      # add it
+      sed -i '$ s/[^\\&]\s*$/& \&\&/' PRE_BUILD
+      echo "patch -p${patch_level:-0} -d \$SOURCE_DIRECTORY < \$SPELL_DIRECTORY/$patch" >> PRE_BUILD
+
+      # try patching - run the whole pre_build
+      if ! test_pre_build; then
+        echo "Something went wrong; fix PRE_BUILD manually!"
+        sleep 2
+        quill_edit PRE_BUILD
+      fi
+
+      add_history_entry "$patch: added for ?"
+      quill_edit HISTORY
+
+      echo Done.
+      sleep 2 ;;
+    "${actions[3]}")
+      add_pre_build
+
+      # enter filename (suggestions from *.diff *.patch)
+      get_patches patch remove || return 1
+
+      # remove it
+      rm $patch
+      sed -i "/patch.*$patch/d" PRE_BUILD
+
+      # run the whole pre_build
+      if ! test_pre_build; then
+        echo "Something went wrong; fix PRE_BUILD manually!"
+        sleep 2
+        quill_edit PRE_BUILD
+      fi
+
+      add_history_entry "$patch: removed, no longer needed"
+
+      echo Done.
+      sleep 2 ;;
+    "${actions[4]}")
+      rm PRE_BUILD
+      add_history_entry "PRE_BUILD: removed, no longer needed" ;;
+    "${actions[5]}")
+      return ;;
+  esac
+}
+
+## doesn't handle compressed patches
+function get_patches()
+{
+  local _patch patches
+  local mode=$2
+
+  patches=$(find \( -name "*.diff" -or -name "*.patch" \) -printf "%P\n")
+
+  if [[ $mode == add ]]; then
+    # remove patches from $patches that are already being applied
+    for item in $patches; do
+      if grep -q "patch.*$item" PRE_BUILD; then
+        list_remove patches $item
+      fi
+    done
+
+    # also ask for a new patch - url
+    patches2="Url to new patch"
+  fi
+
+  # ask which patch to add/remove
+  query_list "Which patch do you want to $mode?" _patch "" $patches "$patches2"
+
+  if [[ $_patch == "Url to new patch" ]]; then
+    until url_verify $_patch; do
+      query_string _patch "Enter the patch url: "
+    done
+    wget --no-check-certificate $_patch -O $(basename $_patch)
+    _patch=$(basename $_patch)
+  fi
+
+  if [[ -z $_patch ]]; then
+    echo "No patch!"
+    return 1
+  fi
+
+  upvar "$1" "$_patch"
+}
+
+function test_pre_build()
+{
+  true
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

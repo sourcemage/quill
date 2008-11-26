@@ -195,7 +195,7 @@ then
             'Increment/add PATCHLEVEL or SECURITY_PATCH' \
             'Switch to upstream gpg verification' \
             'Deprecate the spell (also for renames)' \
-            '--NOOP--' \
+            'Manage/add PRE_BUILD and patches' \
             '--NOOP--' \
             '--NOOP--' \
             '--NOOP--' \
@@ -270,6 +270,9 @@ then
       ;;
       "${actions[4]}") # deprecate the spell
         deprecate_menu
+      ;;
+      "${actions[5]}") # 'Manage/add PRE_BUILD and patches'
+        pre_build_menu
       ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue

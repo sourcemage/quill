@@ -1,3 +1,8 @@
+2008-11-26 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+    * libpre_build: support for managing PRE_BUILD and patches
+    * quill: added PRE_BUILD to the menu
+    * version: 0.3.0-rc5
+
 2008-11-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcompat: fixed loose matching in the 1.13 url_ftp_verify fix
 	* libgpg: when testing the new verification system also source quillrc
