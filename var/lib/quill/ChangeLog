@@ -1,4 +1,9 @@
 2008-11-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: redid the input parsing - now uses the powerful getopt
+	* libcore: removed now unneeded check_parameter
+	* version: 0.3.0-rc7
+
+2008-11-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libhistory: wrap when the line is longer than 76 chars
 	* version: 0.3.0-rc6
 

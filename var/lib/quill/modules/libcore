@@ -387,20 +387,6 @@ Arjan 'abouter' Bouter
 }
 
 #---
-## @Synopsis checks if the parameter is missing
-## @Synopsis if not, saves it in QUILL_TARGET and QUILL_ORIG_TARGET
-##
-## @Globals QUILL_TARGET QUILL_ORIG_TARGET
-#---
-function check_parameter() {
-  [[ -z $1 ]] &&
-  error_msg "Missing parameter" &&
-  quill_help 101 ||
-  QUILL_ORIG_TARGET="$1" &&
-  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$1")
-}
-
-#---
 ## @Synopsis verbosely checks if the argument is a dir and optionally exits
 ##
 ## @param path

@@ -43,102 +43,58 @@ QUILL_OUR_CONFIG_VERSION=2
 QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 
 #---
-## Not really a function it's supposed to parse the command line parameters
+## Parse the command line parameters and arguments via getopt
 #---
-while [[ -n $1 ]]; do
-  if grep -q "^ -" <<< " $1"; then
-    case  $1  in
-      --fmxml|-f)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="fmxml"
-                  shift ;;
-   --perlcpan|-c)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="cpan"
-                  shift ;;
-    --rubyraa|-y)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="raa"
-                  shift ;;
-     --savane|-s)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="savane"
-                  shift ;;
-   --savannah|-n)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="savannah"
-                  shift ;;
-        --gna|-g)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="gna"
-                  shift ;;
-        --fsf|-F)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="fsf"
-                  shift ;;
-  --hackagedb|-H)
-                  check_parameter $2
-                  QUILL_FETCH_MODE="hdb"
-                  shift ;;
+QUILL_CMDLINE=$(getopt -o fcysngFHup::amwrhv -l \
+  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,purge:: \
+  -n 'quill' -- "$@")
+if [[ $? != 0 ]]; then
+  error_msg "Invalid command line options!"
+  sleep 1
+  quill_help 103
+fi
+eval set -- "$QUILL_CMDLINE"
+unset QUILL_CMDLINE
+
+while true; do
+  case $1 in
+      --fmxml|-f) QUILL_FETCH_MODE="fmxml" ;;
+   --perlcpan|-c) QUILL_FETCH_MODE="cpan" ;;
+    --rubyraa|-y) QUILL_FETCH_MODE="raa" ;;
+     --savane|-s) QUILL_FETCH_MODE="savane" ;;
+   --savannah|-n) QUILL_FETCH_MODE="savannah" ;;
+        --gna|-g) QUILL_FETCH_MODE="gna" ;;
+        --fsf|-F) QUILL_FETCH_MODE="fsf" ;;
+  --hackagedb|-H) QUILL_FETCH_MODE="hdb" ;;
      --update|-u)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  shift ;;
-         -uf|-fu)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="fmxml"
-                  shift ;;
-         -us|-su)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="savane"
-                  shift ;;
-         -ug|-gu)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="gna"
-                  shift ;;
-         -un|-nu)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="savannah"
-                  shift ;;
-         -uc|-cu)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="cpan"
-                  shift ;;
-         -yu|-uy)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="raa"
-                  shift ;;
-         -Fu|-uF)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="fsf"
-                  shift ;;
-         -Hu|-uH)
-                  check_parameter $2
-                  QUILL_UPDATE="on"
-                  QUILL_FETCH_MODE="hdb"
-                  shift ;;
-      --purge|-p) QUILL_MODE="purge"; quill_purge $2 ;;
+                  QUILL_UPDATE="on" ;;
+      --purge|-p)
+                  QUILL_MODE="purge"; quill_purge $2 ;;
  --apprentice|-a) QUILL_MODE="apprentice" ;;
        --mage|-m) QUILL_MODE="mage" ;;
      --wizard|-w) QUILL_MODE="wizard" ;;
 --reconfigure|-r) QUILL_MODE="reconfigure" ;;
        --help|-h) quill_help ;;
     --version|-v) quill_version ;;
+              --) shift; break ;;
                *) error_msg "Invalid parameter $1"
+                  sleep 1
                   quill_help 102 ;;
-    esac
-  else
-    [[ -z $QUILL_TARGET ]] && QUILL_TARGET=$1
-  fi
+
+  esac
   shift
 done
+if [[ -z $1 && -z $QUILL_TARGET ]]; then
+  error_msg "Missing spellname argument!"
+  sleep 1
+  quill_help 104
+elif [[ -n $2 ]]; then
+  message "Discarding leftover arguments!"
+fi
+if [[ -z $QUILL_TARGET ]]; then
+  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$1")
+  QUILL_ORIG_TARGET=$1
+fi
 
 unset -f message
 . /etc/sorcery/config
