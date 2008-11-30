@@ -29,6 +29,7 @@ function add_history()
 function add_history_entry()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" file
+  local entry=$1
   local history_file=${2:-HISTORY}
 
   if [[ ! -e $history_file ]]; then
@@ -38,24 +39,31 @@ function add_history_entry()
     [[ -e ../DETAILS.orig ]] && mv ../DETAILS.orig .
   fi
 
+  # make the entry wrap nicely (74 == 80-tab-star-space)
+  if (( $(wc -c <<< "$entry") > 74 )); then
+    entry=$(fmt -w 74 <<< "$entry" | sed -e '1! s|^|\t  |' -e '$! s|$|\\|')
+  fi
+
   if grep -q "$title" $history_file;
   then
     # check if we already have an entry for the same file
     file="${1%%:*}"
+
     if [[ -z $(sed -n "1,/^\s*$/ s%\* $file:%&%p" $history_file) ]]
     then # we don't
-      sed -i "/$title/ a\\\t* $1" $history_file
+      sed -i "/$title/ a\\\t* $entry" $history_file
     else
       # we do, but first check that the new addition is unique
-      if ! sed -n "1,/^\s*$/p" $history_file | grep -qF "* $1"
+      local first_entry_line=$(head -n1 <<< "$entry" | sed 's,\\,,')
+      if ! sed -n "1,/^\s*$/p" $history_file | grep -qF "* $first_entry_line"
       then
         sed -i "1,/^\s*$/ {
-                /\* $file:/ a\\\t ${1#*:}
+                 /\* $file:/ a\\\t ${entry#*:}
                }" $history_file
       fi
     fi
   else # first time today
-    sed -i "1 s%^.*$%$title\n\t* $1\n\n&%" $history_file
+    sed -i "1 s%^.*$%$title\n\t* $entry\n\n&%" $history_file
   fi
 }
 

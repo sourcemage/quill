@@ -1,9 +1,5 @@
 things that would be cool to have:
 new menu choices
-  * 'Manage patches'
-	add/remove them and their references in PRE_BUILD
-	add/remove PRE_BUILD
-
   * 'Add another version'
 	branches
 	SCM: wierd versions; also needs the autoupdate stuff; only for -w
@@ -34,7 +30,6 @@ modules:
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it
   * add quill mode to /quillrc to avoid the need to constantly pass it
-  * wrapping for too long history additions
 
 ads:
   <p3pilot> i am a believer in using quill for updates...very few failures and is just quicker for me
