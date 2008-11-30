@@ -1,13 +1,13 @@
 2008-11-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
-    * libhistory: wrap when the line is longer than 76 chars
-    * version: 0.3.0-rc6
+	* libhistory: wrap when the line is longer than 76 chars
+	* version: 0.3.0-rc6
 
 2008-11-26 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
-    * libpre_build: support for managing PRE_BUILD and patches
-      made it more intelligent when downloading files from funny urls
-    * libdeprecation: only request removal if there's something to remove
-    * quill: added PRE_BUILD to the menu
-    * version: 0.3.0-rc5
+	* libpre_build: support for managing PRE_BUILD and patches
+	  made it more intelligent when downloading files from funny urls
+	* libdeprecation: only request removal if there's something to remove
+	* quill: added PRE_BUILD to the menu
+	* version: 0.3.0-rc5
 
 2008-11-25 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcompat: fixed loose matching in the 1.13 url_ftp_verify fix
