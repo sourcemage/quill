@@ -1,3 +1,9 @@
+2008-12-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: run quillrc, don't just suggest it when in trouble
+	* libupdate, libdepends: sort | uniq is identical to sort -u
+	* libfreshmeatxml: properly format the long description
+	* version: 0.3.0-rc8
+
 2008-11-30 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: redid the input parsing - now uses the powerful getopt
 	* libcore: removed now unneeded check_parameter

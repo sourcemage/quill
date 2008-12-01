@@ -18,7 +18,6 @@ improvements in the standard mode:
 
 fmxml:
   * dump xml-grep (awk, sed)?
-  * redo html parsing
 
 documentation:
   * write a manpage
@@ -26,6 +25,7 @@ documentation:
 modules:
   * a try-all switch with some basic apriori module reckognition support
   * extract the common code
+  * redo html parsing (strip first?)
 
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it

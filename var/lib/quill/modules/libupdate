@@ -289,7 +289,7 @@ function main_update_loop() {
 
   #fetch current versions, ignoring SCM ones
   versions=( $(sed -n 's/\s*\<VERSION=//p' DETAILS |
-              grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort | uniq) )
+              grep -Eiv '\$[(]date *+|cvs|svn|tla|git|scm' | sort -u) )
   [[ -z ${versions[@]} ]] && error_msg "No versions to update!" && continue
 
   message "Current relevant version(s): ${versions[@]}"

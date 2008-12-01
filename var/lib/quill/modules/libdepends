@@ -11,7 +11,7 @@ function query_spell_dependencies() {
     query_msg "Please enter the dependencies(non optional) \
 of the spell if any:"
     read "SPELL_DEPENDENCIES"
-    SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES" | sort | uniq)
+    SPELL_DEPENDENCIES=$(tr ',' ' ' <<< "$SPELL_DEPENDENCIES" | sort -u)
 fi
 }
 

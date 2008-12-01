@@ -115,8 +115,9 @@ fi
 # we should do some quillrc sanity checking someday
 [[ ! -d $QUILL_SPELL_DIR ]] &&
   error_msg "Bad QUILL_SPELL_DIR ($QUILL_SPELL_DIR)!" &&
-  echo "Try running quill -r" &&
-  exit 7
+  echo "Running quill --reconfigure in 3 seconds" &&
+  sleep 3 &&
+  quillrc
 
 PROMPT_DELAY="31557807"
 BUILD_API=2

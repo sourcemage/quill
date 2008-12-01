@@ -72,7 +72,7 @@ function quill_fmxml_core() {
     SPELL_LICENSE="$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')"
   fi
   SPELL_SHORT_DESCRIPTION="$(quill_fmxml_grab_from_xml desc_short ${FRESHMEAT_FILE}|sed 's/\r//g')"
-  quill_fmxml_grab_from_xml desc_full ${FRESHMEAT_FILE} |fmt > ${QUILL_TMP_DIR}/${SPELL_NAME}
+  quill_fmxml_grab_from_xml desc_full ${FRESHMEAT_FILE} |fmt -w 80 -s > ${QUILL_TMP_DIR}/${SPELL_NAME}
 }
 #---
 ##
