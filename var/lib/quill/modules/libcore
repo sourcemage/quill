@@ -161,6 +161,7 @@ function quill_edit() {
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}
   for spell_file in ${1:-*}
   do
+    [[ $spell_file == DETAILS.orig ]] && continue
     type=$(file -bi $spell_file)
     if grep -q "text/" <<< "$type"
     then

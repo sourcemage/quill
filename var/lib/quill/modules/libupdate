@@ -139,6 +139,50 @@ function user_increment_patchlevel() {
 }
 
 #---
+## @Synopsis Edit, list and remove arbitrary spell files
+#---
+function file_menu() {
+  local actions choice file
+
+  actions=('List files' \
+           'Edit files' \
+           'Remove files' \
+           'Return to the main menu' )
+  query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
+
+  case "$choice" in
+    "${actions[0]}")
+      ls -Rl --color -I "*.orig"
+      echo
+      echo "Press any key to continue"
+      read -n1 ;;
+    "${actions[1]}")
+      while true; do
+        query_list "Which file do you want to edit?" file none \
+          all $(find -type f -and ! -name DETAILS.orig -printf "%P\n") none
+        case $file in
+          none) break;;
+           all) quill_edit; echo ;;
+             *) quill_edit $file; echo ;;
+        esac
+        add_history_entry "$file: changed blabla"
+      done ;;
+    "${actions[2]}")
+      while true; do
+        query_list "Which file do you want to remove?" file none \
+          $(find -type f -and ! -name DETAILS.orig -printf "%P\n") none
+        [[ $file == none ]] && break
+        rm $file
+        echo "$file removed!"
+        echo
+        add_history_entry "$file: removed, no longer needed"
+      done ;;
+    "${actions[3]}")
+      return ;;
+  esac
+}
+
+#---
 ## @Synopsis The core function that ties all the version update stuff
 ##
 ## @Globals SPELL_VERSION SPELL_UPDATED GURU_GPGKEY QUILL_SPELL_DIR "version"

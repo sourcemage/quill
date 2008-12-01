@@ -1,4 +1,11 @@
 2008-12-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* quill: run quill_rc, not quillrc when in trouble
+	  added "list/edit/remove spell file" menu option
+	* libupdate: implemented "list/edit/remove spell file"
+	* libcore: skip DETAILS.orig in quill_edit
+	* version: 0.3.0-rc9
+
+2008-12-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: run quillrc, don't just suggest it when in trouble
 	* libupdate, libdepends: sort | uniq is identical to sort -u
 	* libfreshmeatxml: properly format the long description

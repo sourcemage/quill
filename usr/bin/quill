@@ -117,7 +117,7 @@ fi
   error_msg "Bad QUILL_SPELL_DIR ($QUILL_SPELL_DIR)!" &&
   echo "Running quill --reconfigure in 3 seconds" &&
   sleep 3 &&
-  quillrc
+  quill_rc
 
 PROMPT_DELAY="31557807"
 BUILD_API=2
@@ -153,7 +153,7 @@ then
             'Switch to upstream gpg verification' \
             'Deprecate the spell (also for renames)' \
             'Manage/add PRE_BUILD and patches' \
-            '--NOOP--' \
+            'List/Edit/Remove spell files' \
             '--NOOP--' \
             '--NOOP--' \
             'Copy it here from the grimoire or QUILL_GIT_DIR' \
@@ -230,6 +230,9 @@ then
       ;;
       "${actions[5]}") # 'Manage/add PRE_BUILD and patches'
         pre_build_menu
+      ;;
+      "${actions[6]}") # 'List/Edit/Remove spell files'
+        file_menu
       ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue

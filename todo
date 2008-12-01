@@ -4,10 +4,6 @@ new menu choices
 	branches
 	SCM: wierd versions; also needs the autoupdate stuff; only for -w
 
-  * 'list/remove files?'
-
-  * 'Manage CONFIGURE options'
-
 update mode:
   * plug other linters at the end of the update and move them all in liblint
   * add mirror support for SOURCE_URLs when adding new sources
