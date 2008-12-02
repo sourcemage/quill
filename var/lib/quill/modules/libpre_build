@@ -53,6 +53,8 @@ function pre_build_menu() {
            'Return to the main menu' )
   query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
 
+  [[ $choice != ${actions[5]} ]] && SPELL_UPDATED=y
+
   case "$choice" in
     "${actions[0]}")
       add_pre_build ;;

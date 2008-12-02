@@ -1,3 +1,12 @@
+2008-12-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libupdate, libpre_build: note the spell as updated
+	* libupdate, quill: also ask for adding new files
+	* libupdate: update the history before editing, so it can be ammended
+	* quill: allow editing of empty files in quill_edit
+	* libhistory: fixed detection of "headless" entries
+	  don't add history entries for editing HISTORY
+	* version: 0.3.0-rc10
+
 2008-12-01 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* quill: run quill_rc, not quillrc when in trouble
 	  added "list/edit/remove spell file" menu option

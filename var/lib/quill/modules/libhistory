@@ -54,8 +54,9 @@ function add_history_entry()
       sed -i "/$title/ a\\\t* $entry" $history_file
     else
       # we do, but first check that the new addition is unique
-      local first_entry_line=$(head -n1 <<< "$entry" | sed 's,\\,,')
-      if ! sed -n "1,/^\s*$/p" $history_file | grep -qF "* $first_entry_line"
+      local first_entry_line=$(head -n1 <<< "$entry" | sed 's,\\$,,')
+      if ! sed -n "1,/^\s*$/p" $history_file | grep -qF "* $first_entry_line" &&
+         ! sed -n "1,/^\s*$/p" $history_file | grep -qF " ${first_entry_line#*:}"
       then
         sed -i "1,/^\s*$/ {
                  /\* $file:/ a\\\t ${entry#*:}

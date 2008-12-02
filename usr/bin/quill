@@ -153,7 +153,7 @@ then
             'Switch to upstream gpg verification' \
             'Deprecate the spell (also for renames)' \
             'Manage/add PRE_BUILD and patches' \
-            'List/Edit/Remove spell files' \
+            'List/Edit/Remove/Add spell files' \
             '--NOOP--' \
             '--NOOP--' \
             'Copy it here from the grimoire or QUILL_GIT_DIR' \
@@ -231,7 +231,7 @@ then
       "${actions[5]}") # 'Manage/add PRE_BUILD and patches'
         pre_build_menu
       ;;
-      "${actions[6]}") # 'List/Edit/Remove spell files'
+      "${actions[6]}") # 'List/Edit/Remove/Add spell files'
         file_menu
       ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"

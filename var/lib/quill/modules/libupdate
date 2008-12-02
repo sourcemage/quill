@@ -147,6 +147,7 @@ function file_menu() {
   actions=('List files' \
            'Edit files' \
            'Remove files' \
+           'Add files' \
            'Return to the main menu' )
   query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
 
@@ -160,12 +161,13 @@ function file_menu() {
       while true; do
         query_list "Which file do you want to edit?" file none \
           all $(find -type f -and ! -name DETAILS.orig -printf "%P\n") none
+        [[ $file == none ]] && break
+        [[ $file != HISTORY ]] && add_history_entry "$file: changed blabla"
         case $file in
-          none) break;;
            all) quill_edit; echo ;;
              *) quill_edit $file; echo ;;
         esac
-        add_history_entry "$file: changed blabla"
+        SPELL_UPDATED=y
       done ;;
     "${actions[2]}")
       while true; do
@@ -176,8 +178,20 @@ function file_menu() {
         echo "$file removed!"
         echo
         add_history_entry "$file: removed, no longer needed"
+        SPELL_UPDATED=y
       done ;;
     "${actions[3]}")
+      while true; do
+        query_string file "Which file do you want to add?" none
+        [[ $file == none ]] && break
+        touch $file
+        if query "Do you want to make it executable" y; then
+          chmod +x $file
+        fi
+        add_history_entry "$file: added, bla bla!"
+        SPELL_UPDATED=y
+      done ;;
+    "${actions[4]}")
       return ;;
   esac
 }
