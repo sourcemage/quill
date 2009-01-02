@@ -1,3 +1,7 @@
+2009-01-02 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* quill: allow bypass due to certain sites not allowing --spider
+	* version: 0.3.0-rc11
+
 2008-12-02 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate, libpre_build: note the spell as updated
 	* libupdate, quill: also ask for adding new files

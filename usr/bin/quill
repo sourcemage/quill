@@ -46,7 +46,7 @@ QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 ## Parse the command line parameters and arguments via getopt
 #---
 QUILL_CMDLINE=$(getopt -o fcysngFHup::amwrhv -l \
-  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,purge:: \
+  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,purge,help:: \
   -n 'quill' -- "$@")
 if [[ $? != 0 ]]; then
   error_msg "Invalid command line options!"
@@ -319,7 +319,13 @@ else # no updates, we'll be making a spell
   while ! url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null; do
     error_msg "Invalid URL!\n"
     unset SPELL_SRC_URL
-    query_spell_source_url
+    query_spell_source_url &&
+    url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null ||
+    error_msg "Seems like this is failing if you are sure this is the correct URL then answer YES to the following query(uppercase yes)"
+    read BYPASSVERIFICATION
+    if [[ $BYPASSVERIFICATION == YES ]]; then
+      break
+    fi
   done
   trap INT
 
