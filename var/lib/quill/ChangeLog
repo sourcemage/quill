@@ -1,4 +1,9 @@
 2009-01-03 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libpre_build: also try removing patches specified in multiple lines
+	* quill: fixed a SIGINT trap thinko
+	* version: 0.3.0-rc12
+
+2009-01-03 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libupdate, quill: tell the user they can ^C out of the url checks
 	* quill: loop on the website check; support --help; allow starting
 	  quill without any arguments in normal mode

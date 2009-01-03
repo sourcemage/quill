@@ -184,7 +184,7 @@ then
         [[ $UPDATE_COUNTER == 0 ]] && continue # there were no updates
 
         # check if WEB_SITE is reachable
-        trap INT break
+        trap break INT
         WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
         while ! url_verify "$WEB_SITE" > /dev/null; do
           error_msg "The website is not reachable: $WEB_SITE"

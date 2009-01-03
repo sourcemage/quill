@@ -102,6 +102,8 @@ function pre_build_menu() {
       # remove it
       rm $patch
       sed -i "/patch.*$patch/d" PRE_BUILD
+      # try to also remove two-line entries
+      sed -i "/^\s*patch/ {N; /patch.*$patch/d}" PRE_BUILD
 
       # run the whole pre_build
       if ! test_pre_build; then
