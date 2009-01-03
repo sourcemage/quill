@@ -46,7 +46,7 @@ QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 ## Parse the command line parameters and arguments via getopt
 #---
 QUILL_CMDLINE=$(getopt -o fcysngFHup::amwrhv -l \
-  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,purge:: \
+  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,help,purge:: \
   -n 'quill' -- "$@")
 if [[ $? != 0 ]]; then
   error_msg "Invalid command line options!"
@@ -84,7 +84,7 @@ while true; do
   esac
   shift
 done
-if [[ -z $1 && -z $QUILL_TARGET ]]; then
+if [[ -z $1 && -n $QUILL_UPDATE ]]; then
   error_msg "Missing spellname argument!"
   sleep 1
   quill_help 104
@@ -184,15 +184,18 @@ then
         [[ $UPDATE_COUNTER == 0 ]] && continue # there were no updates
 
         # check if WEB_SITE is reachable
+        trap INT break
         WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
-        if ! url_verify "$WEB_SITE" > /dev/null; then
+        while ! url_verify "$WEB_SITE" > /dev/null; do
           error_msg "The website is not reachable: $WEB_SITE"
           message "Fix it."
+          message "If you're sure it is ok or want to skip this check, just hit ^C (ctrl-c)."
           sleep 3
           quill_edit DETAILS
           add_history_entry "DETAILS: fixed WEB_SITE"
           echo
-        fi
+        done
+        trap INT
 
         # check that all files are executable
         check_executable_bits
@@ -318,6 +321,7 @@ else # no updates, we'll be making a spell
   trap break INT
   while ! url_verify "${SPELL_SRC_URL:-ftp://34tqgsad}" > /dev/null; do
     error_msg "Invalid URL!\n"
+    message "If you're sure it is ok or want to skip this check, just hit ^C (ctrl-c)."
     unset SPELL_SRC_URL
     query_spell_source_url
   done

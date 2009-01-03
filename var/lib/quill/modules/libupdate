@@ -224,6 +224,7 @@ function version_bump() {
     trap break INT
     while ! check_source_urls; do
       get_sources_and_urls
+      message "If you're sure it is ok or want to skip this check, just hit ^C (ctrl-c)."
     done
     trap INT
     # do it again, needed if the source suffix was changed
