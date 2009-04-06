@@ -20,16 +20,20 @@ function quill_fmxml_core() {
   # if the argument looks like a url then use that, otherwise
   # assume the argument is the name of the spell and construct a
   # url for where we think freshmeat.net stores their xml data
-  if grep -q "http://" <<< "${1}" ; then
-    FRESHMEAT_XML_URL="$1"
-  else
-    FRESHMEAT_XML_URL="http://freshmeat.net/projects-xml/${1}/${1}.xml"
+#  if grep -q "http://" <<< "${1}" ; then
+#    FRESHMEAT_XML_URL="$1"
+#  else
+# atm no API
+#    FRESHMEAT_XML_URL="http://freshmeat.net/projects-xml/${1}/${1}.xml"
     FRESHMEAT_PROJECT_URL="http://freshmeat.net/projects/${1}/"
-  fi
+#  fi
 
   # check if we already have the xml file, if we dont, download it
-  FRESHMEAT_FILE="${QUILL_TMP_DIR}/${1}.xml"
+# atm no API
+#  FRESHMEAT_FILE="${QUILL_TMP_DIR}/${1}.xml"
+
   FRESHMEAT_PROJECT_FILE="${QUILL_TMP_DIR}/${1}.fm"
+
   if [[ ! -e ${FRESHMEAT_PROJECT_FILE} ]]; then
     message -n "Attempting to retrieve project page ... "
     wget -q -Uquill -O ${FRESHMEAT_PROJECT_FILE} "${FRESHMEAT_PROJECT_URL}" ||
@@ -39,40 +43,65 @@ function quill_fmxml_core() {
     message "Done"
   fi
 
-  if [[ ! -e ${FRESHMEAT_FILE} ]]; then
-    message -n "Attempting to retrieve project XML page ... "
-    wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
-      { error_msg "Error: unable to fetch project XML page" && return 1; }
-    message "Done"
-  fi
+# no API atm
+#  if [[ ! -e ${FRESHMEAT_FILE} ]]; then
+#    message -n "Attempting to retrieve project XML page ... "
+#    wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
+#      { error_msg "Error: unable to fetch project XML page" && return 1; }
+#    message "Done"
+#  fi
 
   # check that the project was found - exsists
-  local not_found='Error: project not found.'
-  if grep -q "$not_found" "$FRESHMEAT_FILE"; then
+  local not_found='404 Not Found'
+  if grep -q "$not_found" "$FRESHMEAT_PROJECT_FILE"; then
     error_msg "$not_found"
-    rm "$FRESHMEAT_FILE"
+    rm "$FRESHMEAT_PROJECT_FILE"
     return 1
   fi
 
   # fill in variables from xml file
-  SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short ${FRESHMEAT_FILE} |tr 'A-Z' 'a-z')
+
+# no API
+#  SPELL_NAME=$(quill_fmxml_grab_from_xml projectname_short ${FRESHMEAT_FILE} |tr 'A-Z' 'a-z')
   SPELL_NAME="${SPELL_NAME:-$1}"
   SPELL_DESC_NAME="${SPELL_NAME}"
+
+# no sane info available anymore
+#  local tmp_url
+#  for each in url_bz2 url_tgz url_zip; do
+#    tmp_url="$(quill_fmxml_grab_from_xml $each ${FRESHMEAT_FILE})"
+#    if [[ $tmp_url ]] ; then
+#      SPELL_SRC_URL="$(grep "$each" ${FRESHMEAT_PROJECT_FILE} | grep -v "\<img\ src\>" | sed -e "s: *<a href.*\">\(.*\)</a><br>:\1:")"
+#      break
+#    fi
+#  done
+
+# until the API is back this should work
+
   local tmp_url
-  for each in url_bz2 url_tgz url_zip; do
-    tmp_url="$(quill_fmxml_grab_from_xml $each ${FRESHMEAT_FILE})"
-    if [[ $tmp_url ]] ; then
-      SPELL_SRC_URL="$(grep "$each" ${FRESHMEAT_PROJECT_FILE} | grep -v "\<img\ src\>" | sed -e "s: *<a href.*\">\(.*\)</a><br>:\1:")"
+  for each in "Tar/BZ2" "Tar/GZ" "Zip" ; do
+    tmp_url=$(grep "$each" ${FRESHMEAT_PROJECT_FILE} | tr "\n" " " | sed -e "s:.*<li class=\"url \".*<a href=\"\(.*\)\">$each</a>.*:\1:g")
+    if grep -q "/urls/" <<< $tmp_url ; then
       break
     fi
   done
-  SPELL_URL="$(grep "url_homepage" ${FRESHMEAT_PROJECT_FILE} | grep -v "\<img\ src\>" | sed -e "s: *<a href.*\">\(.*\)</a><br>:\1:")"
-  SPELL_LICENSE="$(quill_fmxml_grab_from_xml license ${FRESHMEAT_FILE})"
-  if grep -q "(.*)" <<< "${SPELL_LICENSE}"; then
-    SPELL_LICENSE="$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')"
+  if [[ -n $tmp_url ]]; then
+    SPELL_SRC_URL="$(wget -T 3 --spider http://freshmeat.net$tmp_url 2>&1 | grep "Location:" | sed -e "s:Location\: \(.*\) .*:\1:" | tail -n1)"
   fi
-  SPELL_SHORT_DESCRIPTION="$(quill_fmxml_grab_from_xml desc_short ${FRESHMEAT_FILE}|sed 's/\r//g')"
-  quill_fmxml_grab_from_xml desc_full ${FRESHMEAT_FILE} |fmt -w 80 -s > ${QUILL_TMP_DIR}/${SPELL_NAME}
+
+# this seems to be harder and harder to get
+#  SPELL_LICENSE="$(quill_fmxml_grab_from_xml license ${FRESHMEAT_FILE})"
+#  if grep -q "(.*)" <<< "${SPELL_LICENSE}"; then
+#    SPELL_LICENSE="$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')"
+#  fi
+
+  SPELL_LICENSE=$(sed -n '/class=\"tag-list padtop licenses\"/,/<\/div>/ p' ${FRESHMEAT_PROJECT_FILE} | tr "\n" " " | sed -e "s:.*class=\"tagSize4\">\(.*\)</a>.*:\1:g")
+
+# we lose this as well
+#  SPELL_SHORT_DESCRIPTION="$(quill_fmxml_grab_from_xml desc_short ${FRESHMEAT_FILE}|sed 's/\r//g')"
+
+# get description but remove minimal markup
+  sed -n '/<div class="project-detail">/,/<div id="tabs">/ p' ${FRESHMEAT_PROJECT_FILE} | grep -v "<div [id|class]" | sed -e "s:<p>::g" -e "s:</p>::g" |fmt -w 80 -s > ${QUILL_TMP_DIR}/${SPELL_NAME}
 }
 #---
 ##

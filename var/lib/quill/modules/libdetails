@@ -24,7 +24,7 @@ function query_spell_source_url(){
   # misc sf fix
   # try to handle as many sf url formats as possible
   # I tested this with various URLs and it seems to work quite well
-  # if any oter are found should be included
+  # if any other are found should be included
   # possibly split the code into a separate function???
   SPELL_SRC_URL=$(sed -e "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," \
                       -e "s,http://downloads.sourceforge.net/\(.*\)?.*,$SOURCEFORGE_URL/\1," \

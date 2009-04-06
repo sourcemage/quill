@@ -1,3 +1,7 @@
+2009-04-06 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
+	* libfreshmeatxml: updated to freshmeat3 still missing API
+	* libdetails: typo in comment that's all
+
 2009-01-16 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* quill: changed SourceMage -> Source Mage
 
