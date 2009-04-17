@@ -2,7 +2,7 @@ The coding style is similar to the one of sorcery. Just play along with the
 rest of the code.
 
 Adding download modules
-* the name of $MODULE should be unique
+* the name of the module should be unique
 * write the download code
 * provide a quill_${MODULE}_core function as the entry point for quill
 * add unique commandline switches to the argument parser
