@@ -1,3 +1,7 @@
+2009-04-17 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
+	* libfreshmeatxml: now with API
+	* version: 0.3.0-rc14
+
 2009-04-06 Andraž "ruskie" Levstik <ruskie@mages.ath.cx>
 	* libfreshmeatxml: updated to freshmeat3 still missing API
 	* libdetails: typo in comment that's all
