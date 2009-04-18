@@ -23,7 +23,7 @@ function deprecate_menu() {
       get_replacement replacement
       deprecate $replacement ;;
     "${actions[1]}") # rename
-      get_replacement replacement
+      get_replacement replacement rename
       deprecate $replacement rename ;;
     "${actions[2]}")
       complete_deprecation ;;
@@ -82,12 +82,12 @@ function deprecate() {
 
   message "Add $replacement/CONFLICTS containing 'conflicts $SPELL_NAME y'."
   message "And a HISTORY entry, but you can do this with quill too:
-quill -u $replacement
+'quill -u $replacement
 11
 CONFLICTS: added $SPELL_NAME (deprecated)
 na
 
-"
+'"
 
   message "Also read up on EXPORTS on the deprecation wiki page, quill doesn't handle it!\n"
 
@@ -135,9 +135,11 @@ EOFZ
 function get_replacement() {
   local __replacement
   local var=$1
+  local nocheck=$2
+
   while [[ -z $__replacement ]]; do
     query_string __replacement "Enter the new spell name: "
-    codex_does_spell_exist $__replacement || unset __replacement
+    [[ $nocheck ]] || codex_does_spell_exist $__replacement || unset __replacement
   done
   upvar $var "$__replacement"
 }
