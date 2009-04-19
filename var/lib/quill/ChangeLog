@@ -1,3 +1,8 @@
+2009-04-19 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
+	* libcore: fixed the issue of auto jumping over the Add executable bit to
+	  file, also this is better as it more specific on what files need it
+	* version: 0.3.0-rc15
+
 2009-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdeprecation: don't require a valid spell name for renames #15176
 	  quoted the quick quill history injection example

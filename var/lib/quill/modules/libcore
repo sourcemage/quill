@@ -447,13 +447,15 @@ function clear_html_specials(){
 function check_executable_bits(){
   local file
 
-  find $QUILL_SPELL_DIR/$SPELL_NAME -type f \
-    -wholename '*/[A-Z][A-Z]*[A-Z]' ! -perm /111 |
-  grep -vE "HISTORY|TESTS|WIP|MAINTAINER|README|LICENSE|PROVIDES|REPAIR|EXPORTS" |
-  while read file; do
-    message "${file##*/} does not have the executable bit set!"
-    if query "Do you want to add it?" y; then
-      chmod +x "$file"
+  # we know what files should be executable so only check those
+  local spell_executable_files="PREPARE DETAILS CONFIGURE DEPENDS PRE_BUILD BUILD POST_BUILD PRE_INSTALL INSTALL POST_INSTALL FINAL CONFLICTS TRIGGERS UP_TRIGGERS DOWNLOAD PRE_REMOVE POST_REMOVE PRE_RESURRECT SUB_DEPENDS PRE_SUB_DEPENDS TRIGGER_CHECK INSTALL_EXTRAS POST_RESURRECT"
+  for file in $spell_executable_files ; do
+    if [[ -e $QUILL_SPELL_DIR/$SPELL_NAME/$file ]] &&
+       [[ ! -x $QUILL_SPELL_DIR/$SPELL_NAME/$file ]] ; then
+      message "$file does not have the executable bit set!"
+      if query "Do you want to add it?" y ; then
+       chmod +x "$QUILL_SPELL_DIR/$SPELL_NAME/$file"
+      fi
     fi
   done
 }
