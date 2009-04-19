@@ -213,6 +213,9 @@ function version_bump() {
 
     #save the chosen version
     sed -i "s/\sVERSION=['\"]*${version}['\"]*\s*$/ VERSION=$SPELL_VERSION/" DETAILS
+    # this is needed for gen_patch
+    OLD_SPELL_VERSION="$version"
+
     SPELL_UPDATED=y
 
     #check for multiversion spells
@@ -357,6 +360,19 @@ function main_update_loop() {
     $1
   done
 
+}
+
+#---
+## @Synopsis Generates a unified diff between the old and the new version
+## @Synopsis upon update
+##
+#---
+quill_generate_patch(){
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+  message "Generating update patch"
+  diff -Nuar "$GRIMOIRE/$SECTION/$SPELL_NAME" "$QUILL_SPELL_DIR/$SPELL_NAME" > \
+       "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
+  unset_spell_paths
 }
 
 #---

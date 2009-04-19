@@ -39,7 +39,7 @@ QUILL_SPELL_DIR=~/.sourcemage/spells
 QUILL_TMP_DIR=~/.sourcemage/tmp
 QUILL_LIB_DIR=/var/lib/quill
 QUILL_MODULES=$QUILL_LIB_DIR/modules
-QUILL_OUR_CONFIG_VERSION=2
+QUILL_OUR_CONFIG_VERSION=3
 QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 
 #---
@@ -203,10 +203,16 @@ then
         check_description_wrap
 
         rm DETAILS.orig
-        if query "Do you want to review the update or add custom modifications?" y
+        if query "Do you want to review the update or add custom modifications?" \
+                 ${QUILL_MODIFICATIONS:-n}
         then
           quill_edit
           echo
+        fi
+        if query "Do you want to generate a patch for the update?" \
+                 ${QUILL_GEN_PATCH:-n}
+        then
+          quill_generate_patch
         fi
 
         echo
@@ -483,7 +489,7 @@ else # no updates, we'll be making a spell
   then
     quill_edit
   fi
-  if query "Do you want to tarball the spell?" n
+  if query "Do you want to tarball the spell?" ${QUILL_TARBALL_SPELL:-n}
   then
     quill_final_tarball
   fi

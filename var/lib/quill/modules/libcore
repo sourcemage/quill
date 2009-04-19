@@ -113,6 +113,21 @@ function quill_rc() {
     if query "Do you use guru GPG signatures?" $saved ; then
       query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "$GURU_GPGKEY" $(gpg -K | sed -n "/^sec[^#]/ s,^sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
     fi
+    if query "${QUERY_COLOR}Do you wish to always generate a spell tarball?${DEFAULT_COLOR}" "${QUILL_TARBALL_SPELL:-n}" ; then
+      QUILL_TARBALL_SPELL=y
+    else
+      QUILL_TARBALL_SPELL=n
+    fi
+    if query "${QUERY_COLOR}Do you want to always review modifications?${DEFAULT_COLOR}" "${QUILL_MODIFICATIONS:-n}" ; then
+      QUILL_MODIFICATIONS=y
+    else
+      QUILL_MODIFICATIONS=n
+    fi
+    if query "${QUERY_COLOR}Do you want to always generate a patch on updates?${DEFAULT_COLOR}" "${QUILL_GEN_PATCH:-n}" ; then
+      QUILL_GEN_PATCH=y
+    else
+      QUILL_GEN_PATCH=n
+    fi
 
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     cat << QUA > $QUILL_QUILLRC
@@ -123,6 +138,9 @@ function quill_rc() {
   QUILL_GIT_DIR="$QUILL_GIT_DIR"
   QUILL_SUDO="$QUILL_SUDO"
   GURU_GPGKEY="$GURU_GPGKEY"
+  QUILL_TARBALL_SPELL="$QUILL_TARBALL_SPELL"
+  QUILL_MODIFICATIONS="$QUILL_MODIFICATIONS"
+  QUILL_GEN_PATCH="$QUILL_GEN_PATCH"
 QUA
     mkdir -p "$QUILL_SPELL_DIR" "$QUILL_GIT_DIR"
     exit 0

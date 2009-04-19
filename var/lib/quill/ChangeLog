@@ -1,7 +1,10 @@
 2009-04-19 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
 	* libcore: fixed the issue of auto jumping over the Add executable bit to
 	  file, also this is better as it more specific on what files need it
-	* version: 0.3.0-rc15
+	* version: 0.3.0-rc15, 0.3.0-rc16
+	* quill: added geN-patch
+	* libcore: added config queries for some annoying defaults
+	* libupdate: added gen_patch to generate a version update patch
 
 2009-01-18 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdeprecation: don't require a valid spell name for renames #15176
