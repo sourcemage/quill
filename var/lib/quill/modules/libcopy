@@ -172,7 +172,7 @@ function quill_final_put_in_grimoire() {
     query_list "Into which grimoire do you wish to put the spell:" quill_grim_name \
       "" $(codex_get_all_grimoires | get_basenames)
     echo
-    quill_grim_name=$(codex_canonicalize_grimoire_name $quill_grim_name)
+    quill_grim_name=$(codex_canonicalize_grimoire_name $quill_grim_name lookup)
 
     # can't use query_list, as the section count can be bigger than the available index
     message "Available sections in grimoire $quill_grim_name:"
