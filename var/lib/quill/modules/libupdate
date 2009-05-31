@@ -369,9 +369,11 @@ function main_update_loop() {
 #---
 quill_generate_patch(){
   codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-  message "Generating update patch"
   diff -Nuar "$GRIMOIRE/$SECTION/$SPELL_NAME" "$QUILL_SPELL_DIR/$SPELL_NAME" > \
        "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
+  message -n "The patch is available at "
+  message "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
+  sleep 2
   unset_spell_paths
 }
 
