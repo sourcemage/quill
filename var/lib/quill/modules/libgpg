@@ -295,6 +295,7 @@ function query_spell_signature(){
     ! query "Is $SPELL_SIGNATURE the proper signature url?" y; then
     query_msg "Please enter the url of the signature:"
     read "SPELL_SIGNATURE"
+    new_source=$(basename "$SPELL_SIGNATURE")
   fi
   while ! [[ $SPELL_SIGNATURE ]]; do
     query_msg "Please enter the url of the signature or 'skip' to skip this source:"
