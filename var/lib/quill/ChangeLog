@@ -6,7 +6,8 @@
 	* libupdate: print the path to the patch in gen_patch
 	* libpatch: added lib for displaying and dumping the changes
 	* libgpg: reset the source when changing the url #15198
-	* version: 0.3.0-rc18, 0.3.0-rc19, 0.3.0-rc20, 0.3.0-rc21
+	  separately display all the available keyrings to everyone
+	* version: 0.3.0-rc18, 0.3.0-rc19, 0.3.0-rc20, 0.3.0-rc21, 0.3.0-rc22
 
 2009-04-23 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
 	* libcopy: added lookup so that grimoires not in /var/lib/sorcery/codex get

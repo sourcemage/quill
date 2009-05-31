@@ -221,7 +221,7 @@ function guess_signature_url() {
 ## @Synopsis sets up SPELL_KEYRING, either from an exsisting or from
 ## @Synopsis a remote one
 ##
-## @Globals SPELL_KEYRING QUILL_MODE QUILL_SPELL_DIR SPELL_NAME
+## @Globals SPELL_KEYRING QUILL_SPELL_DIR SPELL_NAME
 ## @Globals QUILL_TMP_DIR
 function quill_get_spell_keyring() {
   # return if a previous pass already set it
@@ -230,23 +230,24 @@ function quill_get_spell_keyring() {
   if query "Is the appropriate keyring already in the grimoire?" n; then
     # list them as suggestions
     codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-    case $QUILL_MODE in
-    apprentice)
-      message "Here is a list of grimoire level keyrings:"
-      find $GRIMOIRE -maxdepth 1 -iname "*.gpg" -printf "%P\n" ;;
-    mage)
-      message "Here is a list of grimoire and section level keyrings:"
-      find $GRIMOIRE -maxdepth 2 -iname "*.gpg" -printf "%P\n" ;;
-    wizard)
-      message "Here is a list of all keyrings:"
-      find $GRIMOIRE -iname "*.gpg" -printf "%P\n" ;;
-    esac | grep -v gurus.gpg | column
+    message "Here is a list of grimoire level keyrings:"
+    find $GRIMOIRE -mindepth 1 -maxdepth 1 -iname "*.gpg" -printf "%P\n" | grep -v gurus.gpg | column
+    echo
+
+    message "Here is a list of section level keyrings:"
+    find $GRIMOIRE -mindepth 2 -maxdepth 2 -iname "*.gpg" -printf "%P\n" | column
+    echo
+
+    message "Here is a list of spell level keyrings:"
+    find $GRIMOIRE -mindepth 3 -maxdepth 3 -iname "*.gpg" -printf "%P\n" | column
+    echo
+
     shopt -s nullglob
     query_string SPELL_KEYRING "Which of the above is the correct keyring? " *.gpg
     shopt -u nullglob
 
     local kr_path=$(dirname $SPELL_KEYRING)
-    if [[ $QUILL_MODE != apprentice && $kr_path != "." ]]; then
+    if [[ $kr_path != "." ]]; then
       if [[ $kr_path != $SECTION && $kr_path != $SECTION/$SPELL_NAME ]]; then
         message "Copying the keyring to the spell dir as it is not a grimoire"
         message "level one, from the same section nor from the same spell!\n"
