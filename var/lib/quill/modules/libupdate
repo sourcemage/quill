@@ -363,21 +363,6 @@ function main_update_loop() {
 }
 
 #---
-## @Synopsis Generates a unified diff between the old and the new version
-## @Synopsis upon update
-##
-#---
-quill_generate_patch(){
-  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
-  diff -Nuar "$GRIMOIRE/$SECTION/$SPELL_NAME" "$QUILL_SPELL_DIR/$SPELL_NAME" > \
-       "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
-  message -n "The patch is available at "
-  message "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
-  sleep 2
-  unset_spell_paths
-}
-
-#---
 ##
 ## This software is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by

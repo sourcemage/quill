@@ -1,8 +1,4 @@
 things that would be cool to have:
-new menu choices
-  * 'Add another version'
-	branches
-	SCM: wierd versions; also needs the autoupdate stuff; only for -w
 
 update mode:
   * plug other linters at the end of the update and move them all in liblint

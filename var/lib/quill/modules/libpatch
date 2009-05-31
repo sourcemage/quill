@@ -1,0 +1,66 @@
+#!/bin/bash
+#---
+## @Synopsis libpatch - patch/diff related functions
+#---
+
+#---
+## @Synopsis the main patch/change interface
+##
+## @Globals
+#---
+function patch_menu() {
+  local actions choice
+
+  actions=('View changes (unified diff)' \
+           'Generate a patch' \
+           'Return to the main menu' )
+  query_list "What do you want to do?" choice "Return to the main menu" "${actions[@]}"
+
+  case "$choice" in
+    "${actions[0]}")
+      quill_generate_patch view ;;
+    "${actions[1]}")
+      quill_generate_patch ;;
+    "${actions[2]}")
+      return ;;
+  esac
+}
+
+#---
+## @Synopsis Generates a unified diff between the old and the new version
+## @Synopsis upon update
+## TODO: also allow diffing against the QUILL_GIT_DIR, not just the grimoire
+#---
+quill_generate_patch(){
+  local view_only=$1
+
+  codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
+  if [[ $view_only ]]; then
+    diff -Nuars "$GRIMOIRE/$SECTION/$SPELL_NAME" "$QUILL_SPELL_DIR/$SPELL_NAME" -x DETAILS.orig | $PAGER
+  else
+    diff -Nuar "$GRIMOIRE/$SECTION/$SPELL_NAME" "$QUILL_SPELL_DIR/$SPELL_NAME" -x DETAILS.orig > \
+        "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
+    message -n "The patch is available at "
+    message "$QUILL_SPELL_DIR/$SPELL_NAME-$OLD_SPELL_VERSION-to-$SPELL_VERSION.patch"
+    sleep 2
+  fi
+  unset_spell_paths
+}
+
+#---
+##
+## This software is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this software; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+#---

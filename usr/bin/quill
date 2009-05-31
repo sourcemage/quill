@@ -154,7 +154,7 @@ then
             'Deprecate the spell (also for renames)' \
             'Manage/add PRE_BUILD and patches' \
             'List/Edit/Remove/Add spell files' \
-            '--NOOP--' \
+            'View changes/generate patch' \
             '--NOOP--' \
             'Copy it here from the grimoire or QUILL_GIT_DIR' \
             'Copy it under QUILL_GIT_DIR' \
@@ -242,6 +242,12 @@ then
       ;;
       "${actions[6]}") # 'List/Edit/Remove/Add spell files'
         file_menu
+      ;;
+      "${actions[7]}") # 'View changes/generate patch'
+        patch_menu
+      ;;
+      "${actions[8]}") # NOOP
+        :
       ;;
       "${actions[9]}") #"Copy it here from the grimoire or QUILL_GIT_DIR"
         ask_and_copy_over || continue
