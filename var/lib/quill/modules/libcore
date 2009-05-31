@@ -16,6 +16,26 @@ function query_list()
 }
 
 #---
+## @Synopsis an elaborate version of query for the quad option list
+## Skips the query if the default/saved answer is yes or no
+## $1 - the question
+## $2 - the contents of the variable with the default answer
+##
+## @Globals none
+#---
+function quad_query()
+{
+  local question="$1"
+  local variable="$2"
+
+  case $variable in
+    ask-yes) query "$question" y ;;
+     ask-no) query "$question" n ;;
+          *) [[ $variable == yes ]] ;;
+  esac
+}
+
+#---
 ## @Synopsis generate basic spell dir
 ##
 ## @Globals QUILL_SPELL_DIR SPELL_NAME DEPENDSISON CONFLICTSON
@@ -113,21 +133,12 @@ function quill_rc() {
     if query "Do you use guru GPG signatures?" $saved ; then
       query_list "${QUERY_COLOR}Please select one of the following keys as the guru signing key${DEFAULT_COLOR}" GURU_GPGKEY "$GURU_GPGKEY" $(gpg -K | sed -n "/^sec[^#]/ s,^sec\s*[^/]*/\(\S*\)\s.*$,\1,p")
     fi
-    if query "${QUERY_COLOR}Do you wish to always generate a spell tarball?${DEFAULT_COLOR}" "${QUILL_TARBALL_SPELL:-n}" ; then
-      QUILL_TARBALL_SPELL=y
-    else
-      QUILL_TARBALL_SPELL=n
-    fi
-    if query "${QUERY_COLOR}Do you want to always review modifications?${DEFAULT_COLOR}" "${QUILL_MODIFICATIONS:-n}" ; then
-      QUILL_MODIFICATIONS=y
-    else
-      QUILL_MODIFICATIONS=n
-    fi
-    if query "${QUERY_COLOR}Do you want to always generate a patch on updates?${DEFAULT_COLOR}" "${QUILL_GEN_PATCH:-n}" ; then
-      QUILL_GEN_PATCH=y
-    else
-      QUILL_GEN_PATCH=n
-    fi
+
+    query_list "Do you wish to always generate a spell tarball?" QUILL_TARBALL_SPELL "${QUILL_TARBALL_SPELL:-ask-no}" yes no ask-yes ask-no
+
+    query_list "Do you want to always review modifications?" QUILL_MODIFICATIONS "${QUILL_MODIFICATIONS:-ask-yes}" yes no ask-yes ask-no
+
+    query_list "Do you want to always generate a patch on updates?" QUILL_GEN_PATCH "${QUILL_GEN_PATCH:-ask-no}" yes no ask-yes ask-no
 
     message "Thank you. Now generating ${QUILL_QUILLRC}"
     cat << QUA > $QUILL_QUILLRC

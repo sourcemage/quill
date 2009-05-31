@@ -1,3 +1,9 @@
+2009-05-31 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcore: added quad_query to handle ask-yes/ask-no/yes/no defaults
+	  changed options for patches, tarballing and review accordingly
+	* quill: use quad_query for patches, tarballing and review
+	* version: 0.3.0-rc18
+
 2009-04-23 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
 	* libcopy: added lookup so that grimoires not in /var/lib/sorcery/codex get
 	  properly setup
