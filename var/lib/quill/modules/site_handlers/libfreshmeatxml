@@ -59,11 +59,12 @@ function quill_fmxml_core() {
   fi
 
   # fill in variables from xml file
-
-  SPELL_NAME=$(quill_fmxml_grab_from_xml permalink ${FRESHMEAT_FILE} |tr 'A-Z' 'a-z')
+# hoping that the first one is the one we need
+  SPELL_NAME=$(quill_fmxml_grab_from_xml permalink ${FRESHMEAT_FILE} | head -n1 |tr 'A-Z' 'a-z')
   SPELL_NAME="${SPELL_NAME:-$1}"
   SPELL_DESC_NAME="${SPELL_NAME}"
 
+# common download link names, add others as needed
   local tmp_url
   for each in "Tar/BZ2" "Tar/GZ" "Zip" ; do
     tmp_url="$(quill_fmxml_grab_from_xml --cond "//approved-url/label" --cond "//approved-url/redirector" ${FRESHMEAT_FILE} | grep -A1 "$each" | tail -n1)"
@@ -72,6 +73,7 @@ function quill_fmxml_core() {
     fi
   done
 
+# list of the most common website tags, feel free to add others as needed
   local tmp_url
   for each in "Website" "Homepage" "Web Site" "Project Home" "Home Page" ; do
     tmp_url="$(quill_fmxml_grab_from_xml --cond "//approved-url/label" --cond "//approved-url/redirector" ${FRESHMEAT_FILE} | grep -A1 "$each" | tail -n1)"
@@ -80,13 +82,8 @@ function quill_fmxml_core() {
     fi
   done
 
-# this seems to be harder and harder to get not in the api :(
-#  SPELL_LICENSE="$(quill_fmxml_grab_from_xml license ${FRESHMEAT_FILE})"
-#  if grep -q "(.*)" <<< "${SPELL_LICENSE}"; then
-#    SPELL_LICENSE="$(awk '{print $NF}' <<< "$SPELL_LICENSE" | tr -d '()')"
-#  fi
-
-  SPELL_LICENSE=$(sed -n '/class=\"tag-list padtop licenses\"/,/<\/div>/ p' ${FRESHMEAT_PROJECT_FILE} | tr "\n" " " | sed -e "s:.*class=\"tagSize4\">\(.*\)</a>.*:\1:g")
+  SPELL_LICENSE="$(quill_fmxml_grab_from_xml license-list ${FRESHMEAT_FILE})"
+	SPELL_KEYWORDS="$(quill_fmxml_grab_from_xml tag-list ${FRESHMEAT_FILE})" 
 
   SPELL_SHORT_DESCRIPTION="$(quill_fmxml_grab_from_xml oneliner ${FRESHMEAT_FILE}|sed 's/\r//g')"
 
