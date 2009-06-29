@@ -43,7 +43,9 @@ function quill_fmxml_core() {
 
   if [[ ! -e ${FRESHMEAT_FILE} ]]; then
     message -n "Attempting to retrieve project XML page ... "
-    wget -q -Uquill -O ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
+# now needs an API key
+# need to register on freshmeat to get one so this is user settable
+    curl --stderr /dev/null -d "{ \"auth_code\": \"$FRESHMEAT_API_KEY\" }" -X GET -H "Content-Type: application/json" -o ${FRESHMEAT_FILE} "${FRESHMEAT_XML_URL}" ||
       { error_msg "Error: unable to fetch project XML page" && return 1; }
     message "Done"
   fi

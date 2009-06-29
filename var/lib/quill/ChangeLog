@@ -1,3 +1,9 @@
+2009-06-29 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
+	* libcore: added new config variable FRESHMEAT_API_KEY
+	* libfreshmeatxml: updated to work with the new FM API
+	* quill: boosted config version
+	* version: 0.3.0-rc23
+
 2009-05-31 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libcore: added quad_query to handle ask-yes/ask-no/yes/no defaults
 	  changed options for patches, tarballing and review accordingly
