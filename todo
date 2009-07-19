@@ -22,6 +22,7 @@ modules:
 overall:
   * Improve scripting support to make it possible to write alternate interfaces for it
   * add quill mode to /quillrc to avoid the need to constantly pass it
+  * speed git grimoire lookup (create symlinks to known ones in a separate dir?)
 
 ads:
   <p3pilot> i am a believer in using quill for updates...very few failures and is just quicker for me

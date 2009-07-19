@@ -1,3 +1,7 @@
+2009-07-19 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libdeprecation: fixed an empty var check
+	* version: 0.3.0-rc25
+
 2009-06-29 Andraž "ruskie" Levstik <ruskie+f03a580f@codemages.net>
 	* libcore: added new config variable FRESHMEAT_API_KEY
 	* libfreshmeatxml: updated to work with the new FM API, more updates,

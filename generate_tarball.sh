@@ -1,6 +1,6 @@
 #!/bin/bash
-CURRENTPWD=$(pwd)
-MY_VERSION=$(cat var/lib/quill/version)
+CURRENTPWD=$PWD
+MY_VERSION=$(< var/lib/quill/version)
 mkdir ../quill-$MY_VERSION
 cd ..
 cp -r $CURRENTPWD/* quill-$MY_VERSION/

@@ -50,8 +50,12 @@ function deprecate() {
     local remove_list=$(ls | tr '\n' ' ')
     list_remove remove_list DETAILS DEPENDS HISTORY $overrides TRIGGERS
     message "${MESSAGE_COLOR}AFTER you copy the spell back,$DEFAULT_COLOR"
-    message "run this under $QUILL_GIT_DIR:"
-    message "cd $SECTION/$SPELL_NAME; ${remove_list+git rm -r -f $remove_list}"
+    message "run this in the grimoire under $QUILL_GIT_DIR:"
+    if [[ -n $remove_list ]]; then
+      message "cd $SECTION/$SPELL_NAME; git rm -r -f $remove_list"
+    else
+      message "cd $SECTION/$SPELL_NAME"
+    fi
     message "git add DETAILS DEPENDS HISTORY $overrides TRIGGERS; cd -"
     message
   fi
