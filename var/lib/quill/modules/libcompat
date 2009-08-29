@@ -106,7 +106,7 @@ function real_query_string() {
     [ -n "$3" ] && DEFAULT=" [$3] "
 
     echo -e -n "${QUERY_COLOR}$2${DEFAULT}${DEFAULT_COLOR}"
-    read ANSWER_first
+    read -e ANSWER_first
     RESPONSE="${ANSWER_first}"
     echo
 
