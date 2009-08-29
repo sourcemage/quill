@@ -92,6 +92,30 @@ function url_https_verify() {
   fi
 }
 
+# permanent override; since we don't use timeout, no need for
+# treating the first char specially, which means it can be deleted
+# if the user makes an error
+function real_query_string() {
+    debug  "libmisc" "Running quill_question() with the following arguments: '$1' and '$2'"
+
+    local RESPONSE=""
+    local RETURN=0
+    local ANSWER_first
+
+    local DEFAULT=""
+    [ -n "$3" ] && DEFAULT=" [$3] "
+
+    echo -e -n "${QUERY_COLOR}$2${DEFAULT}${DEFAULT_COLOR}"
+    read ANSWER_first
+    RESPONSE="${ANSWER_first}"
+    echo
+
+    [ -z "$RESPONSE" ] && RETURN=1 && RESPONSE="$3"
+
+    eval $1=\"\${RESPONSE}\"
+    return $RETURN
+}
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

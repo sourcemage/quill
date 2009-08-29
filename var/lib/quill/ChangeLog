@@ -1,3 +1,8 @@
+2009-08-29 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
+	* libcompat: added a modified version of real_query_string,
+	  now you can delete also the first char when asked to enter text
+	* version: 0.3.0-rc26
+
 2009-07-19 Jaka Kranjc <lynxlynxlynx@sourcemage.org>
 	* libdeprecation: fixed an empty var check
 	* version: 0.3.0-rc25
