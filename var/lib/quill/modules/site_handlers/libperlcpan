@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis Perl-cpan module to generate spells from perl-cpan metadata
 #---

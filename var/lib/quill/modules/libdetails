@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis libdetails
 ## for all the fields that could be filled in, check if they were filled in

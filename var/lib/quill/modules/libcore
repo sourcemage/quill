@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis query_list function from init-manager
 ## $1 - the question

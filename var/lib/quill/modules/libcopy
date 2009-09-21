@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis Copies the new spell somewhere under $QUILL_GIT_DIR
 ##

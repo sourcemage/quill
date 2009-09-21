@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis Tries to change the source verification in favour of upstream gpg
 ##

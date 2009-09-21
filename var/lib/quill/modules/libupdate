@@ -1,3 +1,4 @@
+#!/bin/bash
 #---
 ## @Synopsis Sets up some global variables that contain sources and urls
 ## @Synopsis delimited by newlines
