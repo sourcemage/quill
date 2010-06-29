@@ -194,6 +194,7 @@ then
           quill_edit DETAILS
           add_history_entry "DETAILS: fixed WEB_SITE"
           echo
+          WEB_SITE=$(. DETAILS &> /dev/null; echo $WEB_SITE)
         done
         trap INT
 
