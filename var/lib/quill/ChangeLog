@@ -1,4 +1,5 @@
 2010-08-13 Bor Kraljič <pyrobor@ver.si>
+	* lib*, quill: fixed functions headers to work with bashdoc
 	* libupdate: sort the files in file_menu so they are easier to
 	  find (bug #15432)
 	* generate-quill-docs.sh:  script to generate html doc pages

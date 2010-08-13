@@ -96,7 +96,7 @@ function select_list_sub() {
 
 unset -f url_https_verify &&
 #---
-##
+## @param url to verifiy
 #---
 function url_https_verify() {
   local  URL=$1

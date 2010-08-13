@@ -6,6 +6,7 @@
 #---
 
 #---
+## Check if the spell name is proper and downcase it
 ##
 ## @Globals SPELL_NAME
 #---

@@ -5,6 +5,9 @@
 
 
 #---
+## @param package
+## @param package page
+## @param cabal file
 ## @Globals none
 #---
 function quill_hdb_get_files(){
@@ -41,6 +44,8 @@ function quill_hdb_get_files(){
 }
 
 #---
+## @param info
+## @param file
 ## @Globals none
 #---
 function quill_hdb_get_info(){
@@ -80,6 +85,8 @@ function quill_hdb_get_info(){
 }
 
 #---
+## @param spell name
+## @param package
 ## @Globals SPELL_NAME QUILL_TMP_DIR SPELL_LICENSE
 ## @Globals SPELL_SHORT_DESCRIPTION SPELL_DESC_NAME
 ## @Globals SPELL_URL SPELL_SRC_URL SPELL_DEPENDENCIES

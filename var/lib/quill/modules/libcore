@@ -5,10 +5,10 @@
 
 #---
 ## @Synopsis query_list function from init-manager
-## $1 - the question
-## $2 - the VARIABLE to which to store the answer
-## $3 - the default answer
-## $4...$n - the options for the list
+## @param the question
+## @param the VARIABLE to which to store the answer
+## @param the default answer
+## @param ...$n - the options for the list
 ##
 ## @Globals none
 #---
@@ -23,8 +23,8 @@ function query_list()
 #---
 ## @Synopsis an elaborate version of query for the quad option list
 ## Skips the query if the default/saved answer is yes or no
-## $1 - the question
-## $2 - the contents of the variable with the default answer
+## @param the question
+## @param the contents of the variable with the default answer
 ##
 ## @Globals none
 #---
@@ -193,6 +193,7 @@ function quill_welcome() {
 
 #---
 ## @Synopsis used to edit spell files
+## @param spell file to edit
 ##
 ## @Globals EDITOR QUILL_SPELL_DIR SPELL_NAME
 #---
@@ -389,7 +390,7 @@ function check_source_urls() {
 }
 
 #---
-## @Synopsis dumps the default spell file function, taking into
+## dumps the default spell file function, taking into
 ## account that devel has a new spell file inheritance scheme
 ##
 ## @Globals none
@@ -455,8 +456,8 @@ function dir_check() {
 }
 
 #---
-## @Synopsis adds && to all full lines not already ending with &&, \
-## @Synopsis or being the last line
+## adds && to all full lines not already ending with &&,
+## or being the last line
 ##
 ## @Globals none
 #---
@@ -472,6 +473,7 @@ function andand_lines() {
 
 #---
 ## @Synopsis cleans out various special chars from html
+## @param file to clean
 ##
 ## @Globals QUILL_MODULES
 #---
@@ -539,8 +541,6 @@ function unset_spell_paths(){
 #---
 ## @Synopsis checks if anything needs summoning and does so
 ##
-## @param none
-##
 ## @Globals "sources" "sources_and_urls"
 #---
 function summon_sources() {
@@ -605,6 +605,7 @@ function inc_src_num() {
 
 #---
 ## @Synopsis prints a colored error message
+## @param error message
 ##
 ## @Globals none
 #---
@@ -614,6 +615,7 @@ function error_msg() {
 
 #---
 ## @Synopsis prints a colored query message
+## @param query message
 ##
 ## @Globals none
 #---
