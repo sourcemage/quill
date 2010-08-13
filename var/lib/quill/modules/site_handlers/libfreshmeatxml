@@ -3,16 +3,20 @@
 ## @Synopsis libfreshmeatxml
 #---
 
+#---
 ##
 ## @Globals none
+#---
 function quill_fmxml_grab_from_xml() {
   xml_grep --text_only "${@}"
 }
 
+#---
 ##
 ## @Globals SPELL_NAME FRESHMEAT_XML_URL FRESHMEAT_PROJECT_URL SPELL_DESC_NAME
 ## @Globals FRESHMEAT_PROJECT_FILE FRESHMEAT_FILE QUILL_TMP_DIR SPELL_SRC_URL
 ## @Globals SPELL_SRC_URL SPELL_LICENSE SPELL_SHORT_DESCRIPTION
+#---
 function quill_fmxml_core() {
   # so it is set even if we end prematurely, useful when adding spells
   # gets properly overwritten later on

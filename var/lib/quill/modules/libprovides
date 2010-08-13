@@ -4,15 +4,19 @@
 ## @Note DONE
 #---
 
+#---
 ##
 ## @Globals SPELL_PROVIDES
+#---
 function query_spell_provides() {
   query_msg "Please enter provides if any:"
   read "SPELL_PROVIDES"
 }
 
+#---
 ##
 ## @Globals PROVIDESISON SPELL_PROVIDES
+#---
 function add_provides() {
   local n
 

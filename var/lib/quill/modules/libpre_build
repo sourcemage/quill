@@ -3,8 +3,10 @@
 ## @Synopsis libpre_build
 #---
 
+#---
 ##
 ## @Globals PREBUILDISON
+#---
 function query_spell_pre_build()
 {
   if query "Will you be adding a custom PRE_BUILD file:" "n"
@@ -13,8 +15,10 @@ function query_spell_pre_build()
   fi
 }
 
+#---
 ##
 ## @Globals QUILL_TMP_DIR SPELL_NAME
+#---
 function add_pre_build()
 {
   if [[ -e PRE_BUILD ]]; then
@@ -125,7 +129,9 @@ function pre_build_menu() {
   esac
 }
 
+#---
 ## doesn't handle compressed patches
+#---
 function get_patches()
 {
   local _patch patches
@@ -165,6 +171,9 @@ function get_patches()
   upvar "$1" "$_patch"
 }
 
+#---
+## test pre_build
+#---
 function test_pre_build()
 {
   true

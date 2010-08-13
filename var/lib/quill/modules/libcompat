@@ -1,4 +1,9 @@
 #!/bin/bash
+#---
+## @Synopsis COMPAT module for quill
+#---
+
+
 # 1.14 sorcery function
 if ! declare -f codex_get_spell_paths &> /dev/null; then
   function codex_get_spell_paths() {
@@ -10,8 +15,10 @@ if ! declare -f codex_get_spell_paths &> /dev/null; then
   }
 fi
 
-# 1.13 workaround sorcery bug #13001
 unset -f url_ftp_verify &&
+#---
+## 1.13 workaround sorcery bug #13001
+#---
 function url_ftp_verify() {
   local  URL=$1
 
@@ -31,8 +38,11 @@ function url_ftp_verify() {
   fi
 }
 
-# too many menu options for 1.13
+
 unset -f select_list &&
+#---
+## too many menu options for 1.13
+#---
 function select_list()
 {
     local i
@@ -61,6 +71,11 @@ function select_list()
 }
 
 unset -f select_list_sub &&
+#---
+## @param return var
+## @param hashname
+## @param message
+#---
 function select_list_sub() {
   local returnvar=$1
   local hashname=$2
@@ -80,6 +95,9 @@ function select_list_sub() {
 }
 
 unset -f url_https_verify &&
+#---
+##
+#---
 function url_https_verify() {
   local  URL=$1
 
@@ -93,9 +111,11 @@ function url_https_verify() {
   fi
 }
 
+#---
 # permanent override; since we don't use timeout, no need for
 # treating the first char specially, which means it can be deleted
 # if the user makes an error
+#---
 function real_query_string() {
     debug  "libmisc" "Running quill_question() with the following arguments: '$1' and '$2'"
 

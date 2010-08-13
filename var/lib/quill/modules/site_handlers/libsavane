@@ -1,11 +1,13 @@
 #!/bin/bash
-#
+#---
 ## Generic savane module
-#
+#---
 
+#---
 ##
 ## @Globals SPELL_NAME SPELL_LICENSE SPELL_URL
 ## @Globals QUILL_TMP_DIR
+#---
 function quill_savane_core(){
   local project
   local project_url

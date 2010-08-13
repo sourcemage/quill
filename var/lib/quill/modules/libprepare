@@ -3,8 +3,10 @@
 ## @Synopsis libprepare
 #---
 
+#---
 ##
 ## @Globals PREPAREISON
+#---
 function query_spell_prepare()
 {
 if query "Will you be adding a PREPARE file:" "n"
@@ -13,8 +15,10 @@ then
 fi
 }
 
+#---
 ##
 ## @Globals EDITOR
+#---
 function add_prepare()
 {
   touch PREPARE

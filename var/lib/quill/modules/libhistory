@@ -3,9 +3,11 @@
 ## @Synopsis libhistory
 #---
 
+#---
 ## @param entry without the leading tab, bullet and space
 ##
 ## @Globals HISTORY_DATE GURU_NAME GURU_EMAIL
+#---
 function add_history()
 {
   local title="$HISTORY_DATE $GURU_NAME <$GURU_EMAIL>" files

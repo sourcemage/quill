@@ -4,7 +4,6 @@
 ## @Copyright Copyright 2006-2008 Source Mage GNU/Linux
 ## @License GPL v2 or higher
 ##
-## Asks the user in simple questions about generating a spell.
 ## @Globals QUILL_VERSION QUILL_MODE HISTORY_DATE QUILL_HOME_DIR QUILL_QUILLRC
 ## @Globals QUILL_OLD_QUILLRC QUILL_SPELL_DIR QUILL_TMP_DIR QUILL_LIB_DIR
 ## @Globals QUILL_MODULES QUILL_CONFIG_VERSION QUILL_OUR_CONFIG_VERSION EDITOR
@@ -19,13 +18,20 @@
 ## @Thanks To all testers
 ## @Contribution abouter, lynxlynxlynx, iuso
 ##
+## A spell creator and updater script
 #---
+
 QUILL_VERSION="$(< /var/lib/quill/version)"
-#---
 ## really basic stuff that should be loaded and set
 . /var/lib/sorcery/modules/libmedia
 LOCAL_MEDIA_CONFIG=/etc/sorcery/local/media source /etc/sorcery/media
-function message() { echo -e "$@"; }
+
+#---
+## Simple echo function
+#---
+function message() {
+  echo -e "$@"
+}
 . /var/lib/quill/modules/libcore
 ## end of skeletal prerequisites - we get the rest later
 
@@ -42,9 +48,7 @@ QUILL_MODULES=$QUILL_LIB_DIR/modules
 QUILL_OUR_CONFIG_VERSION=5
 QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 
-#---
 ## Parse the command line parameters and arguments via getopt
-#---
 QUILL_CMDLINE=$(getopt -o fcysngFHup::amwrhv -l \
   fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,help,purge:: \
   -n 'quill' -- "$@")
@@ -125,7 +129,6 @@ load_build_api
 mkdir -p $QUILL_TMP_DIR
 SPELL_UPDATED=n
 
-#---
 ## Questions and stuff
 quill_welcome
 if [[ ! -z $QUILL_FETCH_MODE ]]

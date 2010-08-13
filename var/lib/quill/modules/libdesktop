@@ -3,9 +3,11 @@
 ## @Synopsis libdesktop
 #---
 
+#---
 ##
 ## @Globals BUILD_DTFILE SPELL_NAME DTFILE_MENUENTRY DTFILE_EXEC
 ## @Globals DTFILE_MENUPATH DTFILE_ICON DTFILE_TERM
+#---
 query_spell_desktop_file() {
 if query "Will you be adding a custom desktop file?" "n"
 then
@@ -26,9 +28,11 @@ then
 fi
 }
 
+#---
 ##
 ## @Globals SPELL_NAME SPELL_SHORT_DESCRIPTION DTFILE_MENUENTRY SPELL_VERSION
 ## @Globals  DTFILE_EXEC DTFILE_ICON DTFILE_MENUPATH DTFILE_TERM
+#---
 add_desktop_file() {
   mkdir -p desktop
   cd desktop

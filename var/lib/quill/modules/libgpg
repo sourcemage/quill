@@ -1,5 +1,9 @@
 #!/bin/bash
 #---
+## @Synopsis libgpg
+#---
+
+#---
 ## @Synopsis Tries to change the source verification in favour of upstream gpg
 ##
 ## @Globals "version" SPELL_KEYRING SPELL_SIGNATURE SPELL_UPDATED
@@ -202,6 +206,7 @@ function convert_to_upstream_gpg() {
 ## @return 1 otherwise
 ##
 ## @Globals "i" "su" "source"
+#---
 function guess_signature_url() {
   local suffix silent=$1
 
@@ -224,6 +229,7 @@ function guess_signature_url() {
 ##
 ## @Globals SPELL_KEYRING QUILL_SPELL_DIR SPELL_NAME
 ## @Globals QUILL_TMP_DIR
+#---
 function quill_get_spell_keyring() {
   # return if a previous pass already set it
   [[ -n $SPELL_KEYRING ]] && return 0
@@ -290,8 +296,10 @@ function quill_get_spell_keyring() {
 
 }
 
+#---
 ##
 ## @Globals SPELL_SIGNATURE
+#---
 function query_spell_signature(){
   if [[ $SPELL_SIGNATURE ]] &&
     ! query "Is $SPELL_SIGNATURE the proper signature url?" y; then
@@ -305,8 +313,10 @@ function query_spell_signature(){
   done
 }
 
+#---
 ##
 ## @Globals SPELL_KEYRING
+#---
 function query_spell_keyring(){
   while ! [[ $SPELL_KEYRING ]]; do
     query_msg "Please enter the url of the keyring:"

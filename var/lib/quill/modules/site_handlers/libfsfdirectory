@@ -1,8 +1,11 @@
 #!/bin/bash
-#
+#---
 ## FSF/UNESCO directory module
-#
+#---
 
+#---
+##
+#---
 function quill_fsf_get_deps(){
   local data
   local file
@@ -15,9 +18,12 @@ function quill_fsf_get_deps(){
       sed -e "s:<li>\(.*\)\ ($data).*</li>:\1:g" | \
       tr "\n" " " | tr "A-Z" "a-z"
 }
+
+#---
 ##
 ## @Globals SPELL_NAME SPELL_LICENSE SPELL_URL
 ## @Globals QUILL_TMP_DIR
+#---
 function quill_fsf_core(){
   local project
   local fsf_project_file

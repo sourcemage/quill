@@ -5,8 +5,10 @@
 ## and if so, give the user an opportunity to change the value
 #---
 
+#---
 ##
 ## @Globals SPELL_NAME
+#---
 function query_spell_name(){
   #downcase before query
   SPELL_NAME=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$SPELL_NAME")
@@ -19,8 +21,10 @@ function query_spell_name(){
   fi
 }
 
+#---
 ##
 ## @Globals SPELL_SRC_URL
+#---
 function query_spell_source_url(){
   # misc sf fix
   # try to handle as many sf url formats as possible
@@ -48,9 +52,11 @@ if ! [[ $SPELL_SRC_URL ]] ||
 fi
 }
 
+#---
 ## used in update mode only, elsewhere the version is parsed from the filename
 ##
 ## @Globals SPELL_VERSION
+#---
 function query_spell_version(){
   if ! [[ $SPELL_VERSION ]] ||
     ! query "Is $SPELL_VERSION the proper spell version?" y; then
@@ -59,8 +65,10 @@ function query_spell_version(){
   fi
 }
 
+#---
 ##
 ## @Globals SPELL_LICENSE
+#---
 function query_spell_license(){
 if ! [[ $SPELL_LICENSE ]] ||
    ! query "Is $SPELL_LICENSE the proper license?" y; then
@@ -69,8 +77,10 @@ if ! [[ $SPELL_LICENSE ]] ||
 fi
 }
 
+#---
 ##
 ## @Globals SPELL_URL
+#---
 function query_spell_url(){
 if ! [[ $SPELL_URL ]] ||
    ! query "Is $SPELL_URL the proper website?" y; then
@@ -79,8 +89,10 @@ if ! [[ $SPELL_URL ]] ||
 fi
 }
 
+#---
 ##
 ## @Globals SPELL_SHORT_DESCRIPTION
+#---
 function query_spell_short_description(){
 if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
    ! ( message "${QUERY_COLOR}Is${DEFAULT_COLOR}\n$SPELL_SHORT_DESCRIPTION"
@@ -90,8 +102,10 @@ if ! [[ $SPELL_SHORT_DESCRIPTION ]] ||
 fi
 }
 
+#---
 ##
 ## @Globals EDITOR SPELL_NAME SPELL_DESC_NAME QUILL_TMP_DIR
+#---
 function query_spell_description(){
 local description=${QUILL_TMP_DIR}/${SPELL_DESC_NAME:-${SPELL_NAME}}
 if ! test -f $description ||
@@ -105,7 +119,7 @@ if ! test -f $description ||
 fi
 }
 
-#--
+#---
 ## @Synopsis Assign to SPELL_SRC_FILE the filename and to VERSION the
 ## @Synopsis version number parsed from source url.
 ##

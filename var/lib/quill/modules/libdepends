@@ -3,8 +3,10 @@
 ## @Synopsis libdepends
 #---
 
+#---
 ##
 ## @Globals SPELL_DEPENDENCIES
+#---
 function query_spell_dependencies() {
   if ! [[ $SPELL_DEPENDENCIES ]] ||
      ! query "Are \"${SPELL_DEPENDENCIES}\" the proper dependencies for this spell" y
@@ -16,15 +18,19 @@ of the spell if any:"
 fi
 }
 
+#---
 ##
 ## @Globals SPELL_OPTIONAL_DEPENDENCIES
+#---
 function query_spell_optional_dependencies() {
   query_msg "Please enter the optional dependencies of the spell if any:"
   read -a "SPELL_OPTIONAL_DEPENDENCIES"
 }
 
+#---
 ##
 ## @Globals DEPENDSISON SPELL_DEPENDENCIES
+#---
 function add_dependencies() {
   local i
 
@@ -36,8 +42,10 @@ function add_dependencies() {
   done
 }
 
+#---
 ##
 ## @Globals DEPENDSISON SPELL_OPTIONAL_DEPENDENCIES
+#---
 function add_optional_dependencies() {
   local dep dep_count
   local SPELL_OPTIONAL_DEPENDENCIES_ENABLED[0]=""
@@ -64,11 +72,14 @@ function add_optional_dependencies() {
 # "optional_depends ${j} \"enabled-option\" \"disabled-option\" \"description\""
 }
 
+#---
 ##
 ## @Globals
+#---
 function add_bs_depends() {
   return
 }
+
 #---
 ##
 ## This software is free software; you can redistribute it and/or modify

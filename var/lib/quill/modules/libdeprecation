@@ -35,7 +35,10 @@ function deprecate_menu() {
   sleep 5
 }
 
-# start the deprecation
+
+#---
+## start the deprecation
+#---
 function deprecate() {
   local overrides='DOWNLOAD PRE_BUILD BUILD INSTALL'
   local replacement=$1
@@ -99,7 +102,9 @@ na
   unset_spell_paths
 }
 
-# complete the deprecation of a spell
+#---
+## complete the deprecation of a spell
+#---
 function complete_deprecation() {
 
   codex_get_spell_paths $(codex_find_spell_by_name $SPELL_NAME)
@@ -116,7 +121,9 @@ function complete_deprecation() {
   message "$DEFAULT_COLOR"
 }
 
-# recreate DETAILS for a deprecated spell
+#---
+## recreate DETAILS for a deprecated spell
+#---
 function deprecate_details() {
   local replacement=$1
 
@@ -135,7 +142,9 @@ EOFZ
   fi
 }
 
-# ask the user for the replacement spell
+#---
+## ask the user for the replacement spell
+#---
 function get_replacement() {
   local __replacement
   local var=$1
@@ -148,7 +157,9 @@ function get_replacement() {
   upvar $var "$__replacement"
 }
 
-# plain deletes a spell, can't really work
+#---
+## plain deletes a spell, can't really work
+#---
 function delete_spell() {
   local reason=$1
 
