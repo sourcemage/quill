@@ -1,6 +1,7 @@
 2010-08-13 Bor Kraljič <pyrobor@ver.si>
 	* libupdate: sort the files in file_menu so they are easier to
 	  find (bug #15432)
+	* generate-quill-docs.sh:  script to generate html doc pages
 
 2010-06-29 Bor Kraljič <pyrobor@ver.si>
 	* quill: re-source DETAILS after fixing WEB_SITE (bug #15754)
