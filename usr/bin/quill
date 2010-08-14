@@ -50,7 +50,8 @@ QUILL_CONFIG_VERSION=$QUILL_OUR_CONFIG_VERSION
 
 ## Parse the command line parameters and arguments via getopt
 QUILL_CMDLINE=$(getopt -o fcysngFHup::amwrhv -l \
-  fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,help,purge:: \
+  'fmxml,perlcpan,rubyraa,savane,savannah,gna,fsf,hackagedb,update,\
+   apprentice,mage,wizard,reconfigure,version,help,purge::' \
   -n 'quill' -- "$@")
 if [[ $? != 0 ]]; then
   error_msg "Invalid command line options!"

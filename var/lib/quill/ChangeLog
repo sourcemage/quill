@@ -1,3 +1,6 @@
+2010-08-14 Bor Kraljič <pyrobor@ver.si>
+	* quill: fixed getopt line to work with all long options
+
 2010-08-13 Bor Kraljič <pyrobor@ver.si>
 	* lib*, quill: fixed functions headers to work with bashdoc
 	* libupdate: sort the files in file_menu so they are easier to
