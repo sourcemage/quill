@@ -82,10 +82,10 @@ function deprecate() {
     echo true > $file
   done
 
-  echo on_cast $SPELL_NAME dispel_self > TRIGGERS
-  echo depends $replacement > DEPENDS
+  echo up_trigger $SPELL_NAME dispel_self > UP_TRIGGERS
+  echo up_trigger $replacement cast_self > UP_TRIGGERS
 
-  chmod u+x $overrides DETAILS TRIGGERS DEPENDS
+  chmod u+x $overrides DETAILS UP_TRIGGERS DEPENDS
 
   message "Add $replacement/CONFLICTS containing 'conflicts $SPELL_NAME y'."
   message "And a HISTORY entry, but you can do this with quill too:

@@ -1,3 +1,6 @@
+2010-02-13 Bor Kraljič <pyrobor@ver.si>
+	* libdeprecation: use UP_TRGGERS instead of TRIGGERS when deprecating a spell
+
 2010-08-14 Bor Kraljič <pyrobor@ver.si>
 	* quill: fixed getopt line to work with all long options
 
