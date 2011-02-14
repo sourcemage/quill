@@ -83,7 +83,7 @@ function deprecate() {
   done
 
   echo up_trigger $SPELL_NAME dispel_self > UP_TRIGGERS
-  echo up_trigger $replacement cast_self > UP_TRIGGERS
+  echo up_trigger $replacement cast_self >> UP_TRIGGERS
 
   chmod u+x $overrides DETAILS UP_TRIGGERS DEPENDS
 
