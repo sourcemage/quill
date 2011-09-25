@@ -82,6 +82,15 @@ function convert_to_upstream_gpg() {
       # for single-versioned spells we can have the prettier one
       # for multiversioned ones we use the safe(r), but uglier aggregate one
       if [[ -z $version_switch ]]; then
+
+        # Use current_check=gurus.gpg to avoid problems with not finding the
+        # correct line due to variables. Example:
+        # current_check=gurus.gpg:MPlayer-1.0rc4.tar.bz2.sig:WORKS_FOR_ME
+        # line in DETAILS: SOURCE_GPG="gurus.gpg:$SOURCE.sig:WORKS_FOR_ME"
+        if grep -q "gurus.gpg" <<< "$current_check"; then
+          current_check=gurus.gpg
+        fi
+
         # sed in the new source[j] right after source[i]
         new_value=$(count_spaces SOURCE${j})
         sed -i "/^\s*SOURCE$i=/ s%^.*$%&\n${new_value}SOURCE${j}=$new_source%" DETAILS
