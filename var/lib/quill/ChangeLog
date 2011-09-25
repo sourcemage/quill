@@ -1,6 +1,7 @@
 2011-09-25 Bor Kraljič <pyrobor@ver.si>
 	* libgpg: fixed behaviour if there is more than one keyid found in signature
 	  override current_check for lines that have gurus.gpg
+	  use arrays to have only one number in s_ln su_ln sgpg_ln (convert_to_upstream_gpg)
 
 2011-02-13 Bor Kraljič <pyrobor@ver.si>
 	* libdeprecation: use UP_TRGGERS instead of TRIGGERS when deprecating a spell

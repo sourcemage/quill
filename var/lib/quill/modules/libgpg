@@ -110,9 +110,14 @@ function convert_to_upstream_gpg() {
 
         # SOURCE must be first since others reference it
         # compare line numbers and move the vars if necessary
-        local s_ln su_ln sgpg_ln
-        s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
-        sgpg_ln=$(sed -n "/^\s*SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY/=" DETAILS)
+        local s_ln su_ln sgpg_ln s_ln_pre sgpg_ln_pre su_ln_pre
+        # If there are more SOURCES we get more numbers. We only need one!
+        # So we take the last one. (SOURCE for SCM is usualy first)
+        # But this could still have problems with multiversioned DETAILS.
+        s_ln_pre=( $(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS) )
+        s_ln=${s_ln_pre[-1]}
+        sgpg_ln_pre=( $(sed -n "/^\s*SOURCE${i}_GPG=$SPELL_KEYRING:\$SOURCE$j:UPSTREAM_KEY/=" DETAILS) )
+        sgpg_ln=${sgpg_ln_pre[-1]}
         if (( $s_ln > $sgpg_ln )); then
           sed -i "$sgpg_ln{ x;d }; $s_ln G" DETAILS
           si_ln=$(sed -n "/^\s*SOURCE${j}_IGNORE=signature/=" DETAILS)
@@ -121,7 +126,8 @@ function convert_to_upstream_gpg() {
           s_ln=$(sed -n "/^\s*SOURCE$j=$new_source/=" DETAILS)
         fi
         SPELL_SIGNATURE=$(sed 's,[][],\\&,g' <<< "$SPELL_SIGNATURE")
-        su_ln=$(sed -n "/^\s*SOURCE${j}_URL\[.*\]=$SPELL_SIGNATURE/=" DETAILS)
+        su_ln_pre=( $(sed -n "/^\s*SOURCE${j}_URL\[.*\]=$SPELL_SIGNATURE/=" DETAILS) )
+        su_ln=${su_ln_pre[-1]}
         if (( $s_ln > $su_ln )); then
           sed -i "$su_ln{ x;d }; $s_ln G" DETAILS
         fi
