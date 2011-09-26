@@ -286,6 +286,12 @@ function quill_get_spell_keyring() {
     # get the key id
     SPELL_KEYRING_KEYS=$(gpg --verify $SOURCE_CACHE/${SPELL_SIGNATURE##*/} 2>&1 | sed -n 's,^.* key ID ,,p')
 
+    # check if signature has any key information
+    if [[ $SPELL_KEYRING_KEYS == "" ]]; then
+      error_msg "Signature doesn't have any key information!"
+      continue
+    fi
+
     # if there is more than one key name keyring by spellname
     if [[ ${#SPELL_KEYRING_KEYS} -gt 8 ]]; then
       SPELL_KEYRING=$SPELL.gpg
@@ -296,6 +302,13 @@ function quill_get_spell_keyring() {
     # create the keyring
     gpg --import-options import-minimal --no-default-keyring --keyring \
       $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING --recv-keys $SPELL_KEYRING_KEYS
+    # check if key was really imported
+    if [[ $? -gt 0 ]]; then
+      rm $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING
+      SPELL_UPDATED=n # otherwise HISTORY gets updated
+      error_msg "There was problem with getting key from hkp server!"
+      continue
+    fi
 
     if query "Is there a more complete keyring available?" y; then
       rm $QUILL_SPELL_DIR/$SPELL_NAME/$SPELL_KEYRING
