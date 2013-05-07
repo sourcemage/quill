@@ -97,8 +97,16 @@ elif [[ -n $2 ]]; then
   message "Discarding leftover arguments!"
 fi
 if [[ -z $QUILL_TARGET ]]; then
-  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$1")
-  QUILL_ORIG_TARGET=$1
+  case "$1" in
+    *:*)
+      SPELL_SRC_URL="$1"
+      QUILL_ORIG_TARGET=$(basename "$1" | sed 's@[-._][0-9][^-_]*$@@')
+      ;;
+    *)
+      QUILL_ORIG_TARGET="$1"
+      ;;
+  esac
+  QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$QUILL_ORIG_TARGET")
 fi
 
 unset -f message
