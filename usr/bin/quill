@@ -89,10 +89,13 @@ while true; do
   esac
   shift
 done
-if [[ -z $1 && -n $QUILL_UPDATE ]]; then
-  error_msg "Missing spellname argument!"
-  sleep 1
-  quill_help 104
+if [[ -n $QUILL_UPDATE ]]; then
+  if [[ -z $1 ]]; then
+    error_msg "Missing spellname argument!"
+    sleep 1
+    quill_help 104
+  fi
+  SPELL_VERSION="$2"
 elif [[ -n $2 ]]; then
   message "Discarding leftover arguments!"
 fi
