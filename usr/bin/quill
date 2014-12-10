@@ -104,6 +104,7 @@ if [[ -z $QUILL_TARGET ]]; then
       ;;
     *)
       QUILL_ORIG_TARGET="$1"
+      SPELL_SRC_URL="$2"
       ;;
   esac
   QUILL_TARGET=$(tr '[[:upper:]]' '[[:lower:]]' <<< "$QUILL_ORIG_TARGET")
