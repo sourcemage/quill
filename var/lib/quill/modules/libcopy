@@ -20,13 +20,14 @@ function copy_new_to_git()
     find "$QUILL_GIT_DIR" -maxdepth 1 -type d |
     while read dir; do
       [[ -d $dir/.git ]] && basename $dir
-    done | column
+    done | sort | column
     query_string grimoire "Which of the above is the target git grimoire? "
     while ! dir_check "$QUILL_GIT_DIR/$grimoire"; do
       query_string grimoire "Which of the above is the target git grimoire? "
     done
     echo
-    find "$QUILL_GIT_DIR/$grimoire" -maxdepth 1 -type d -printf "%P\n" | column
+    find "$QUILL_GIT_DIR/$grimoire" -maxdepth 1 -type d -printf "%P\n" |
+      sort | column
     query_string section "Which section do you want to put it in? "
     while ! dir_check "$QUILL_GIT_DIR/$grimoire/$section"; do
       query_string section "Which section do you want to put it in? "
@@ -175,13 +176,13 @@ function quill_final_put_in_grimoire() {
 
   if [[ -z $2 ]]; then
     query_list "Into which grimoire do you wish to put the spell:" quill_grim_name \
-      "" $(codex_get_all_grimoires | get_basenames)
+      "" $(codex_get_all_grimoires | get_basenames | sort)
     echo
     quill_grim_name=$(codex_canonicalize_grimoire_name $quill_grim_name lookup)
 
     # can't use query_list, as the section count can be bigger than the available index
     message "Available sections in grimoire $quill_grim_name:"
-    codex_get_section_names $quill_grim_name | column
+    codex_get_section_names $quill_grim_name | sort | column
     query_string quill_sect_name "Into which section do you wish to put the spell: "
 
     if [[ -e $quill_grim_name/$quill_sect_name/$SPELL_NAME ]]; then
