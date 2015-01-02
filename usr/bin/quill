@@ -96,8 +96,6 @@ if [[ -n $QUILL_UPDATE ]]; then
     quill_help 104
   fi
   SPELL_VERSION="$2"
-elif [[ -n $2 ]]; then
-  message "Discarding leftover arguments!"
 fi
 if [[ -z $QUILL_TARGET ]]; then
   case "$1" in
