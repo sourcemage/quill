@@ -101,7 +101,10 @@ if [[ -z $QUILL_TARGET ]]; then
   case "$1" in
     *:*)
       SPELL_SRC_URL="$1"
-      QUILL_ORIG_TARGET=$(basename "$1" | sed 's@[-._][0-9][^-_]*$@@')
+      QUILL_ORIG_TARGET=$(sed -r '
+	s@([-.]src)?([-._][0-9][^-._/]*)*([-.]src)?([.][^-._]+)*(/download/?)?([?].*)?$@@
+	s@.*/@@
+      ' <<< "$1")
       ;;
     *)
       QUILL_ORIG_TARGET="$1"
