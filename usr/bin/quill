@@ -99,6 +99,10 @@ if [[ -n $QUILL_UPDATE ]]; then
 fi
 if [[ -z $QUILL_TARGET ]]; then
   case "$1" in
+    git:*)
+      SPELL_SRC_URL="$1"
+      QUILL_ORIG_TARGET=$(sed -r 's@\.git$@@;s@.*/@@' <<< "$1")
+      ;;
     *:*)
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(sed -r '
