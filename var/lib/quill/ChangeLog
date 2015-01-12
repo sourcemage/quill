@@ -4,17 +4,17 @@
 2015-01-04 Ismael Luceno <ismael@sourcemage.org>
         * quill: Improve parsing of URL as first argument
 
-2014-12-25 Ismael Luceno <ismael@sourcemage.org>
-        * libcopy: Sort presented grimoire and section lists
-
 2015-01-02 Ismael Luceno <ismael@sourcemage.org>
         * quill: Remove the useless argument discarding warning
 
-2013-11-22 Ismael Luceno <ismael@sourcemage.org>
-        * quill: Allow specifying version on command line when updating
+2014-12-25 Ismael Luceno <ismael@sourcemage.org>
+        * libcopy: Sort presented grimoire and section lists
 
 2014-12-09 Ismael Luceno <ismael@sourcemage.org>
         * quill: Allow specifying URL as second argument on CLI
+
+2013-11-22 Ismael Luceno <ismael@sourcemage.org>
+        * quill: Allow specifying version on command line when updating
 
 2013-05-07 Ismael Luceno <ismael@sourcemage.org>
         * quill: Allow specifying source URL on command line
