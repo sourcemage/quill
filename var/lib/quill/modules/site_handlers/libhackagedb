@@ -75,12 +75,16 @@ function quill_hdb_get_info(){
       fi
     done
   elif [[ "$info" == "build-depends" ]] ; then
-    grep -i "${info}:" $file | sed -e "s/${info}: *\(.*\)/\1/" | \
-    sed -e "s/\([^><=]\+\)[><=]\+[0-9.]\+/\1/g" | tr -d ',' | \
-    sed -e "s/^base \+\| \+base \+\| \+base$/ /" | \
-    sed -e "s/^unix \+\| \+unix \+\| \+unix$/ /"
+    sed -r -e '
+      /build-depends:/!d
+      s/[^:]*: *//
+      s/[><=]+[0-9.]+//g
+      s/,//g
+      s/^base +| +base +| +base$/ /
+      s/^unix +| +unix +| +unix$/ /
+    ' "$file"
   else
-    grep -i "${info}:" $file | sed -e "s/${info}: *\(.*\)/\1/"
+    sed -e "/$info:/!d;s/[^:]*: *//" "$file"
   fi
 }
 
