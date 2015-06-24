@@ -23,14 +23,14 @@ function quill_hdb_get_files(){
   if [[ ! -e "$package_page" ]] ; then
     message "Attempting to retrieve package page..."
     wget -q -O "$package_page" \
-         "http://hackage.haskell.org/cgi-bin/hackage-scripts/package/$package" || \
+         "http://hackage.haskell.org/package/$package" || \
          { error_msg "Error: unable to fetch package page";
            return 1; }
   else
     message "Using cached package page..."
   fi
   if [[ ! -e "$cabal_file" ]] ; then
-    cabal_file_path=$(egrep -o "/packages/archive/$package/.+/$package\.cabal" "$package_page")
+    cabal_file_path=$(egrep -o "/package/$package-[^/]+/$package\.cabal" "$package_page")
     message "Attempting to retrieve cabal file..."
     wget -q -O "$cabal_file.tmp" \
          "http://hackage.haskell.org$cabal_file_path" || \
@@ -59,7 +59,7 @@ function quill_hdb_get_info(){
   file="$2"
 
   if [[ "$info" == "src" ]] ; then
-    echo "http://hackage.haskell.org$(egrep -o "/packages/archive/$package/.+/$package-.+\.tar.gz" "$file")"
+    echo "http://hackage.haskell.org$(egrep -o "/packages/$package-[^/]+/$package-.+\.tar.gz" "$file")"
   elif [[ "$info" == "description" ]] ; then
     while read line ; do
       if grep -i -q "^description:" <<< "$line" ; then
