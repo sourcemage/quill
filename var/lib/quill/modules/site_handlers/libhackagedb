@@ -78,13 +78,27 @@ function quill_hdb_get_info(){
       '
       ;;
     build-depends)
-      sed -r -e '
-        /build-depends:/!d
-        s/[^:]*: *//
-        s/[><=]+[0-9.]+//g
-        s/,//g
-        s/^base +| +base +| +base$/ /
-        s/^unix +| +unix +| +unix$/ /
+      awk '
+        BEGIN {
+          discard["base"]
+          discard["unix"]
+          discard["bytestring"]
+        }
+        /^name:/ { discard[$2] }
+        $1 !~ /build-depends:/ { next }
+        {
+          $1 = ""
+          do {
+	    gsub(/,|&&|[><=]+ *[0-9.]+/, "")
+            for (i = 1; i <= NF; i++)
+              if (!($i in discard))
+                dep[$i]
+          } while (getline && $1 && $1 !~ /[-a-z]+:/)
+        }
+        END {
+          for (i in dep)
+            printf " haskell-%s", tolower(i)
+        }
       '
       ;;
     *)
@@ -117,5 +131,5 @@ function quill_hdb_core(){
   quill_hdb_get_info "description" "$cabal_file" > "$QUILL_TMP_DIR/$SPELL_DESC_NAME"
   SPELL_URL="$(quill_hdb_get_info  "homepage" "$cabal_file")"
   SPELL_SRC_URL="$(quill_hdb_get_info "src" "$cabal_file")"
-  SPELL_DEPENDENCIES="ghc $(quill_hdb_get_info "build-depends" "$cabal_file")"
+  SPELL_DEPENDENCIES="ghc$(quill_hdb_get_info "build-depends" "$cabal_file")"
 }
