@@ -61,19 +61,14 @@ function quill_hdb_get_info(){
   if [[ "$info" == "src" ]] ; then
     echo "http://hackage.haskell.org$(egrep -o "/packages/$package-[^/]+/$package-.+\.tar.gz" "$file")"
   elif [[ "$info" == "description" ]] ; then
-    while read line ; do
-      if grep -i -q "^description:" <<< "$line" ; then
-        possible_line=$(sed -e "s/^description: *\(.*\)/\1/" <<< "$line")
-        if [[ -n "$possible_line" ]] ; then
-          echo "$possible_line"
-        fi
-        desc_here=True
-      elif [[ -n "$desc_here" ]] && egrep -q "^[[:alpha:]|-]+:" <<< "$line" ; then
-        break
-      elif [[ -n "$desc_here" ]] ; then
-        echo "$line" | sed -e "s/^ *\.\?//"
-      fi
-    done < "$file"
+    awk '
+      !/^description:/ { next }
+      {
+        sub(/[^:]*: */, "")
+        do if ($0) print; while (getline && !/^[-a-z]+:/)
+        exit
+      }
+    '
   elif [[ "$info" == "build-depends" ]] ; then
     sed -r -e '
       /build-depends:/!d
@@ -82,10 +77,10 @@ function quill_hdb_get_info(){
       s/,//g
       s/^base +| +base +| +base$/ /
       s/^unix +| +unix +| +unix$/ /
-    ' "$file"
+    '
   else
-    sed -e "/$info:/!d;s/[^:]*: *//" "$file"
-  fi
+    sed -e "/$info:/!d;s/[^:]*: *//"
+  fi < "$file"
 }
 
 #---
