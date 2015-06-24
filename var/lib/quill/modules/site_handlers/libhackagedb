@@ -20,24 +20,24 @@ function quill_hdb_get_files(){
   package_page="$2"
   cabal_file="$3"
 
-  if [[ ! -e $package_page ]] ; then
+  if [[ ! -e "$package_page" ]] ; then
     message "Attempting to retrieve package page..."
-    wget -q -O $package_page \
-         http://hackage.haskell.org/cgi-bin/hackage-scripts/package/${package}/ || \
+    wget -q -O "$package_page" \
+         "http://hackage.haskell.org/cgi-bin/hackage-scripts/package/$package" || \
          { error_msg "Error: unable to fetch package page";
            return 1; }
   else
     message "Using cached package page..."
   fi
-  if [[ ! -e $cabal_file ]] ; then
-    cabal_file_path=$(egrep -o "/packages/archive/${package}/.+/${package}\.cabal" $package_page)
+  if [[ ! -e "$cabal_file" ]] ; then
+    cabal_file_path=$(egrep -o "/packages/archive/$package/.+/$package\.cabal" "$package_page")
     message "Attempting to retrieve cabal file..."
-    wget -q -O ${cabal_file}.tmp \
-         http://hackage.haskell.org${cabal_file_path} || \
+    wget -q -O "$cabal_file.tmp" \
+         "http://hackage.haskell.org$cabal_file_path" || \
          { error_msg "Error: unable to fetch cabal file";
            return 1; }
-    cat ${cabal_file}.tmp | tr '\t' ' ' > $cabal_file
-    rm ${cabal_file}.tmp
+    tr '\t' ' ' < "$cabal_file.tmp" > "$cabal_file"
+    rm "$cabal_file.tmp"
   else
     message "Using cached cabal file..."
   fi
@@ -59,21 +59,21 @@ function quill_hdb_get_info(){
   file="$2"
 
   if [[ "$info" == "src" ]] ; then
-    echo "http://hackage.haskell.org$(egrep -o "/packages/archive/${package}/.+/${package}-.+\.tar.gz" $file)"
+    echo "http://hackage.haskell.org$(egrep -o "/packages/archive/$package/.+/$package-.+\.tar.gz" "$file")"
   elif [[ "$info" == "description" ]] ; then
-    cat $file | while IFS="" ; read line ; do
+    while read line ; do
       if grep -i -q "^description:" <<< "$line" ; then
-        possible_line=$(sed -e "s/^description: *\(.*\)/\1/" <<< $line)
+        possible_line=$(sed -e "s/^description: *\(.*\)/\1/" <<< "$line")
         if [[ -n "$possible_line" ]] ; then
-          echo $possible_line
+          echo "$possible_line"
         fi
         desc_here=True
       elif [[ -n "$desc_here" ]] && egrep -q "^[[:alpha:]|-]+:" <<< "$line" ; then
         break
       elif [[ -n "$desc_here" ]] ; then
-        echo ${line} | sed -e "s/^ *\.\?//"
+        echo "$line" | sed -e "s/^ *\.\?//"
       fi
-    done
+    done < "$file"
   elif [[ "$info" == "build-depends" ]] ; then
     sed -r -e '
       /build-depends:/!d
@@ -103,13 +103,13 @@ function quill_hdb_core(){
   SPELL_NAME="$1"
   package="$2"
 
-  package_page=${QUILL_TMP_DIR}/${package}.hdb
-  cabal_file=${QUILL_TMP_DIR}/${package}.cabal
+  package_page="$QUILL_TMP_DIR/$package.hdb"
+  cabal_file="$QUILL_TMP_DIR/$package.cabal"
   quill_hdb_get_files "$package" "$package_page" "$cabal_file" || return 1
   SPELL_LICENSE="$(quill_hdb_get_info  "license" "$cabal_file")"
   SPELL_SHORT_DESCRIPTION="$(quill_hdb_get_info  "synopsis" "$cabal_file")"
   SPELL_DESC_NAME=${SPELL_NAME}.desc
-  quill_hdb_get_info "description" "$cabal_file" > ${QUILL_TMP_DIR}/${SPELL_DESC_NAME}
+  quill_hdb_get_info "description" "$cabal_file" > "$QUILL_TMP_DIR/$SPELL_DESC_NAME"
   SPELL_URL="$(quill_hdb_get_info  "homepage" "$cabal_file")"
   SPELL_SRC_URL="$(quill_hdb_get_info "src" "$package_page")"
   SPELL_DEPENDENCIES="ghc "$(quill_hdb_get_info "build-depends" "$cabal_file")
