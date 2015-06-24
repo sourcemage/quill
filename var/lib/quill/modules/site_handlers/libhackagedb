@@ -57,30 +57,40 @@ function quill_hdb_get_info(){
 
   info="$1"
   file="$2"
-
-  if [[ "$info" == "src" ]] ; then
-    echo "http://hackage.haskell.org$(egrep -o "/packages/$package-[^/]+/$package-.+\.tar.gz" "$file")"
-  elif [[ "$info" == "description" ]] ; then
-    awk '
-      !/^description:/ { next }
-      {
-        sub(/[^:]*: */, "")
-        do if ($0) print; while (getline && !/^[-a-z]+:/)
-        exit
-      }
-    '
-  elif [[ "$info" == "build-depends" ]] ; then
-    sed -r -e '
-      /build-depends:/!d
-      s/[^:]*: *//
-      s/[><=]+[0-9.]+//g
-      s/,//g
-      s/^base +| +base +| +base$/ /
-      s/^unix +| +unix +| +unix$/ /
-    '
-  else
-    sed -e "/$info:/!d;s/[^:]*: *//"
-  fi < "$file"
+  case "$info" in
+    src)
+      awk '
+        /^name:/ { n = $2 }
+        /^version:/ { n = n "-" $2; exit }
+        END {
+          printf "http://hackage.haskell.org/package/%s/%s.tar.gz\n", n, n
+        }
+      '
+      ;;
+    description)
+      awk '
+        !/^description:/ { next }
+        {
+          sub(/[^:]*: */, "")
+          do if ($0) print; while (getline && !/^[-a-z]+:/)
+          exit
+        }
+      '
+      ;;
+    build-depends)
+      sed -r -e '
+        /build-depends:/!d
+        s/[^:]*: *//
+        s/[><=]+[0-9.]+//g
+        s/,//g
+        s/^base +| +base +| +base$/ /
+        s/^unix +| +unix +| +unix$/ /
+      '
+      ;;
+    *)
+      sed -e "/$info:/!d;s/[^:]*: *//"
+      ;;
+  esac < "$file"
 }
 
 #---
@@ -106,6 +116,6 @@ function quill_hdb_core(){
   SPELL_DESC_NAME=${SPELL_NAME}.desc
   quill_hdb_get_info "description" "$cabal_file" > "$QUILL_TMP_DIR/$SPELL_DESC_NAME"
   SPELL_URL="$(quill_hdb_get_info  "homepage" "$cabal_file")"
-  SPELL_SRC_URL="$(quill_hdb_get_info "src" "$package_page")"
-  SPELL_DEPENDENCIES="ghc "$(quill_hdb_get_info "build-depends" "$cabal_file")
+  SPELL_SRC_URL="$(quill_hdb_get_info "src" "$cabal_file")"
+  SPELL_DEPENDENCIES="ghc $(quill_hdb_get_info "build-depends" "$cabal_file")"
 }
