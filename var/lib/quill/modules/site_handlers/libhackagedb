@@ -119,7 +119,7 @@ function quill_hdb_core(){
   local package_page
   local cabal_file
 
-  SPELL_NAME="$1"
+  SPELL_NAME="haskell-$1"
   package="$2"
 
   package_page="$QUILL_TMP_DIR/$package.hdb"
