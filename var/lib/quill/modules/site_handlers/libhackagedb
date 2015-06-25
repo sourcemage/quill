@@ -89,10 +89,31 @@ function quill_hdb_get_info(){
     build-depends)
       awk '
         BEGIN {
+          # Packages included in GHC
           discard["*"]
+          discard["Cabal"]
+          discard["Win32"]
+          discard["array"]
           discard["base"]
-          discard["unix"]
+          discard["binary"]
           discard["bytestring"]
+          discard["containers"]
+          discard["deepseq"]
+          discard["directory"]
+          discard["filepath"]
+          discard["ghc-prim"]
+          discard["haskeline"]
+          discard["hoopl"]
+          discard["hpc"]
+          discard["integer-gmp"]
+          discard["pretty"]
+          discard["process"]
+          discard["template-haskell"]
+          discard["terminfo"]
+          discard["time"]
+          discard["transformers"]
+          discard["unix"]
+          discard["xhtml"]
         }
         /^[Nn][Aa][Mm][Ee]:/ { discard[$2] }
         tolower($1) !~ /build-depends:/ { next }
