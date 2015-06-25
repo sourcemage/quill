@@ -71,8 +71,17 @@ function quill_hdb_get_info(){
       awk '
         !/^[Dd][Ee][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]:/ { next }
         {
-          sub(/[^:]*: */, "")
-          do if ($0) print; while (getline && !/^[-A-Za-z]+:/)
+          sub(/^[^:]*:/, "")
+          do {
+            if ($0) {
+              if (NF == 1 && $1 == ".") {
+                print ""
+              } else {
+                gsub("^[\t ]*", "")
+                print
+              }
+            }
+          } while (getline && !/^[-A-Za-z]+:/ && $0)
           exit
         }
       '
