@@ -80,6 +80,7 @@ function quill_hdb_get_info(){
     build-depends)
       awk '
         BEGIN {
+          discard["*"]
           discard["base"]
           discard["unix"]
           discard["bytestring"]
@@ -89,11 +90,11 @@ function quill_hdb_get_info(){
         {
           $1 = ""
           do {
-	    gsub(/,|&&|[><=]+ *[0-9.]+/, "")
+	    gsub(/,|&&|[><=]+ *[0-9.]+/, " ")
             for (i = 1; i <= NF; i++)
-              if (!($i in discard))
+              if ($i && !($i in discard))
                 dep[$i]
-          } while (getline && $1 && $1 !~ /[-A-Za-z]+:/)
+          } while (getline && $1 !~ /^[-A-Za-z]+:$/ && $1)
         }
         END {
           for (i in dep)
