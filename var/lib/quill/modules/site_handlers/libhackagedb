@@ -60,8 +60,8 @@ function quill_hdb_get_info(){
   case "$info" in
     src)
       awk '
-        /^name:/ { n = $2 }
-        /^version:/ { n = n "-" $2; exit }
+        /^[Nn][Aa][Mm][Ee]:/ { n = $2 }
+        /^[Vv][Ee][Rr][Ss][Ii][Oo][Nn]:/ { n = n "-" $2; exit }
         END {
           printf "http://hackage.haskell.org/package/%s/%s.tar.gz\n", n, n
         }
@@ -69,10 +69,10 @@ function quill_hdb_get_info(){
       ;;
     description)
       awk '
-        !/^description:/ { next }
+        !/^[Dd][Ee][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]:/ { next }
         {
           sub(/[^:]*: */, "")
-          do if ($0) print; while (getline && !/^[-a-z]+:/)
+          do if ($0) print; while (getline && !/^[-A-Za-z]+:/)
           exit
         }
       '
@@ -84,8 +84,8 @@ function quill_hdb_get_info(){
           discard["unix"]
           discard["bytestring"]
         }
-        /^name:/ { discard[$2] }
-        $1 !~ /build-depends:/ { next }
+        /^[Nn][Aa][Mm][Ee]:/ { discard[$2] }
+        tolower($1) !~ /build-depends:/ { next }
         {
           $1 = ""
           do {
@@ -93,7 +93,7 @@ function quill_hdb_get_info(){
             for (i = 1; i <= NF; i++)
               if (!($i in discard))
                 dep[$i]
-          } while (getline && $1 && $1 !~ /[-a-z]+:/)
+          } while (getline && $1 && $1 !~ /[-A-Za-z]+:/)
         }
         END {
           for (i in dep)
@@ -102,7 +102,7 @@ function quill_hdb_get_info(){
       '
       ;;
     *)
-      sed -e "/$info:/!d;s/[^:]*: *//"
+      awk -vr="^$info:" 'tolower($0) ~ r { sub(/[^:]*:[\t ]*/, ""); print; exit }'
       ;;
   esac < "$file"
 }
