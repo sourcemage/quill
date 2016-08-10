@@ -116,16 +116,30 @@ function count_spaces()
 #---
 function multiversion_check()
 {
-  local suggestions
   if [[ ${#versions[@]} != 1 ]]
   then #we have a problem
     message "Oh dear, detected a multiversion spell. Going to cat DETAILS for you "
     message "and then you will tell me which variable I need to set, so I can get "
     message "to the correct version ($version)."
     sleep 3
-    cat DETAILS
-    suggestions=$(sed -n 's,[{}],,g; s,^.*if.*$\([A-Za-z_]*\).*$,\1,p' DETAILS)
-    [[ ! -z $suggestions ]] && query_msg "Perhaps it is one of these:" $suggestions
+    # suggestions
+    awk '
+	/^[\t ]*cat/ { exit } # Suppress description
+	{ print }
+	function take(s) { gsub(/["${}]+/, "", s); S[s] }
+	/^[\t ]*case/ {
+		take($2)
+		while (getline == 1 && !/^[\t ]*esac/)
+			print
+		next
+	}
+	/^[\t ]*(el)?if +\[\[? +[^-]/ { take($3) }
+	END {
+		if (!length(S)) exit
+		for (i in S) s = s " " i
+		print "\nPerhaps it is one of these:" s
+	}
+    ' DETAILS
     query_string version_switch "${QUERY_COLOR}Please enter the appropriate variable. Example: UGU_DEVEL=y${DEFAULT_COLOR} "
   fi
 }
