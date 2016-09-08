@@ -426,16 +426,10 @@ else # no updates, we'll be making a spell
 
   # redo it for QUILL_FETCH_MODE, perhaps it didn't fetch a valid source url
   # first time for other modes
-  parse_spell_source_file_info
-  while [[ -z $SPELL_SANITIZED_FILE_NAME ]]; do
-    if [[ -n $SPELL_SRC_FILE ]]; then
-      SPELL_SANITIZED_FILE_NAME=$SPELL_SRC_FILE
-      break
-    fi
+  while ! parse_spell_source_file_info; do
     error_msg "Source file couldn't be found. Check that the url is valid and downloadable!\n"
     unset SPELL_SRC_URL
     query_spell_source_url
-    parse_spell_source_file_info
   done
   show_spell_source_file_info
   echo

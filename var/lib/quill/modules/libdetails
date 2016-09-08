@@ -124,21 +124,24 @@ fi
 ## @Synopsis Assign to SPELL_SRC_FILE the filename and to VERSION the
 ## @Synopsis version number parsed from source url.
 ##
-## @Globals SPELL_SRC_FILE SPELL_SANITIZED_FILE_NAME SPELL_VERSION
+## @Globals SPELL_SRC_FILE SPELL_VERSION
 #---
 function parse_spell_source_file_info(){
-  SPELL_SRC_FILE=$(expr "$SPELL_SRC_URL" : '.*/\(.*\)')
-  SPELL_SANITIZED_FILE_NAME=$(expr "$SPELL_SRC_FILE" : '\(.*\)[-|_][0-9]')
-  SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : "${SPELL_SANITIZED_FILE_NAME}[-|_]\(.*\)\.[t|z|r]")
+  SPELL_SRC_FILE="${SPELL_SRC_URL##*/}"
+  if expr "$SPELL_SRC_FILE" : 'v[0-9]\.' >/dev/null; then
+    SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : 'v\(.*\)\.[rtz]')
+  else
+    SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : ".*[-_]\([0-9].*\)\.[rtz]")
+  fi
+  [[ -n $SPELL_SRC_FILE ]]
 }
 
 #---
 ## @Synopsis Print on screen info gathered from source url.
 ##
-## @Globals SPELL_SANITIZED_FILE_NAME SPELL_VERSION SPELL_SRC_URL
+## @Globals SPELL_VERSION SPELL_SRC_URL
 #---
 function show_spell_source_file_info(){
-  message "Sanitized filename: ${SPELL_SANITIZED_FILE_NAME}"
   message "Version: ${SPELL_VERSION}"
   message "URL: ${SPELL_SRC_URL}"
 }
