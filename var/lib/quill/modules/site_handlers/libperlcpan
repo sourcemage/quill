@@ -70,7 +70,7 @@ function quill_cpan_core()
     SPELL_URL="http://search.cpan.org/~${QUILL_CPAN_METADATA[7]}/${SPELL_NAME}/"
     local description
     description="${QUILL_CPAN_METADATA[6]}"
-    SPELL_NAME="${1//::/-}" # the lower case target wasn't manipulated yet
+    SPELL_NAME="perl-${1//::/-}" # the lower case target wasn't manipulated yet
     echo $description > ${QUILL_TMP_DIR}/${SPELL_NAME}
     BUILDISON="BUILD, "
     touch ${QUILL_TMP_DIR}/${SPELL_NAME}-BUILD
