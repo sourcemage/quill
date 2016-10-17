@@ -103,6 +103,10 @@ if [[ -z $QUILL_TARGET ]]; then
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(sed -r 's@\.git$@@;s@.*/@@' <<< "$1")
       ;;
+    https://github.com/*/archive/*)
+      SPELL_SRC_URL="$1"
+      QUILL_ORIG_TARGET=$(awk -F/ '{print $(NF-2)}' <<< "$1")
+      ;;
     *:*)
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(sed -r '
