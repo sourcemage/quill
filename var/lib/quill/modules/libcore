@@ -70,7 +70,7 @@ function get_spell_source(){
     cp $SOURCE_CACHE/$SPELL_SRC_FILE .
     message "Done."
   else
-    wget --no-check-certificate -c "${SPELL_SRC_URL}"
+    wget --no-check-certificate -c "${SPELL_SRC_URL}" -O "$SPELL_SRC_FILE"
   fi
   echo
   cd ${QUILL_SPELL_DIR}/${SPELL_NAME}

@@ -128,13 +128,15 @@ fi
 #---
 function parse_spell_source_file_info(){
   SPELL_SRC_FILE="${SPELL_SRC_URL##*/}"
-  if expr "$SPELL_SRC_FILE" : 'v[0-9]\.' >/dev/null; then
-    SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : 'v\(.*\)\.[rtz]')
-  elif expr "$SPELL_SRC_FILE" : '[0-9]\.' >/dev/null; then
-    SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : '\(.*\)\.[rtz]')
-  else
-    SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : ".*[-_]\([0-9].*\)\.[rtz]")
-  fi
+  case "$SPELL_SRC_FILE" in
+    v[0-9]*|[0-9]*)
+      SPELL_VERSION=$(expr "${SPELL_SRC_FILE#v}" : '\(.*\)\.[rtz]')
+      SPELL_SRC_FILE="$SPELL_NAME-${SPELL_SRC_FILE#v}"
+      ;;
+    *)
+      SPELL_VERSION=$(expr "$SPELL_SRC_FILE" : ".*[-_]\([0-9].*\)\.[rtz]")
+      ;;
+  esac
   [[ -n $SPELL_SRC_FILE ]]
 }
 
