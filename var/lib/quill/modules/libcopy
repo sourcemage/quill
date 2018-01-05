@@ -169,7 +169,7 @@ function ask_and_copy_over()
 ## @param internal flag toggling interactivity - section name
 ## @param flag toggling scribe reindex, set it to "no" to toggle
 ##
-## @Globals QUILL_SPELL_DIR SPELL_NAME QUILL_SUDO
+## @Globals QUILL_SPELL_DIR SPELL_NAME SPELL_VERSION QUILL_SUDO
 #---
 function quill_final_put_in_grimoire() {
   local reindex=$3 quill_grim_name quill_sect_name
@@ -216,8 +216,22 @@ function quill_final_put_in_grimoire() {
       echo "Copying succeded."
       if [[ $1 != no ]]; then
         echo
-        echo "Running scribe reindex on $quill_grim_name ..."
-        $QUILL_SUDO -c "scribe reindex $(basename $quill_grim_name)"
+        echo "Updating indexes on $quill_grim_name ..."
+        $QUILL_SUDO -c "
+	  cd $quill_grim_name &&
+	  tmp=\$(mktemp tmp.XXXXXX) &&
+	  chmod 644 \$tmp &&
+	  <<-! cat - codex.index | sort > \$tmp &&
+		$SPELL_NAME $quill_grim_name/$quill_sect_name
+		!
+	  mv \$tmp codex.index &&
+	  tmp=\$(mktemp tmp.XXXXXX) &&
+	  chmod 644 \$tmp &&
+	  <<-! cat - version.index | sort > \$tmp &&
+		$SPELL_NAME $SPELL_VERSION 0 0 0
+		!
+	  mv \$tmp version.index
+	  "
       fi
     fi
   }
