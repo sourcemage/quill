@@ -1,10 +1,6 @@
 #!/bin/bash
 
-if [[ $2 ]] ; then
-  INSTALL_ROOT="$2"
-else
-  INSTALL_ROOT=""
-fi
+INSTALL_ROOT="$2"
 
 if [[ "$1" == "install" ]]; then
   if ! grep -q "\./install.sh$" <<< "$0"; then
