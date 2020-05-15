@@ -22,6 +22,24 @@ function query_spell_name(){
   fi
 }
 
+
+#---
+## Sanitize a SOURCE_URL
+#---
+sanitize_source_url() {
+  awk '
+	{
+		sub(/[?#].*/, "")
+		for (i in R) sub(i, R[i])
+		print
+	}
+	BEGIN {
+		R["^https?://prdownloads.sourceforge.net/"]="$SOURCEFORGE_URL/"
+		R["^https?://downloads.sourceforge.net/"]="$SOURCEFORGE_URL/"
+	}
+  '
+}
+
 #---
 ##
 ## @Globals SPELL_SRC_URL
@@ -32,24 +50,12 @@ function query_spell_source_url(){
   # I tested this with various URLs and it seems to work quite well
   # if any other are found should be included
   # possibly split the code into a separate function???
-  SPELL_SRC_URL=$(sed -e "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," \
-                      -e "s,http://downloads.sourceforge.net/\(.*\)?.*,$SOURCEFORGE_URL/\1," \
-                      -e "s,http://downloads.sourceforge.net/\(.*\),$SOURCEFORGE_URL/\1," \
-                      -e "s,http://prdownload.berlios.de/\(.*\),http://download.berlios.de/\1," \
-                      -e "s,http://sourceforge.net/project/showfiles.php.*,," \
-                      -e "s,^\(.*\)/\(.*\)?.*,\1/\2," \
-                      <<< $SPELL_SRC_URL)
+  SPELL_SRC_URL=$(sanitize_source_url <<< "$SPELL_SRC_URL")
 if ! [[ $SPELL_SRC_URL ]] ||
    ! query "Is $SPELL_SRC_URL the proper source url?" y; then
   query_msg "Please enter the url of the source:"
   read "SPELL_SRC_URL"
-  SPELL_SRC_URL=$(sed -e "s,http://prdownloads.sourceforge.net,$SOURCEFORGE_URL," \
-                      -e "s,http://downloads.sourceforge.net/\(.*\)?.*,$SOURCEFORGE_URL/\1," \
-                      -e "s,http://downloads.sourceforge.net/\(.*\),$SOURCEFORGE_URL/\1," \
-                      -e "s,http://prdownload.berlios.de/\(.*\),http://download.berlios.de/\1," \
-                      -e "s,http://sourceforge.net/project/showfiles.php.*,," \
-                      -e "s,^\(.*\)/\(.*\)?.*,\1/\2," \
-                      <<< $SPELL_SRC_URL)
+  SPELL_SRC_URL=$(sanitize_source_url <<< "$SPELL_SRC_URL")
 fi
 }
 
