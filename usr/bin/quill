@@ -105,7 +105,7 @@ if [[ -z $QUILL_TARGET ]]; then
       ;;
     https://github.com/*/archive/*)
       SPELL_SRC_URL="$1"
-      QUILL_ORIG_TARGET=$(awk -F/ '{print $(NF-2)}' <<< "$1")
+      QUILL_ORIG_TARGET=$(awk -F/ '{print $5}' <<< "$1")
       ;;
     *:*)
       SPELL_SRC_URL="$1"
