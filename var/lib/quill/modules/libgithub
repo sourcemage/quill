@@ -1,0 +1,34 @@
+#!/bin/bash
+quill_github_core() {
+	local api_url=$(awk -F/ '
+		{
+			printf "https://api.github.com/repos/%s/%s\n", $4, $5
+		}
+	' <<< "${SPELL_SRC_URL}")
+	while read var val; do
+		typeset -g "$var=$val"
+	done < <(
+	wget -q -O- "$api_url" | awk '
+		BEGIN {
+			map["full_name"]
+			map["homepage"]    = "SPELL_URL"
+			map["spdx_id"]     = "SPELL_LICENSE"
+			map["description"] = "SPELL_SHORT_DESCRIPTION"
+		}
+		{
+			key = $1
+			gsub(/[^a-z_]/, "", key)
+			if (!(key in map)) next
+			val = $0
+			sub(/^[^:]+: *"?/, "", val)
+			sub(/"?,$/, "", val)
+			repo[key] = val
+		}
+		END {
+			if (!("homepage" in repo))
+				repo["homepage"] = "https://github.com/" repo["full_name"]
+			for (i in map) if (map[i])
+				print map[i], repo[i]
+		}
+	')
+}

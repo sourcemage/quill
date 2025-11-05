@@ -99,22 +99,23 @@ if [[ -n $QUILL_UPDATE ]]; then
 fi
 if [[ -z $QUILL_TARGET ]]; then
   case "$1" in
-    git:*)
+    (git:*)
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(sed -r 's@\.git$@@;s@.*/@@' <<< "$1")
       ;;
-    https://github.com/*/archive/*)
+    (https://github.com/*)
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(awk -F/ '{print $5}' <<< "$1")
+      QUILL_FETCH_MODE=github
       ;;
-    *:*)
+    (*:*)
       SPELL_SRC_URL="$1"
       QUILL_ORIG_TARGET=$(sed -r '
 	s@([-.]src)?([-._][0-9][^-._/]*)*([-.]src)?([.][^-._]+)*(/download/?)?([?].*)?$@@
 	s@.*/@@
       ' <<< "$1")
       ;;
-    *)
+    (*)
       QUILL_ORIG_TARGET="$1"
       SPELL_SRC_URL="$2"
       ;;
